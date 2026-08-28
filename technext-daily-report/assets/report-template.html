@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Báo cáo ngày 19/08/2026 — TechNext Asia</title>
+<style>
+  :root{
+    --brand:#3167ca; --brand-dark:#22488f; --brand-light:#eaf0fb;
+    --ink:#16233a; --muted:#5b6472; --line:#e1e7f0; --bg-soft:#f5f8fd;
+    --ok:#188a5c; --ok-bg:#e8f8f0; --ok-line:#bfe8d4;
+    --info:#3167ca; --info-bg:#eaf0fb; --info-line:#c4d5f3;
+    --warn:#b9700a; --warn-bg:#fdf3e2; --warn-line:#f2ddac;
+    --plan:#6a4fd6; --plan-bg:#f2eefc; --plan-line:#dcd0f5;
+  }
+  *{box-sizing:border-box}
+  body{font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink);line-height:1.6;margin:0;background:#e9edf4}
+  .page{max-width:740px;margin:24px auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 6px 28px rgba(20,40,90,.10)}
+
+  /* ---- cover ---- */
+  .cover{position:relative;background:linear-gradient(135deg,#3167ca 0%,#22488f 100%);color:#fff;padding:54px 40px 30px;overflow:hidden}
+  .cover::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 88% 8%, rgba(255,255,255,.10) 0, rgba(255,255,255,.10) 120px, transparent 121px),radial-gradient(circle at 6% 92%, rgba(255,255,255,.07) 0, rgba(255,255,255,.07) 90px, transparent 91px);pointer-events:none}
+  .cover>*{position:relative}
+  .cover .brandbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .cover .tag{font-size:11px;letter-spacing:.5px;opacity:.85;text-transform:uppercase}
+  .cover h1{margin:0 0 4px;font-size:23px;letter-spacing:.2px}
+  .cover .sub{opacity:.92;font-size:13px}
+  .meta{display:flex;gap:28px;margin-top:18px;font-size:13px;flex-wrap:wrap}
+  .meta div span{display:block;opacity:.75;font-size:10px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+
+  /* ---- language toggle ---- */
+  .lang-switch{position:absolute;top:16px;right:40px;z-index:5;display:flex;background:rgba(255,255,255,.15);border-radius:999px;padding:3px;gap:2px}
+  .lang-switch button{border:0;background:transparent;color:#fff;opacity:.7;font-size:11px;font-weight:600;letter-spacing:.4px;padding:5px 12px;border-radius:999px;cursor:pointer;transition:background .15s,opacity .15s}
+  .lang-switch button.active{background:#fff;color:var(--brand-dark);opacity:1}
+  body[data-lang="en"] .t-vi{display:none}
+  body[data-lang="vi"] .t-en{display:none}
+
+  /* ---- stat tiles ---- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 40px;margin-top:-24px;position:relative;z-index:2}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 12px 11px;box-shadow:0 3px 10px rgba(20,40,90,.06)}
+  .stat .stat-top{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+  .stat .stat-top svg{flex:0 0 auto}
+  .stat.st-ok .stat-top{color:var(--ok)}
+  .stat.st-info .stat-top{color:var(--info)}
+  .stat.st-warn .stat-top{color:var(--warn)}
+  .stat.st-plan .stat-top{color:var(--plan)}
+  .stat .stat-value{font-size:24px;font-weight:700;color:var(--ink);line-height:1}
+  .stat .stat-label{font-size:10.5px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.3px}
+
+  /* ---- body ---- */
+  .inner{padding:26px 40px 8px}
+  .summary-box{border:1px solid var(--info-line);border-left:4px solid var(--brand);background:var(--bg-soft);padding:13px 16px;border-radius:8px;margin:4px 0 22px;font-size:14px}
+  .summary-box .summary-kicker{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--brand-dark);font-weight:700;margin-bottom:4px}
+
+  .sect{border:1px solid var(--line);border-radius:10px;margin:0 0 16px;overflow:hidden}
+  .sect-head{display:flex;align-items:center;gap:9px;padding:11px 16px;font-size:14px;font-weight:700}
+  .sect-head svg{flex:0 0 auto}
+  .sect-body{padding:4px 16px 12px}
+  .sect ul{list-style:none;margin:6px 0 4px;padding:0}
+  .sect li{position:relative;padding:5px 0 5px 22px;font-size:13.5px}
+  .sect li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%}
+
+  .sect-done .sect-head{background:var(--ok-bg);color:var(--ok);border-bottom:1px solid var(--ok-line)}
+  .sect-done li::before{background:var(--ok)}
+  .sect-progress .sect-head{background:var(--info-bg);color:var(--info);border-bottom:1px solid var(--info-line)}
+  .sect-progress li::before{background:var(--info)}
+  .sect-blockers .sect-head{background:var(--warn-bg);color:var(--warn);border-bottom:1px solid var(--warn-line)}
+  .sect-blockers li::before{background:var(--warn)}
+  .sect-plan .sect-head{background:var(--plan-bg);color:var(--plan);border-bottom:1px solid var(--plan-line)}
+  .sect-plan li::before{background:var(--plan)}
+
+  .empty-state{display:none;align-items:center;gap:8px;font-size:13px;color:var(--muted);padding:8px 0 6px;font-style:italic}
+  .empty-state svg{flex:0 0 auto;color:var(--ok)}
+
+  .placeholder{color:#9aa3b2;font-style:italic}
+
+  /* ---- optional: detailed progress line (done-so-far / needs) inside a sect-progress <li> ---- */
+  .prog-title{font-weight:700;margin-bottom:3px}
+  .prog-row{display:flex;gap:7px;margin:3px 0;font-size:13px;align-items:flex-start}
+  .prog-row .tag{flex:0 0 auto;font-size:9.5px;text-transform:uppercase;letter-spacing:.3px;font-weight:700;padding:2px 8px;border-radius:999px;margin-top:1px;white-space:nowrap}
+  .prog-row.done .tag{background:var(--ok-bg);color:var(--ok)}
+  .prog-row.need .tag{background:var(--warn-bg);color:var(--warn)}
+  .prog-row .txt{flex:1}
+
+  /* ---- optional: one labeled mini-workflow per task, when the plan covers more than one task ---- */
+  .plan-group{margin:0 0 20px}
+  .plan-group:last-child{margin-bottom:2px}
+  .plan-group-title{font-weight:700;font-size:13px;margin-bottom:2px}
+
+  /* ---- optional: horizontal workflow/roadmap, e.g. for a multi-step "plan for tomorrow" ---- */
+  .roadmap{display:flex;align-items:stretch;gap:0;margin:10px 0 2px}
+  .road-step{flex:1;min-width:0;position:relative;text-align:center;padding:14px 8px 11px;background:linear-gradient(160deg,#fff 0%,var(--plan-bg) 100%);border:1px solid var(--plan-line);border-radius:14px;box-shadow:0 3px 10px rgba(106,79,214,.10)}
+  .road-step .dot{width:28px;height:28px;margin:0 auto 7px;border-radius:50%;background:linear-gradient(135deg,var(--plan),#8f6fe8);color:#fff;font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(106,79,214,.35)}
+  .road-step .lbl{font-size:11.5px;font-weight:700;line-height:1.3;color:var(--ink)}
+  .road-step .sub{font-size:9.5px;color:var(--muted);line-height:1.3;margin-top:2px}
+  .road-arrow{flex:0 0 auto;width:22px;display:flex;align-items:center;justify-content:center;color:var(--plan);opacity:.5}
+  @media (max-width:600px){
+    .roadmap{flex-direction:column;gap:8px}
+    .road-arrow{width:auto;height:18px;transform:rotate(90deg);margin:-3px auto}
+    .road-step{display:flex;align-items:center;gap:12px;text-align:left;padding:10px 14px}
+    .road-step .dot{margin:0;flex:0 0 auto}
+  }
+
+  .foot{background:#16233a;color:#c7d2e4;padding:16px 40px;font-size:12px;display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+
+  @media (max-width:600px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body data-lang="vi">
+<div class="page">
+
+  <div class="cover">
+    <div class="lang-switch" role="group" aria-label="Chọn ngôn ngữ / Language">
+      <button type="button" data-set-lang="vi" class="active">VI</button>
+      <button type="button" data-set-lang="en">EN</button>
+    </div>
+    <div class="brandbar">
+      <span style="display:inline-flex;align-items:center;gap:8px;font-size:18px;font-weight:700;color:#fff;">
+        <svg width="20" height="16.8" viewBox="0 0 100 84" xmlns="http://www.w3.org/2000/svg"><path d="M96.6,3.2 91.5,1.9 2.3,18.4 2.5,22.1 26.9,39.4 87.8,9.9 29.2,47.7 27.3,78.9 30.7,78.2 60.0,40.1 49.8,68.7 72.8,81.3 79.9,80.1 97.4,11.0Z" fill="#fff"/></svg>
+        Tech<span style="font-weight:800;">Next</span>
+      </span>
+      <span class="tag">
+        <span class="t-vi">Enterprise AI &amp; Odoo ERP</span>
+        <span class="t-en">Enterprise AI &amp; Odoo ERP</span>
+      </span>
+    </div>
+    <h1>
+      <span class="t-vi">Báo cáo ngày 19/08/2026</span>
+      <span class="t-en">Daily Report — 08/19/2026</span>
+    </h1>
+    <div class="sub">
+      <span class="t-vi">Nguyễn Thành Trung — AI Intern</span>
+      <span class="t-en">Nguyen Thanh Trung — AI Intern</span>
+    </div>
+    <div class="meta">
+      <div>
+        <span class="t-vi">Người thực hiện</span><span class="t-en">Reported by</span>
+        Nguyễn Thành Trung
+      </div>
+      <div>
+        <span class="t-vi">Vị trí</span><span class="t-en">Role</span>
+        <span class="t-vi">Internship — TechNext Asia</span>
+        <span class="t-en">Intern — TechNext Asia</span>
+      </div>
+      <div>
+        <span class="t-vi">Ngày</span><span class="t-en">Date</span>
+        <span class="t-vi">19/08/2026</span>
+        <span class="t-en">08/19/2026</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat st-ok">
+      <div class="stat-top">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        <span class="t-vi" style="font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;font-weight:700">Hoàn thành</span>
+        <span class="t-en" style="font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;font-weight:700">Completed</span>
+      </div>
+      <div class="stat-value" data-count-for="sect-done">0</div>
+      <div class="stat-label"><span class="t-vi">việc hôm nay</span><span class="t-en">items today</span></div>
+    </div>
+    <div class="stat st-info">
+      <div class="stat-top">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg>
+        <span class="t-vi" style="font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;font-weight:700">Đang làm</span>
+        <span class="t-en" style="font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;font-weight:700">In progress</span>
+      </div>
+      <div class="stat-value" data-count-for="sect-progress">0</div>
+      <div class="stat-label"><span class="t-vi">việc đang chạy</span><span class="t-en">in flight</span></div>
+    </div>
+    <div class="stat st-warn">
+      <div class="stat-top">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/></svg>
+        <span class="t-vi" style="font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;font-weight:700">Vướng mắc</span>
+        <span class="t-en" style="font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;font-weight:700">Blockers</span>
+      </div>
+      <div class="stat-value" data-count-for="sect-blockers">0</div>
+      <div class="stat-label"><span class="t-vi">cần hỗ trợ</span><span class="t-en">need support</span></div>
+    </div>
+    <div class="stat st-plan">
+      <div class="stat-top">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        <span class="t-vi" style="font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;font-weight:700">Kế hoạch</span>
+        <span class="t-en" style="font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;font-weight:700">Planned</span>
+      </div>
+      <div class="stat-value" data-count-for="sect-plan">0</div>
+      <div class="stat-label"><span class="t-vi">việc ngày mai</span><span class="t-en">for tomorrow</span></div>
+    </div>
+  </div>
+
+  <div class="inner">
+
+    <div class="summary-box">
+      <div class="summary-kicker">
+        <span class="t-vi">Tóm tắt</span>
+        <span class="t-en">Summary</span>
+      </div>
+      <span class="t-vi placeholder">[Tóm tắt 1–2 câu: hôm nay làm gì, kết quả nổi bật nhất là gì]</span>
+      <span class="t-en placeholder">[1–2 sentence summary: what you worked on today, the standout result]</span>
+    </div>
+
+    <div class="sect sect-done" id="sect-done">
+      <div class="sect-head">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        <span class="t-vi">Đã hoàn thành</span>
+        <span class="t-en">Completed</span>
+      </div>
+      <div class="sect-body">
+        <ul>
+          <li>
+            <span class="t-vi placeholder">[Việc 1 — kèm kết quả/con số cụ thể nếu có]</span>
+            <span class="t-en placeholder">[Task 1 — include a concrete result/number if there is one]</span>
+          </li>
+          <li>
+            <span class="t-vi placeholder">[Việc 2]</span>
+            <span class="t-en placeholder">[Task 2]</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sect sect-progress" id="sect-progress">
+      <div class="sect-head">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg>
+        <span class="t-vi">Đang thực hiện</span>
+        <span class="t-en">In progress</span>
+      </div>
+      <div class="sect-body">
+        <ul>
+          <li>
+            <span class="t-vi placeholder">[Việc đang làm dở, tiến độ hiện tại]</span>
+            <span class="t-en placeholder">[Work in progress, current status]</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sect sect-blockers" id="sect-blockers">
+      <div class="sect-head">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/></svg>
+        <span class="t-vi">Vướng mắc / cần hỗ trợ</span>
+        <span class="t-en">Blockers / need support</span>
+      </div>
+      <div class="sect-body">
+        <ul>
+          <li>
+            <span class="t-vi placeholder">[Bỏ trống nếu không có vướng mắc]</span>
+            <span class="t-en placeholder">[Leave blank if there are no blockers]</span>
+          </li>
+        </ul>
+        <div class="empty-state">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          <span class="t-vi">Không có vướng mắc hôm nay.</span>
+          <span class="t-en">No blockers today.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sect sect-plan" id="sect-plan">
+      <div class="sect-head">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        <span class="t-vi">Kế hoạch ngày mai</span>
+        <span class="t-en">Plan for tomorrow</span>
+      </div>
+      <div class="sect-body">
+        <ul>
+          <li>
+            <span class="t-vi placeholder">[Dự kiến làm gì tiếp theo]</span>
+            <span class="t-en placeholder">[What you plan to do next]</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#c7d2e4;">
+      <svg width="14" height="11.8" viewBox="0 0 100 84" xmlns="http://www.w3.org/2000/svg"><path d="M96.6,3.2 91.5,1.9 2.3,18.4 2.5,22.1 26.9,39.4 87.8,9.9 29.2,47.7 27.3,78.9 30.7,78.2 60.0,40.1 49.8,68.7 72.8,81.3 79.9,80.1 97.4,11.0Z" fill="#c7d2e4"/></svg>
+      Tech<span style="font-weight:800;color:#fff;">Next</span>
+    </span>
+    <span>© 2026 TechNext Asia · technext.asia</span>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var buttons = document.querySelectorAll('[data-set-lang]');
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var lang = btn.getAttribute('data-set-lang');
+      document.body.setAttribute('data-lang', lang);
+      buttons.forEach(function (b) { b.classList.toggle('active', b === btn); });
+    });
+  });
+
+  // Count real (non-placeholder) <li> items per section and fill stat tiles.
+  // For the blockers section specifically, show a friendly empty-state instead
+  // of an empty list when there are no real items.
+  document.querySelectorAll('[data-count-for]').forEach(function (statEl) {
+    var sectId = statEl.getAttribute('data-count-for');
+    var sect = document.getElementById(sectId);
+    if (!sect) return;
+    var items = sect.querySelectorAll('.sect-body > ul > li');
+    var realCount = 0;
+    items.forEach(function (li) {
+      if (!li.querySelector('.placeholder')) realCount++;
+    });
+    // If this section illustrates its content as a workflow/roadmap instead of
+    // (or in addition to) a plain list, count real steps there too.
+    if (items.length === 0) {
+      var steps = sect.querySelectorAll('.road-step');
+      steps.forEach(function (step) {
+        if (!step.classList.contains('placeholder')) realCount++;
+      });
+    }
+    statEl.textContent = realCount;
+
+    if (sectId === 'sect-blockers') {
+      var ul = sect.querySelector('.sect-body > ul');
+      var emptyState = sect.querySelector('.empty-state');
+      if (realCount === 0) {
+        if (ul) ul.style.display = 'none';
+        if (emptyState) emptyState.style.display = 'flex';
+      } else {
+        if (emptyState) emptyState.style.display = 'none';
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

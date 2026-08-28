@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kế hoạch ngày 20/08/2026 — TechNext Asia</title>
+<style>
+  :root{
+    --brand:#3167ca; --brand-dark:#22488f; --brand-light:#eaf0fb;
+    --ink:#16233a; --muted:#5b6472; --line:#e1e7f0; --bg-soft:#f5f8fd;
+    --ok:#188a5c; --ok-bg:#e8f8f0; --ok-line:#bfe8d4;
+    --info:#3167ca; --info-bg:#eaf0fb; --info-line:#c4d5f3;
+    --warn:#b9700a; --warn-bg:#fdf3e2; --warn-line:#f2ddac;
+    --plan:#6a4fd6; --plan-bg:#f2eefc; --plan-line:#dcd0f5;
+  }
+  *{box-sizing:border-box}
+  body{font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink);line-height:1.6;margin:0;background:#e9edf4}
+  .page{max-width:740px;margin:24px auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 6px 28px rgba(20,40,90,.10)}
+
+  /* ---- cover ---- */
+  .cover{position:relative;background:linear-gradient(135deg,#3167ca 0%,#22488f 100%);color:#fff;padding:54px 40px 30px;overflow:hidden}
+  .cover::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 88% 8%, rgba(255,255,255,.10) 0, rgba(255,255,255,.10) 120px, transparent 121px),radial-gradient(circle at 6% 92%, rgba(255,255,255,.07) 0, rgba(255,255,255,.07) 90px, transparent 91px);pointer-events:none}
+  .cover>*{position:relative}
+  .cover .brandbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .cover .tag{font-size:11px;letter-spacing:.5px;opacity:.85;text-transform:uppercase}
+  .cover h1{margin:0 0 4px;font-size:23px;letter-spacing:.2px}
+  .cover .sub{opacity:.92;font-size:13px}
+  .meta{display:flex;gap:28px;margin-top:18px;font-size:13px;flex-wrap:wrap}
+  .meta div span{display:block;opacity:.75;font-size:10px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+
+  /* ---- language toggle ---- */
+  .lang-switch{position:absolute;top:16px;right:40px;z-index:5;display:flex;background:rgba(255,255,255,.15);border-radius:999px;padding:3px;gap:2px}
+  .lang-switch button{border:0;background:transparent;color:#fff;opacity:.7;font-size:11px;font-weight:600;letter-spacing:.4px;padding:5px 12px;border-radius:999px;cursor:pointer;transition:background .15s,opacity .15s}
+  .lang-switch button.active{background:#fff;color:var(--brand-dark);opacity:1}
+  body[data-lang="en"] .t-vi{display:none}
+  body[data-lang="vi"] .t-en{display:none}
+
+  /* ---- stat tiles ---- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 40px;margin-top:-24px;position:relative;z-index:2}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 12px 11px;box-shadow:0 3px 10px rgba(20,40,90,.06)}
+  .stat .stat-top{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+  .stat .stat-top svg{flex:0 0 auto}
+  .stat .stat-top span{font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;font-weight:700}
+  .stat.st-info .stat-top{color:var(--info)}
+  .stat.st-plan .stat-top{color:var(--plan)}
+  .stat.st-ok .stat-top{color:var(--ok)}
+  .stat.st-warn .stat-top{color:var(--warn)}
+  .stat .stat-value{font-size:24px;font-weight:700;color:var(--ink);line-height:1}
+  .stat .stat-label{font-size:10.5px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.3px}
+
+  /* ---- body ---- */
+  .inner{padding:26px 40px 8px}
+
+  /* ---- source cross-check strip ---- */
+  .srcbar{border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin:0 0 16px;background:var(--bg-soft)}
+  .src-kicker{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--brand-dark);font-weight:700;margin-bottom:7px}
+  .src-item{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;padding:3px 0}
+  .src-item svg{flex:0 0 auto;margin-top:3px}
+  .src-item.ok svg{color:var(--ok)}
+  .src-item.miss svg{color:var(--muted)}
+  .src-item.miss{color:var(--muted)}
+  .src-lbl{font-weight:700;margin-right:4px}
+  .src-val{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11.5px;color:var(--muted);word-break:break-all}
+  .src-badge{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:11.5px;font-weight:700;padding:4px 11px;border-radius:999px}
+  .src-badge svg{flex:0 0 auto}
+  .src-badge.match{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-line)}
+  .src-badge.diff{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-line)}
+  .src-badge.single{background:#eef1f6;color:var(--muted);border:1px solid var(--line)}
+
+  .warn-box{border:1px solid var(--warn-line);border-left:4px solid var(--warn);background:var(--warn-bg);padding:11px 14px;border-radius:8px;margin:0 0 18px;font-size:13px}
+  .warn-box .warn-kicker{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--warn);font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+  .warn-box ul{margin:4px 0 0;padding-left:18px}
+  .warn-box li{padding:2px 0}
+
+  .summary-box{border:1px solid var(--info-line);border-left:4px solid var(--brand);background:var(--bg-soft);padding:13px 16px;border-radius:8px;margin:0 0 22px;font-size:14px}
+  .summary-box .summary-kicker{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--brand-dark);font-weight:700;margin-bottom:4px}
+
+  /* ---- overall progress ---- */
+  .overall{border:1px solid var(--plan-line);border-radius:10px;padding:13px 16px;margin:0 0 20px;background:linear-gradient(160deg,#fff 0%,var(--plan-bg) 100%)}
+  .overall-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px}
+  .overall-lbl{font-size:12.5px;font-weight:700;color:var(--plan)}
+  .overall-num{font-size:12.5px;color:var(--muted)}
+  .bar{height:9px;border-radius:999px;background:#e6e1f5;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--plan),#8f6fe8);transition:width .25s}
+
+  /* ---- section shell (shared with report style) ---- */
+  .sect{border:1px solid var(--line);border-radius:10px;margin:0 0 16px;overflow:hidden}
+  .sect-head{display:flex;align-items:center;gap:9px;padding:11px 16px;font-size:14px;font-weight:700}
+  .sect-head svg{flex:0 0 auto}
+  .sect-body{padding:10px 16px 14px}
+  .sect-carry .sect-head{background:var(--info-bg);color:var(--info);border-bottom:1px solid var(--info-line)}
+  .sect-plan .sect-head{background:var(--plan-bg);color:var(--plan);border-bottom:1px solid var(--plan-line)}
+  .sect-check .sect-head{background:var(--ok-bg);color:var(--ok);border-bottom:1px solid var(--ok-line)}
+
+  /* ---- carry-over list ---- */
+  .carry{margin:0;padding:0;list-style:none}
+  .carry li{position:relative;padding:5px 0 5px 22px;font-size:13.5px}
+  .carry li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--info)}
+  .carry .cf{font-size:11.5px;color:var(--muted);display:block}
+
+  /* ---- plan by session ---- */
+  .sess{border:1px solid var(--plan-line);border-radius:12px;padding:12px 14px;margin:0 0 12px;background:linear-gradient(160deg,#fff 0%,var(--plan-bg) 100%)}
+  .sess:last-child{margin-bottom:2px}
+  .sess-head{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--plan);margin-bottom:6px}
+  .sess-head svg{flex:0 0 auto}
+  .sess-time{margin-left:auto;font-size:10.5px;font-weight:700;color:var(--muted);background:#fff;border:1px solid var(--plan-line);border-radius:999px;padding:2px 9px;white-space:nowrap}
+  .sess-list{margin:0;padding:0;list-style:none}
+  .sess-list li{position:relative;padding:4px 0 4px 20px;font-size:13px}
+  .sess-list li::before{content:"";position:absolute;left:3px;top:11px;width:5px;height:5px;border-radius:50%;background:var(--plan)}
+  .sess-note{font-size:11.5px;color:var(--muted);font-style:italic;margin-top:6px;padding-left:2px}
+
+  /* ---- checklist ---- */
+  .task-card{border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin:0 0 11px;background:#fff}
+  .task-card:last-child{margin-bottom:2px}
+  .task-head{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+  .task-name{font-weight:700;font-size:13px;flex:1;min-width:0}
+  .task-meter{flex:0 0 auto;display:flex;align-items:center;gap:7px}
+  .task-bar{width:74px;height:7px;border-radius:999px;background:#e8edf5;overflow:hidden}
+  .task-bar i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--ok),#3cb583);transition:width .25s}
+  .task-pct{font-size:11px;font-weight:700;color:var(--muted);min-width:30px;text-align:right}
+  .task-card.all-done .task-name{color:var(--ok)}
+  .steps{margin:0;padding:0;list-style:none}
+  .steps li{padding:2px 0}
+  .steps label{display:flex;align-items:flex-start;gap:9px;font-size:13px;cursor:pointer;padding:3px 0}
+  .steps input{position:absolute;opacity:0;width:0;height:0}
+  .steps .box{flex:0 0 auto;width:17px;height:17px;margin-top:2px;border:1.8px solid #c3ccda;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#fff;transition:background .15s,border-color .15s}
+  .steps .box svg{opacity:0;transition:opacity .15s}
+  .steps input:checked + .box{background:var(--ok);border-color:var(--ok)}
+  .steps input:checked + .box svg{opacity:1}
+  .steps input:focus-visible + .box{box-shadow:0 0 0 3px rgba(49,103,202,.28)}
+  .steps .step-txt{flex:1}
+  .steps input:checked ~ .step-txt{color:var(--muted);text-decoration:line-through}
+
+  .note-line{font-size:11.5px;color:var(--muted);font-style:italic;margin:12px 0 0;display:flex;align-items:flex-start;gap:6px}
+  .note-line svg{flex:0 0 auto;margin-top:2px}
+
+  .empty-state{display:none;align-items:center;gap:8px;font-size:13px;color:var(--muted);padding:4px 0 2px;font-style:italic}
+  .empty-state svg{flex:0 0 auto;color:var(--ok)}
+
+  .placeholder{color:#9aa3b2;font-style:italic}
+
+  .foot{background:#16233a;color:#c7d2e4;padding:16px 40px;font-size:12px;display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+
+  @media (max-width:600px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .cover{padding:54px 22px 30px}
+    .stats{padding:0 22px}
+    .inner{padding:26px 22px 8px}
+    .foot{padding:16px 22px;flex-direction:column;gap:6px;align-items:flex-start}
+    .task-head{flex-wrap:wrap}
+  }
+</style>
+</head>
+<body data-lang="vi">
+<div class="page">
+
+  <div class="cover">
+    <div class="lang-switch" role="group" aria-label="Chọn ngôn ngữ / Language">
+      <button type="button" data-set-lang="vi" class="active">VI</button>
+      <button type="button" data-set-lang="en">EN</button>
+    </div>
+    <div class="brandbar">
+      <span style="display:inline-flex;align-items:center;gap:8px;font-size:18px;font-weight:700;color:#fff;">
+        <svg width="20" height="16.8" viewBox="0 0 100 84" xmlns="http://www.w3.org/2000/svg"><path d="M96.6,3.2 91.5,1.9 2.3,18.4 2.5,22.1 26.9,39.4 87.8,9.9 29.2,47.7 27.3,78.9 30.7,78.2 60.0,40.1 49.8,68.7 72.8,81.3 79.9,80.1 97.4,11.0Z" fill="#fff"/></svg>
+        Tech<span style="font-weight:800;">Next</span>
+      </span>
+      <span class="tag">
+        <span class="t-vi">Enterprise AI &amp; Odoo ERP</span>
+        <span class="t-en">Enterprise AI &amp; Odoo ERP</span>
+      </span>
+    </div>
+    <h1>
+      <span class="t-vi">Kế hoạch ngày 20/08/2026</span>
+      <span class="t-en">Daily Plan — 08/20/2026</span>
+    </h1>
+    <div class="sub">
+      <span class="t-vi">Nguyễn Thành Trung — AI Intern</span>
+      <span class="t-en">Nguyen Thanh Trung — AI Intern</span>
+    </div>
+    <div class="meta">
+      <div>
+        <span class="t-vi">Người thực hiện</span><span class="t-en">Reported by</span>
+        Nguyễn Thành Trung
+      </div>
+      <div>
+        <span class="t-vi">Vị trí</span><span class="t-en">Role</span>
+        <span class="t-vi">Internship — TechNext Asia</span>
+        <span class="t-en">Intern — TechNext Asia</span>
+      </div>
+      <div>
+        <span class="t-vi">Căn cứ báo cáo</span><span class="t-en">Based on report</span>
+        <span class="t-vi">19/08/2026</span>
+        <span class="t-en">08/19/2026</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat st-info">
+      <div class="stat-top">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 10h8M8 14h5"/></svg>
+        <span class="t-vi">Việc hôm nay</span>
+        <span class="t-en">Tasks today</span>
+      </div>
+      <div class="stat-value" data-stat="tasks">0</div>
+      <div class="stat-label"><span class="t-vi">đầu việc</span><span class="t-en">work items</span></div>
+    </div>
+    <div class="stat st-plan">
+      <div class="stat-top">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg>
+        <span class="t-vi">Bước cần làm</span>
+        <span class="t-en">Steps</span>
+      </div>
+      <div class="stat-value" data-stat="steps">0</div>
+      <div class="stat-label"><span class="t-vi">trong checklist</span><span class="t-en">in checklist</span></div>
+    </div>
+    <div class="stat st-ok">
+      <div class="stat-top">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        <span class="t-vi">Đã xong</span>
+        <span class="t-en">Done</span>
+      </div>
+      <div class="stat-value" data-stat="done">0</div>
+      <div class="stat-label"><span class="t-vi">bước đã tick</span><span class="t-en">steps ticked</span></div>
+    </div>
+    <div class="stat st-warn">
+      <div class="stat-top">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg>
+        <span class="t-vi">Tiến độ</span>
+        <span class="t-en">Progress</span>
+      </div>
+      <div class="stat-value" data-stat="pct">0%</div>
+      <div class="stat-label"><span class="t-vi">hoàn thành</span><span class="t-en">complete</span></div>
+    </div>
+  </div>
+
+  <div class="inner">
+
+    <!-- ===== source cross-check: which copies of yesterday's report were read ===== -->
+    <div class="srcbar">
+      <div class="src-kicker">
+        <span class="t-vi">Đối chiếu báo cáo hôm qua</span>
+        <span class="t-en">Yesterday's report — source check</span>
+      </div>
+      <div class="src-item ok">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        <div>
+          <span class="src-lbl"><span class="t-vi">Máy tính:</span><span class="t-en">Local:</span></span>
+          <span class="src-val placeholder">[đường dẫn file đã đọc / path of the file read]</span>
+        </div>
+      </div>
+      <div class="src-item ok">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        <div>
+          <span class="src-lbl"><span class="t-vi">Google Drive:</span><span class="t-en">Google Drive:</span></span>
+          <span class="src-val placeholder">[tên file trên Drive / file name on Drive]</span>
+        </div>
+      </div>
+      <div class="src-badge match">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        <span class="t-vi">2 bản khớp nhau</span>
+        <span class="t-en">Both copies match</span>
+      </div>
+    </div>
+
+    <!-- ===== only when the two copies differ: list what differs ===== -->
+    <div class="warn-box">
+      <div class="warn-kicker">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/></svg>
+        <span class="t-vi">Hai bản báo cáo có chỗ lệch</span>
+        <span class="t-en">The two copies differ</span>
+      </div>
+      <ul>
+        <li>
+          <span class="t-vi placeholder">[chỗ lệch cụ thể — bản nào có, bản nào thiếu]</span>
+          <span class="t-en placeholder">[the specific difference — which copy has it, which is missing it]</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="summary-box">
+      <div class="summary-kicker">
+        <span class="t-vi">Trọng tâm hôm nay</span>
+        <span class="t-en">Today's focus</span>
+      </div>
+      <span class="t-vi placeholder">[1–2 câu: việc quan trọng nhất cần đẩy xong hôm nay và vì sao]</span>
+      <span class="t-en placeholder">[1–2 sentences: the most important thing to push through today and why]</span>
+    </div>
+
+    <div class="overall">
+      <div class="overall-head">
+        <span class="overall-lbl">
+          <span class="t-vi">Tiến độ hôm nay</span>
+          <span class="t-en">Today's progress</span>
+        </span>
+        <span class="overall-num" data-overall-num>0 / 0</span>
+      </div>
+      <div class="bar"><i data-overall-bar></i></div>
+    </div>
+
+    <!-- ===== what carried over from yesterday ===== -->
+    <div class="sect sect-carry" id="sect-carry">
+      <div class="sect-head">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 8-8"/><path d="M4 5v7h7"/></svg>
+        <span class="t-vi">Chuyển tiếp từ hôm qua</span>
+        <span class="t-en">Carried over from yesterday</span>
+      </div>
+      <div class="sect-body">
+        <ul class="carry">
+          <li>
+            <span class="t-vi placeholder">[việc đang làm dở hôm qua — trạng thái hiện tại]</span>
+            <span class="t-en placeholder">[work left in progress yesterday — current status]</span>
+            <span class="cf">
+              <span class="t-vi placeholder">[phần "Cần" của việc đó, tức là chỗ hôm nay phải tiếp]</span>
+              <span class="t-en placeholder">[that item's "Needs" line — where today picks up]</span>
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ===== the plan: what to do when, and why in that order ===== -->
+    <div class="sect sect-plan" id="sect-plan">
+      <div class="sect-head">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        <span class="t-vi">Kế hoạch trong ngày</span>
+        <span class="t-en">Plan for the day</span>
+      </div>
+      <div class="sect-body">
+
+        <div class="sess">
+          <div class="sess-head">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.2 4.2l1.9 1.9M17.9 17.9l1.9 1.9M2.5 12h2.6M18.9 12h2.6M4.2 19.8l1.9-1.9M17.9 6.1l1.9-1.9"/></svg>
+            <span class="t-vi">Buổi sáng</span>
+            <span class="t-en">Morning</span>
+            <span class="sess-time">09:00 – 12:00</span>
+          </div>
+          <ul class="sess-list">
+            <li>
+              <span class="t-vi placeholder">[việc làm buổi sáng]</span>
+              <span class="t-en placeholder">[what to work on this morning]</span>
+            </li>
+          </ul>
+          <div class="sess-note">
+            <span class="t-vi placeholder">[vì sao việc này nên làm buổi sáng]</span>
+            <span class="t-en placeholder">[why this belongs in the morning]</span>
+          </div>
+        </div>
+
+        <div class="sess">
+          <div class="sess-head">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"/><path d="M12 4v3M4.5 10.5l2 1.2M19.5 10.5l-2 1.2M2 18h20"/></svg>
+            <span class="t-vi">Buổi chiều</span>
+            <span class="t-en">Afternoon</span>
+            <span class="sess-time">13:30 – 17:30</span>
+          </div>
+          <ul class="sess-list">
+            <li>
+              <span class="t-vi placeholder">[việc làm buổi chiều]</span>
+              <span class="t-en placeholder">[what to work on this afternoon]</span>
+            </li>
+          </ul>
+          <div class="sess-note">
+            <span class="t-vi placeholder">[vì sao việc này nên làm buổi chiều]</span>
+            <span class="t-en placeholder">[why this belongs in the afternoon]</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== the tickable checklist: one card per task, sub-steps inside ===== -->
+    <div class="sect sect-check" id="sect-check">
+      <div class="sect-head">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5l2.2 2.2L10.5 4"/><path d="M4 17.5l2.2 2.2L10.5 15"/><path d="M13.5 7h7M13.5 18h7"/></svg>
+        <span class="t-vi">Checklist tiến độ</span>
+        <span class="t-en">Progress checklist</span>
+      </div>
+      <div class="sect-body">
+
+        <div class="task-card">
+          <div class="task-head">
+            <div class="task-name">
+              <span class="t-vi placeholder">[tên việc / dự án]</span>
+              <span class="t-en placeholder">[task / project name]</span>
+            </div>
+            <div class="task-meter">
+              <div class="task-bar"><i></i></div>
+              <span class="task-pct">0%</span>
+            </div>
+          </div>
+          <ul class="steps">
+            <li>
+              <label>
+                <input type="checkbox">
+                <span class="box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+                <span class="step-txt">
+                  <span class="t-vi placeholder">[bước 1 — cụ thể, làm xong là tick được]</span>
+                  <span class="t-en placeholder">[step 1 — concrete enough to tick off]</span>
+                </span>
+              </label>
+            </li>
+            <li>
+              <label>
+                <input type="checkbox">
+                <span class="box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+                <span class="step-txt">
+                  <span class="t-vi placeholder">[bước 2]</span>
+                  <span class="t-en placeholder">[step 2]</span>
+                </span>
+              </label>
+            </li>
+          </ul>
+        </div>
+
+        <div class="note-line">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+          <span>
+            <span class="t-vi">Tick trực tiếp trên trang này để theo dõi tiến độ trong ngày. Lưu ý: tải lại trang sẽ mất các ô đã tick.</span>
+            <span class="t-en">Tick items here to track progress through the day. Note: reloading the page clears the ticks.</span>
+          </span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#c7d2e4;">
+      <svg width="14" height="11.8" viewBox="0 0 100 84" xmlns="http://www.w3.org/2000/svg"><path d="M96.6,3.2 91.5,1.9 2.3,18.4 2.5,22.1 26.9,39.4 87.8,9.9 29.2,47.7 27.3,78.9 30.7,78.2 60.0,40.1 49.8,68.7 72.8,81.3 79.9,80.1 97.4,11.0Z" fill="#c7d2e4"/></svg>
+      Tech<span style="font-weight:800;color:#fff;">Next</span>
+    </span>
+    <span>© 2026 TechNext Asia · technext.asia</span>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  /* ---- language toggle ---- */
+  var buttons = document.querySelectorAll('[data-set-lang]');
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.body.setAttribute('data-lang', btn.getAttribute('data-set-lang'));
+      buttons.forEach(function (b) { b.classList.toggle('active', b === btn); });
+    });
+  });
+
+  /* ---- live progress: per-task bars, stat tiles, overall bar ----
+     All state is in-memory on purpose. Ticks are for tracking the day as it
+     happens; the durable record of what actually got done is the evening
+     report, so there is nothing here worth persisting to browser storage. */
+  var cards = Array.prototype.filter.call(
+    document.querySelectorAll('#sect-check .task-card'),
+    function (card) { return !card.querySelector('.task-name .placeholder'); }
+  );
+
+  function realSteps(card) {
+    return Array.prototype.filter.call(
+      card.querySelectorAll('.steps li'),
+      function (li) { return !li.querySelector('.placeholder'); }
+    ).map(function (li) { return li.querySelector('input[type=checkbox]'); })
+     .filter(Boolean);
+  }
+
+  var groups = cards.map(function (card) {
+    return { card: card, boxes: realSteps(card) };
+  }).filter(function (g) { return g.boxes.length > 0; });
+
+  function setStat(key, value) {
+    var el = document.querySelector('[data-stat="' + key + '"]');
+    if (el) el.textContent = value;
+  }
+
+  function refresh() {
+    var total = 0, done = 0;
+    groups.forEach(function (g) {
+      var d = g.boxes.filter(function (b) { return b.checked; }).length;
+      var t = g.boxes.length;
+      total += t; done += d;
+      var pct = t ? Math.round(d / t * 100) : 0;
+      var bar = g.card.querySelector('.task-bar i');
+      var lbl = g.card.querySelector('.task-pct');
+      if (bar) bar.style.width = pct + '%';
+      if (lbl) lbl.textContent = pct + '%';
+      g.card.classList.toggle('all-done', t > 0 && d === t);
+    });
+
+    setStat('tasks', groups.length);
+    setStat('steps', total);
+    setStat('done', done);
+    setStat('pct', (total ? Math.round(done / total * 100) : 0) + '%');
+
+    var num = document.querySelector('[data-overall-num]');
+    var obar = document.querySelector('[data-overall-bar]');
+    if (num) num.textContent = done + ' / ' + total;
+    if (obar) obar.style.width = (total ? (done / total * 100) : 0) + '%';
+  }
+
+  groups.forEach(function (g) {
+    g.boxes.forEach(function (b) { b.addEventListener('change', refresh); });
+  });
+  refresh();
+
+  /* ---- hide the mismatch box when the two copies agreed ---- */
+  var warn = document.querySelector('.warn-box');
+  if (warn) {
+    var realDiffs = Array.prototype.filter.call(
+      warn.querySelectorAll('li'),
+      function (li) { return !li.querySelector('.placeholder'); }
+    );
+    if (realDiffs.length === 0) warn.style.display = 'none';
+  }
+
+  /* ---- hide the carry-over section when nothing carried over ---- */
+  var carry = document.getElementById('sect-carry');
+  if (carry) {
+    var realCarry = Array.prototype.filter.call(
+      carry.querySelectorAll('.carry li'),
+      function (li) { return !li.querySelector('.placeholder'); }
+    );
+    if (realCarry.length === 0) carry.style.display = 'none';
+  }
+})();
+</script>
+
+</body>
+</html>
