@@ -1,6 +1,6 @@
 ---
 name: git-commit-check
-description: Check a drafted git commit message (and the staged diff behind it) against this project's conventional-commit rules — format `type(scope): subject`, the 8 allowed types, English-only subject, one type per commit, and never pushing to main/master without explicit confirmation — before the commit is made, and draft a compliant message when asked to. Use this whenever about to run `git commit` in this repo, when asked to review/validate a commit message, or when the user says "kiểm tra commit", "commit đúng chuẩn chưa", "check quy tắc commit", "viết commit message giúp tui".
+description: "Check a drafted git commit message (and the staged diff behind it) against this project's conventional-commit rules — format `type(scope): subject`, the 8 allowed types, English-only subject, one type per commit, and never pushing to main/master without explicit confirmation — before the commit is made, and draft a compliant message when asked to. Use this whenever about to run `git commit` in this repo, when asked to review/validate a commit message, or when the user says \"kiểm tra commit\", \"commit đúng chuẩn chưa\", \"check quy tắc commit\", \"viết commit message giúp tui\"."
 ---
 
 # Git commit rule check
