@@ -1,0 +1,20 @@
+name: Lint Skill Packaging
+
+on:
+  pull_request:
+    paths:
+      - '**/SKILL.md'
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: pip install pyyaml
+      - run: python .github/scripts/lint_skills.py "origin/${{ github.base_ref }}" "${{ github.sha }}"
