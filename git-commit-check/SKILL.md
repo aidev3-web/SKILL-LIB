@@ -79,3 +79,4 @@ type, Vietnamese subject, mixes multiple change types), say exactly which rule
 it breaks and propose the corrected version(s) — including splitting into
 multiple commits when that's what the rule requires — rather than committing
 it as given.
+
