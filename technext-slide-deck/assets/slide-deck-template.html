@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="[Mô tả 1 câu cho deck / One-sentence deck description]">
+  <title>[Tiêu đề deck] — TechNext Asia</title>
+  <style>
+    :root{--ink:#14213d;--muted:#5f6b7a;--paper:#f6f7fb;--card:#fff;--line:#dfe4ec;--blue:#2563eb;--blue-dark:#183b8f;--violet:#6d28d9;--green:#15803d;--orange:#c2410c;--shadow:0 18px 50px rgba(23,37,84,.1)}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-snap-type:y mandatory;background:var(--paper)}
+    body{margin:0;color:var(--ink);background:radial-gradient(circle at 8% 5%,rgba(37,99,235,.09),transparent 26rem),radial-gradient(circle at 92% 15%,rgba(14,116,144,.08),transparent 24rem),var(--paper);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55}
+    body[data-lang="en"] .vi{display:none}
+    body:not([data-lang="en"]) .en{display:none}
+    .slide{min-height:100svh;padding:clamp(26px,5vh,68px) clamp(20px,6vw,110px);display:grid;place-items:center;scroll-snap-align:start;scroll-snap-stop:always}
+    .inner{width:min(1180px,100%);max-height:none;overflow:visible}
+    .cover{position:relative;overflow:hidden;width:min(1180px,100%);min-height:min(660px,86svh);padding:clamp(34px,6vw,72px);display:grid;grid-template-columns:1.15fr .85fr;gap:32px;align-items:center;border-radius:32px;color:#fff;background:linear-gradient(120deg,#081633,#183b8f 58%,#0f766e);box-shadow:var(--shadow)}
+    .cover:before,.cover:after{content:"";position:absolute;border-radius:50%;pointer-events:none}.cover:before{width:420px;height:420px;right:-130px;top:-190px;background:rgba(94,234,212,.16)}.cover:after{width:330px;height:330px;left:32%;bottom:-260px;background:rgba(167,139,250,.22)}
+    .cover-copy,.visual{position:relative;z-index:1}.logo{display:block;width:200px;height:42px;object-fit:contain;object-position:left center;margin-bottom:22px}.eyebrow{display:inline-flex;padding:7px 13px;border:1px solid rgba(255,255,255,.28);border-radius:999px;color:#dbeafe;background:rgba(255,255,255,.09);font-size:.78rem;font-weight:800;letter-spacing:.08em}
+    .cover h1{margin:22px 0 0;font-size:clamp(2.5rem,5.5vw,4.6rem);line-height:1;letter-spacing:-.05em}.cover p{margin:24px 0 0;color:#dbeafe;font-size:clamp(1rem,2vw,1.18rem)}.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}.meta span{padding:8px 12px;border:1px solid rgba(255,255,255,.2);border-radius:10px;background:rgba(255,255,255,.09);font-size:.86rem}
+    .visual{display:grid;place-items:center}.orb{width:min(30vw,290px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#a78bfa,#6d28d9 45%,#183b8f 72%);box-shadow:0 25px 70px rgba(0,0,0,.25)}.orb svg{width:65%}
+    .head{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:26px}.kicker{margin:0 0 8px;color:var(--blue);font-size:.78rem;font-weight:850;letter-spacing:.13em;text-transform:uppercase}.title{margin:0;font-size:clamp(1.9rem,4vw,3.1rem);line-height:1.08;letter-spacing:-.04em}.lead{max-width:860px;margin:14px 0 0;color:var(--muted);font-size:1.04rem}.num{color:#cbd5e1;font-size:4.2rem;font-weight:850;line-height:.8}
+    .grid{display:grid;gap:16px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .card{padding:20px;border:1px solid var(--line);border-radius:20px;background:var(--card);box-shadow:var(--shadow)}.card h3{margin:0 0 8px;font-size:1.08rem}.card p{margin:0;color:var(--muted)}.card ul{margin:10px 0 0;padding-left:20px}.card li+li{margin-top:6px}.blue{border-top:5px solid var(--blue)}.violet{border-top:5px solid var(--violet)}.green{border-top:5px solid var(--green)}
+    .badge{display:inline-flex;margin-bottom:12px;padding:5px 9px;border-radius:8px;color:var(--blue-dark);background:#eaf0ff;font-size:.72rem;font-weight:800;text-transform:uppercase}
+    code{padding:2px 5px;border-radius:5px;color:#4338ca;background:#eef2ff;font:600 .9em ui-monospace,Consolas,monospace}.code{margin:0;padding:16px;overflow:auto;border-radius:14px;color:#e8eefc;background:#0e1a35;font:500 .82rem/1.6 ui-monospace,Consolas,monospace;white-space:pre}
+    .callout{margin-top:16px;padding:16px 20px;border-left:5px solid var(--blue);border-radius:12px;background:#edf3ff;color:#334155}.callout strong{color:var(--blue-dark)}
+    .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.step{position:relative;min-height:140px;padding:16px 14px;border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:var(--shadow)}.step:not(:last-child):after{content:"→";position:absolute;right:-18px;top:50%;z-index:2;color:var(--blue);font-size:1.8rem;font-weight:800;transform:translateY(-50%)}.step b{display:block;margin-bottom:8px;color:var(--blue-dark)}.step p{margin:0;color:var(--muted);font-size:.88rem}
+    table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:var(--shadow)}th,td{padding:13px 16px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--blue-dark);background:#edf3ff;font-size:.82rem;text-transform:uppercase}tr:last-child td{border-bottom:0}.yes{color:var(--green);font-weight:800}.no{color:var(--orange);font-weight:800}
+    .sources{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}.sources a{padding:9px 12px;border:1px solid var(--line);border-radius:10px;color:var(--blue-dark);background:#fff;text-decoration:none;font-size:.84rem}
+    .lang{position:fixed;z-index:10;top:18px;right:24px;display:flex;padding:3px;gap:2px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.95);box-shadow:0 8px 24px rgba(20,40,90,.12)}.lang button{min-width:40px;border:0;border-radius:999px;padding:7px 11px;color:var(--muted);background:transparent;font:800 .75rem/1 system-ui;cursor:pointer}.lang button.active{color:#fff;background:var(--blue)}
+    .dots{position:fixed;z-index:8;top:50%;right:18px;display:grid;gap:9px;transform:translateY(-50%)}.dot{width:10px;height:10px;padding:0;border:1px solid #9aa9bf;border-radius:50%;background:#d8e0ec;cursor:pointer}.dot.active{border-color:var(--blue);background:var(--blue);box-shadow:0 0 0 4px rgba(37,99,235,.14)}
+    .toolnum{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:10px;border-radius:10px;color:#fff;background:var(--blue-dark);font-size:.9rem;font-weight:850}
+    .pipe{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}.pipe span{padding:6px 10px;border-radius:8px;background:#eef2ff;color:var(--blue-dark);font:700 .8rem ui-monospace,Consolas,monospace}.pipe b{color:#9aa9bf;font-weight:400}
+    @media(max-width:800px){.cover{grid-template-columns:1fr;min-height:auto}.visual{display:none}.g2,.g3,.flow{grid-template-columns:1fr}.step:not(:last-child):after{content:"↓";right:auto;top:auto;bottom:-23px;left:50%;transform:translateX(-50%)}.head{align-items:start}.num{font-size:3rem}.slide{padding:24px 16px}.lang{top:10px;right:10px}table{font-size:.84rem}th,td{padding:10px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto;scroll-snap-type:none}}
+    @media print{html{scroll-snap-type:none}.slide{min-height:auto;break-after:page}.lang,.dots{display:none}.inner{max-height:none;overflow:visible}}
+    /* Keep slide content compact and consistent across the deck. */
+    .slide .inner{zoom:.70}
+    #s1 .cover{min-height:min(560px,75svh);padding:clamp(26px,4vw,52px);gap:24px}
+    #s1 .cover-copy,#s1 .visual{zoom:.82}
+  </style>
+</head>
+<body data-lang="en">
+  <div class="lang" role="group" aria-label="Chọn ngôn ngữ / Select language">
+    <button data-language="vi" aria-pressed="false">VI</button>
+    <button class="active" data-language="en" aria-pressed="true">EN</button>
+  </div>
+  <nav class="dots" aria-label="Đi tới slide / Go to slide">
+    <button class="dot active" data-target="s1" aria-label="Slide 1"></button><button class="dot" data-target="overview" aria-label="Overview"></button><button class="dot" data-target="detail" aria-label="Detail"></button><button class="dot" data-target="flow" aria-label="Flow"></button>
+  </nav>
+  <main>
+
+    <!-- Cover slide — id must stay "s1". Replace logo only if a non-TechNext deck is ever needed; otherwise keep as-is. -->
+    <section class="slide" id="s1">
+      <div class="cover">
+        <div class="cover-copy">
+          <img class="logo" alt="TechNext" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iNDIiIHZpZXdCb3g9IjAgMCA0MDAgODQiPjxwYXRoIGQ9Ik05Ni42LDMuMiA5MS41LDEuOSAyLjMsMTguNCAyLjUsMjIuMSAyNi45LDM5LjQgODcuOCw5LjkgMjkuMiw0Ny43IDI3LjMsNzguOSAzMC43LDc4LjIgNjAuMCw0MC4xIDQ5LjgsNjguNyA3Mi44LDgxLjMgNzkuOSw4MC4xIDk3LjQsMTEuMFoiIGZpbGw9IiNmZmYiLz48dGV4dCB4PSIxMTYiIHk9IjYxIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSI1MCIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2ZmZiI+VGVjaE5leHQ8L3RleHQ+PC9zdmc+">
+          <span class="eyebrow"><span class="vi">[NHÃN NGẮN, VIẾT HOA]</span><span class="en">[SHORT UPPERCASE LABEL]</span></span>
+          <h1><span class="vi">[Tiêu đề bài thuyết trình]</span><span class="en">[Presentation title]</span></h1>
+          <p><span class="vi">[Một câu tóm tắt deck này nói về điều gì.]</span><span class="en">[One sentence summarizing what this deck covers.]</span></p>
+          <div class="meta"><span>TechNext Asia</span><span>[DD/MM/YYYY]</span><span>[1-2 chip dữ kiện ngắn / 1-2 short fact chips]</span></div>
+        </div>
+        <div class="visual"><div class="orb"><svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="30" stroke="white" stroke-width="6"/><path d="M35 50h30M50 35v30" stroke="#5eead4" stroke-width="6" stroke-linecap="round"/></svg></div></div>
+      </div>
+    </section>
+
+    <!-- Example content slide: demonstrates .grid.g3 + .callout. Duplicate this shape for card-based slides. -->
+    <section class="slide" id="overview"><div class="inner">
+      <div class="head"><div><p class="kicker"><span class="vi">[Nhãn nhóm]</span><span class="en">[Section label]</span></p><h2 class="title"><span class="vi">[Tiêu đề slide]</span><span class="en">[Slide title]</span></h2><p class="lead"><span class="vi">[Một câu tóm tắt ý chính của slide này.]</span><span class="en">[One sentence summarizing this slide's main point.]</span></p></div></div>
+      <div class="grid g3">
+        <div class="card blue"><span class="badge">[Nhãn]</span><h3><span class="vi">[Tiêu đề thẻ]</span><span class="en">[Card title]</span></h3><p><span class="vi">[Nội dung thẻ 1.]</span><span class="en">[Card 1 content.]</span></p></div>
+        <div class="card violet"><span class="badge">[Nhãn]</span><h3><span class="vi">[Tiêu đề thẻ]</span><span class="en">[Card title]</span></h3><p><span class="vi">[Nội dung thẻ 2.]</span><span class="en">[Card 2 content.]</span></p></div>
+        <div class="card green"><span class="badge">[Nhãn]</span><h3><span class="vi">[Tiêu đề thẻ]</span><span class="en">[Card title]</span></h3><p><span class="vi">[Nội dung thẻ 3.]</span><span class="en">[Card 3 content.]</span></p></div>
+      </div>
+      <div class="callout"><strong><span class="vi">[Lưu ý:]</span><span class="en">[Note:]</span></strong> <span class="vi">[1 điều quan trọng nhất cần nhớ từ slide này.]</span><span class="en">[The one most important takeaway from this slide.]</span></div>
+    </div></section>
+
+    <!-- Example content slide: demonstrates a comparison table. -->
+    <section class="slide" id="detail"><div class="inner">
+      <div class="head"><div><p class="kicker"><span class="vi">[Nhãn nhóm]</span><span class="en">[Section label]</span></p><h2 class="title"><span class="vi">[Tiêu đề slide]</span><span class="en">[Slide title]</span></h2><p class="lead"><span class="vi">[Một câu tóm tắt.]</span><span class="en">[One-sentence summary.]</span></p></div></div>
+      <table><thead><tr><th><span class="vi">[Cột 1]</span><span class="en">[Column 1]</span></th><th><span class="vi">[Cột 2]</span><span class="en">[Column 2]</span></th><th><span class="vi">[Cột 3]</span><span class="en">[Column 3]</span></th></tr></thead><tbody>
+        <tr><td><span class="vi">[Hàng 1]</span><span class="en">[Row 1]</span></td><td>[...]</td><td>[...]</td></tr>
+        <tr><td><span class="vi">[Hàng 2]</span><span class="en">[Row 2]</span></td><td>[...]</td><td>[...]</td></tr>
+      </tbody></table>
+    </div></section>
+
+    <!-- Example content slide: demonstrates .flow (numbered pipeline) + .pipe (inline chip sequence). Only use when steps are a real sequence. -->
+    <section class="slide" id="flow"><div class="inner">
+      <div class="head"><div><p class="kicker"><span class="vi">[Nhãn nhóm]</span><span class="en">[Section label]</span></p><h2 class="title"><span class="vi">[Tiêu đề slide]</span><span class="en">[Slide title]</span></h2><p class="lead"><span class="vi">[Một câu tóm tắt.]</span><span class="en">[One-sentence summary.]</span></p></div></div>
+      <div class="flow">
+        <div class="step"><b>1 · [Bước]</b><p><span class="vi">[Mô tả bước 1]</span><span class="en">[Step 1 description]</span></p></div>
+        <div class="step"><b>2 · [Bước]</b><p><span class="vi">[Mô tả bước 2]</span><span class="en">[Step 2 description]</span></p></div>
+        <div class="step"><b>3 · [Bước]</b><p><span class="vi">[Mô tả bước 3]</span><span class="en">[Step 3 description]</span></p></div>
+        <div class="step"><b>4 · [Bước]</b><p><span class="vi">[Mô tả bước 4]</span><span class="en">[Step 4 description]</span></p></div>
+      </div>
+      <div class="pipe"><span>step_a</span><b>→</b><span>step_b</span><b>→</b><span>step_c</span></div>
+    </div></section>
+
+  </main>
+  <script>
+    (function(){
+      var slides=[].slice.call(document.querySelectorAll('.slide'));
+      var dots=[].slice.call(document.querySelectorAll('.dot'));
+      var observer=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting){var i=slides.indexOf(entry.target);dots.forEach(function(dot,index){dot.classList.toggle('active',i===index)})}})},{threshold:.6});
+      slides.forEach(function(slide){observer.observe(slide)});
+      dots.forEach(function(dot){dot.addEventListener('click',function(){var target=document.getElementById(dot.dataset.target);if(target)target.scrollIntoView({behavior:'smooth'})})});
+      document.querySelectorAll('[data-language]').forEach(function(button){button.addEventListener('click',function(){var lang=button.dataset.language;document.body.dataset.lang=lang;document.documentElement.lang=lang;document.querySelectorAll('[data-language]').forEach(function(other){var active=other===button;other.classList.toggle('active',active);other.setAttribute('aria-pressed',String(active))})})});
+    }());
+  </script>
+</body>
+</html>
