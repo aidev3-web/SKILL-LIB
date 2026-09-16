@@ -59,3 +59,6 @@ formatting pass), drop the scope and use `type/subject`:
   subject. A branch name nobody can decode is worse than a question.
 - **Don't create the branch.** Propose the name and let the user run
   `git checkout -b` themselves, unless they explicitly ask you to create it.
+- **Offer one name, not a menu.** If a second form is genuinely defensible,
+  mention it in one clause after the main answer — don't present two options
+  and make the user choose.
