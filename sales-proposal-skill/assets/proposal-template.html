@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>&lt;CLIENT&gt; · Strategic Due Diligence &amp; Growth Blueprint (Odoo ERP · AI · Social Media) · Technext</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0a0f1a">
+<style>
+:root{
+  --bg:#0a0f1a; --bg2:#0f1626; --panel:#121c30; --panel2:#16223a; --line:#1f2d49;
+  --ink:#e8f0fb; --ink2:#a9bdd8; --muted:#7388ab;
+  --teal:#19c6c6; --teal2:#0fa8b8; --aqua:#37e0c8; --blue:#3b82f6; --indigo:#6366f1;
+  --coral:#ff6b6b; --amber:#ffb454; --green:#36d399; --purple:#a78bfa; --pink:#f472b6;
+  --grad:linear-gradient(135deg,#19c6c6,#3b82f6 55%,#6366f1);
+  --grad2:linear-gradient(135deg,#37e0c8,#19c6c6);
+  --shadow:0 18px 50px -20px rgba(0,0,0,.65);
+  --radius:18px; --maxw:1180px;
+  --serif:"Georgia","Times New Roman",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+html[data-theme="light"]{
+  --bg:#f3f7fc; --bg2:#ffffff; --panel:#ffffff; --panel2:#f1f6fc; --line:#dbe6f3;
+  --ink:#10203a; --ink2:#33486a; --muted:#64789a;
+  --shadow:0 18px 50px -24px rgba(20,50,90,.25);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:var(--teal);text-decoration:none}
+h1,h2,h3,h4{line-height:1.2;margin:0 0 .5em;font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(1.6rem,3vw,2.4rem)}
+h3{font-size:1.35rem;margin-top:1.6em}
+h4{font-size:.85rem;color:var(--aqua);text-transform:uppercase;letter-spacing:.08em}
+p{margin:0 0 1em;color:var(--ink2)}
+strong{color:var(--ink)}
+small{color:var(--muted)}
+code{background:var(--panel2);padding:.1em .4em;border-radius:6px;font-size:.85em;color:var(--aqua)}
+[hidden]{display:none!important}
+body[data-lang="en"] .t-vi{display:none}
+body[data-lang="vi"] .t-en{display:none}
+
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--grad);z-index:1000;transition:width .1s}
+#navfab{position:fixed;top:10px;left:10px;z-index:950;background:rgba(18,28,48,.9);backdrop-filter:blur(10px);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:6px 12px;font-size:1.05rem;line-height:1;cursor:pointer;box-shadow:var(--shadow)}#navfab:hover{color:var(--teal);border-color:var(--teal)}
+html[data-theme="light"] #navfab{background:rgba(255,255,255,.9)}
+.tb-btn{background:var(--panel);border:1px solid var(--line);color:var(--ink2);border-radius:10px;padding:7px 12px;cursor:pointer;font-size:.82rem;font-weight:600;transition:.2s}
+.tb-btn:hover{color:var(--ink);border-color:var(--teal)}
+.tb-btn.active{background:var(--grad);color:#fff;border-color:transparent}
+#search{background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:7px 12px;font-size:.82rem;width:100%;margin-bottom:8px;display:block}
+
+.shell{display:grid;grid-template-columns:262px 1fr;max-width:1480px;margin:0 auto;gap:0}
+body.nav-collapsed #sidenav{display:none}
+body.nav-collapsed .shell{grid-template-columns:1fr}
+#sidenav{position:sticky;top:0;height:100vh;overflow-y:auto;padding:52px 14px 60px;border-right:1px solid var(--line);font-size:.83rem}
+#sidenav .grp{color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-size:.66rem;font-weight:700;margin:18px 10px 6px}
+#sidenav a{display:block;color:var(--ink2);padding:6px 12px;border-radius:9px;border-left:2px solid transparent;transition:.15s;line-height:1.35}
+#sidenav a:hover{background:var(--panel);color:var(--ink)}
+#sidenav a.active{background:var(--panel);color:var(--teal);border-left-color:var(--teal);font-weight:600}
+#sidenav a.nav-ext{color:var(--aqua)}#sidenav a.nav-ext:hover{border-left-color:var(--aqua)}
+main{min-width:0;padding:0 clamp(16px,3.5vw,56px)}
+.brandlogo{height:30px;width:auto;display:block}
+.nav-brand{display:flex;align-items:center;gap:9px;padding:0 6px 12px;margin-bottom:6px;border-bottom:1px solid var(--line);font-weight:800}
+.tb-sub{color:var(--muted);font-size:.8rem;font-weight:600}
+.nav-controls{padding:4px 8px 14px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.nav-btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.nav-btnrow .tb-btn{flex:1;text-align:center}
+/* single-button VI/EN switch — same plain look as the theme (.tb-btn) button */
+#scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:840;opacity:0;pointer-events:none;transition:opacity .3s}
+body.nav-open #scrim{opacity:1;pointer-events:auto}
+section{padding:64px 0 32px;border-bottom:1px solid var(--line);scroll-margin-top:14px}
+.wrap{max-width:var(--maxw);margin:0 auto}
+
+#hero{min-height:70vh;display:grid;place-items:center;text-align:center;position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(1200px 600px at 70% -10%,rgba(25,198,198,.22),transparent 60%),radial-gradient(900px 500px at 10% 110%,rgba(99,102,241,.22),transparent 55%);z-index:0}
+.hero-inner{position:relative;z-index:2;max-width:900px;padding:80px 24px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 16px;font-size:.78rem;color:var(--aqua);font-weight:600;margin-bottom:24px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block}
+#hero h1{font-size:clamp(2.2rem,5.5vw,4rem);background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:.25em}
+#hero .sub{font-size:clamp(1.05rem,2vw,1.4rem);color:var(--ink2);max-width:680px;margin:0 auto 30px}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:18px}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:.8rem;color:var(--ink2)}
+.chip b{color:var(--teal)}
+
+.sec-tag{display:inline-block;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);font-weight:700;margin-bottom:8px}
+.sec-num{font-family:var(--serif);font-style:italic;color:var(--muted);font-size:.95rem;margin-right:8px}
+.lead{font-size:1.12rem;color:var(--ink2);max-width:780px}
+
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+.card h3{margin-top:0}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad)}
+.kpi .num{font-size:2.3rem;font-weight:900;letter-spacing:-.03em;background:var(--grad2);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1}
+.kpi .lbl{color:var(--ink2);font-size:.85rem;margin-top:6px}
+.kpi .sub{color:var(--muted);font-size:.74rem;margin-top:4px}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:700}
+.p-green{background:rgba(54,211,153,.14);color:var(--green)}
+.p-amber{background:rgba(255,180,84,.14);color:var(--amber)}
+.p-red{background:rgba(255,107,107,.14);color:var(--coral)}
+.p-blue{background:rgba(59,130,246,.16);color:#7eb0ff}
+.p-teal{background:rgba(25,198,198,.16);color:var(--teal)}
+.p-purple{background:rgba(167,139,250,.16);color:var(--purple)}
+
+.tbl{width:100%;border-collapse:collapse;font-size:.86rem;margin:14px 0}
+.tbl th,.tbl td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl th{color:var(--aqua);text-transform:uppercase;letter-spacing:.06em;font-size:.7rem;font-weight:700;background:var(--panel2)}
+.tbl tr:hover td{background:var(--panel2)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+.tab{background:var(--panel);border:1px solid var(--line);color:var(--ink2);padding:9px 16px;border-radius:11px;cursor:pointer;font-weight:600;font-size:.85rem;transition:.2s}
+.tab.active{background:var(--grad);color:#fff;border-color:transparent}
+.tabpane{display:none}
+.tabpane.active{display:block}
+
+.acc{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:10px;background:var(--panel)}
+.acc-head{padding:15px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:700;gap:12px}
+.acc-head:hover{background:var(--panel2)}
+.acc-head .ic{transition:.3s;color:var(--teal)}
+.acc.open .acc-head .ic{transform:rotate(45deg)}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .45s ease;padding:0 18px}
+.acc.open .acc-body{max-height:4000px;padding:4px 18px 20px}
+
+.quad{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.quad .q{border-radius:16px;padding:20px;border:1px solid var(--line)}
+.q.s{background:linear-gradient(160deg,rgba(54,211,153,.12),transparent)}
+.q.w{background:linear-gradient(160deg,rgba(255,180,84,.12),transparent)}
+.q.o{background:linear-gradient(160deg,rgba(59,130,246,.12),transparent)}
+.q.t{background:linear-gradient(160deg,rgba(255,107,107,.12),transparent)}
+.q h4{color:var(--ink)}
+.q ul{margin:0;padding-left:18px}
+.q li{margin-bottom:7px;color:var(--ink2);font-size:.88rem}
+
+.tl{position:relative;margin:24px 0;padding-left:30px}
+.tl::before{content:"";position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.tl-item{position:relative;margin-bottom:22px}
+.tl-item::before{content:"";position:absolute;left:-26px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--grad);box-shadow:0 0 0 4px var(--bg)}
+.tl-item .yr{color:var(--teal);font-weight:800;font-size:.85rem}
+
+.callout{border-left:3px solid var(--teal);background:var(--panel2);border-radius:0 14px 14px 0;padding:16px 20px;margin:16px 0}
+.muted{color:var(--muted)}
+.callout.warn{border-left-color:var(--amber)}
+.callout.risk{border-left-color:var(--coral)}
+.callout .t{font-weight:700;color:var(--ink);margin-bottom:4px;font-size:.82rem;text-transform:uppercase;letter-spacing:.06em}
+
+.placeholder-note{font-family:monospace;font-size:12.5px;color:var(--coral);background:rgba(255,107,107,.1);
+  border:1px dashed var(--coral);padding:8px 12px;margin-top:16px;display:inline-block}
+
+/* citations — every sourced factual claim links here, right after the claim */
+.cite{font-size:.72em;vertical-align:super;color:var(--teal);text-decoration:none;margin-left:2px}
+.cite:hover{text-decoration:underline}
+.assess{font-size:.72rem;color:var(--muted);font-style:italic}
+
+/* confidence grade (A-D, next to a .cite when it's useful to show grade inline) */
+.grade{display:inline-block;font-size:.65rem;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:3px;vertical-align:super}
+.grade.a{background:rgba(54,211,153,.18);color:var(--green)}
+.grade.b{background:rgba(59,130,246,.18);color:#7eb0ff}
+.grade.c{background:rgba(255,180,84,.18);color:var(--amber)}
+.grade.d{background:rgba(255,107,107,.18);color:var(--coral)}
+
+footer{padding:50px 24px 70px;text-align:center;color:var(--muted);font-size:.82rem}
+@media(max-width:1080px){
+  .shell{grid-template-columns:1fr}
+  #sidenav{position:fixed;left:0;top:0;bottom:0;width:84vw;max-width:320px;background:var(--bg2);z-index:850;
+    transform:translateX(-104%);transition:transform .3s ease;box-shadow:var(--shadow);height:auto}
+  body.nav-open #sidenav{transform:none}
+  body.nav-collapsed #sidenav{display:block} /* on mobile, visibility is driven by nav-open, not nav-collapsed */
+  .g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr}
+}
+@media(max-width:680px){.g2,.g4,.quad{grid-template-columns:1fr}#search{display:none}}
+</style>
+</head>
+<body data-lang="en">
+<div id="progress"></div>
+<button id="navfab" onclick="toggleNav()" aria-label="Toggle menu" title="Menu">☰</button>
+<div id="scrim" onclick="closeNavMobile()"></div>
+
+<div class="shell">
+  <nav id="sidenav"></nav>
+
+  <main>
+    <!--
+      TEMPLATE INSTRUCTIONS (delete before delivering the final file):
+      - The sidebar is auto-built by buildNav() from every section's data-nav-vi /
+        data-nav-en / data-grp-vi / data-grp-en attributes below — do not hand-write
+        <a> links, just tag each <section> correctly and buildNav() does the rest.
+      - Keep slugs/order/grouping exactly as in assets/menu-structure.md. You may add
+        an extra section inside an existing group if research surfaces something that
+        doesn't fit; never drop or reorder the fixed ones.
+      - Replace every "placeholder-note" paragraph with real bilingual content: wrap
+        every visible string in <span class="t-vi">...</span><span class="t-en">...</span>
+        siblings. Reuse the CSS classes already defined above (.card, .grid.g2/g3/g4,
+        .kpi, .pill.p-*, .tbl, .quad for SWOT, .tl for timelines, .acc for accordions,
+        .tabs/.tabpane for tabs, .callout) — don't invent new ad hoc styles per section.
+      - #hero is the only section without data-nav (it's the cover, not a nav target).
+      - Fill in <CLIENT NAME> / <TÊN KHÁCH HÀNG> everywhere, including the <title>.
+    -->
+
+    <section id="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-inner">
+        <div class="eyebrow"><span class="dot"></span>
+          <span class="t-vi">Rà soát chiến lược · Odoo ERP · AI · Marketing mạng xã hội</span><span class="t-en">Strategic Due Diligence · Odoo ERP · AI · Social Media</span>
+        </div>
+        <h1><span class="t-vi">&lt;TÊN KHÁCH HÀNG&gt;</span><span class="t-en">&lt;CLIENT NAME&gt;</span></h1>
+        <p class="sub"><span class="t-vi">Bản đề xuất toàn diện về Odoo ERP, giải pháp AI và marketing mạng xã hội, do Technext thực hiện.</span><span class="t-en">A comprehensive Odoo ERP, AI, and social media marketing proposal, prepared by Technext.</span></p>
+        <div class="hero-meta">
+          <div class="chip"><b>Technext</b> <span class="t-vi">× Odoo 19</span><span class="t-en">× Odoo 19</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="overview" data-nav-vi="Tổng quan" data-nav-en="Overview" data-grp-vi="Tổng quan" data-grp-en="Overview">
+      <div class="wrap"><span class="sec-tag t-vi">TỔNG QUAN</span><span class="sec-tag t-en">OVERVIEW</span>
+        <h2><span class="t-vi">Tổng quan</span><span class="t-en">Overview</span></h2>
+        <p class="placeholder-note">PLACEHOLDER — replace with real content before delivery</p>
+      </div>
+    </section>
+
+    <section id="why-ai" data-nav-vi="Vì sao AI quan trọng" data-nav-en="Why AI is Important" data-grp-vi="Tổng quan" data-grp-en="Overview">
+      <div class="wrap"><h2><span class="t-vi">Vì sao AI quan trọng</span><span class="t-en">Why AI is Important</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="exec-summary" data-nav-vi="Tóm tắt điều hành" data-nav-en="Executive Summary" data-grp-vi="Tổng quan" data-grp-en="Overview">
+      <div class="wrap"><h2><span class="t-vi">Tóm tắt điều hành</span><span class="t-en">Executive Summary</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+
+    <section id="solution-odoo-erp" data-nav-vi="Giải pháp Odoo ERP" data-nav-en="Odoo ERP Solution" data-grp-vi="Giải pháp đề xuất" data-grp-en="Proposed Solutions">
+      <div class="wrap"><h2><span class="t-vi">Giải pháp Odoo ERP</span><span class="t-en">Odoo ERP Solution</span></h2><p class="placeholder-note">PLACEHOLDER — grounded in this client's specific pains, not a generic Odoo pitch</p></div>
+    </section>
+    <section id="solution-ai" data-nav-vi="Giải pháp AI" data-nav-en="AI Solutions" data-grp-vi="Giải pháp đề xuất" data-grp-en="Proposed Solutions">
+      <div class="wrap"><h2><span class="t-vi">Giải pháp AI</span><span class="t-en">AI Solutions</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="solution-social-media" data-nav-vi="Giải pháp Marketing mạng xã hội" data-nav-en="Social Media Marketing Solution" data-grp-vi="Giải pháp đề xuất" data-grp-en="Proposed Solutions">
+      <div class="wrap"><h2><span class="t-vi">Giải pháp Marketing mạng xã hội</span><span class="t-en">Social Media Marketing Solution</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+
+    <section id="due-diligence" data-nav-vi="Rà soát toàn diện" data-nav-en="Due Diligence" data-grp-vi="Rà soát toàn diện" data-grp-en="Due Diligence">
+      <div class="wrap"><h2><span class="t-vi">Rà soát toàn diện</span><span class="t-en">Due Diligence</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="company-profile" data-nav-vi="Hồ sơ công ty" data-nav-en="Company Profile" data-grp-vi="Rà soát toàn diện" data-grp-en="Due Diligence">
+      <div class="wrap"><h2><span class="t-vi">Hồ sơ công ty</span><span class="t-en">Company Profile</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="product-catalog" data-nav-vi="Danh mục sản phẩm" data-nav-en="Product Catalog" data-grp-vi="Rà soát toàn diện" data-grp-en="Due Diligence">
+      <div class="wrap"><h2><span class="t-vi">Danh mục sản phẩm</span><span class="t-en">Product Catalog</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="founders-leadership" data-nav-vi="Nhà sáng lập &amp; Ban lãnh đạo" data-nav-en="Founders &amp; Leadership" data-grp-vi="Rà soát toàn diện" data-grp-en="Due Diligence">
+      <div class="wrap"><h2><span class="t-vi">Nhà sáng lập &amp; Ban lãnh đạo</span><span class="t-en">Founders &amp; Leadership</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="staff-org" data-nav-vi="Nhân sự &amp; Cơ cấu tổ chức" data-nav-en="Staff &amp; Org Analysis" data-grp-vi="Rà soát toàn diện" data-grp-en="Due Diligence">
+      <div class="wrap"><h2><span class="t-vi">Nhân sự &amp; Cơ cấu tổ chức</span><span class="t-en">Staff &amp; Org Analysis</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="digital-web" data-nav-vi="Hiện diện số &amp; Website" data-nav-en="Digital &amp; Web Presence" data-grp-vi="Rà soát toàn diện" data-grp-en="Due Diligence">
+      <div class="wrap"><h2><span class="t-vi">Hiện diện số &amp; Website</span><span class="t-en">Digital &amp; Web Presence</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="reviews-reputation" data-nav-vi="Đánh giá &amp; Uy tín" data-nav-en="Reviews &amp; Reputation" data-grp-vi="Rà soát toàn diện" data-grp-en="Due Diligence">
+      <div class="wrap"><h2><span class="t-vi">Đánh giá &amp; Uy tín</span><span class="t-en">Reviews &amp; Reputation</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+
+    <section id="strategic-analysis" data-nav-vi="Phân tích chiến lược" data-nav-en="Strategic Analysis" data-grp-vi="Phân tích chiến lược" data-grp-en="Strategic Analysis">
+      <div class="wrap"><h2><span class="t-vi">Phân tích chiến lược</span><span class="t-en">Strategic Analysis</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="pestle" data-nav-vi="Phân tích PESTLE" data-nav-en="PESTLE Analysis" data-grp-vi="Phân tích chiến lược" data-grp-en="Strategic Analysis">
+      <div class="wrap"><h2><span class="t-vi">Phân tích PESTLE</span><span class="t-en">PESTLE Analysis</span></h2><p class="placeholder-note">PLACEHOLDER — use .grid.g3 of .card, one per PESTLE factor</p></div>
+    </section>
+    <section id="swot-tows" data-nav-vi="SWOT &amp; TOWS" data-nav-en="SWOT &amp; TOWS" data-grp-vi="Phân tích chiến lược" data-grp-en="Strategic Analysis">
+      <div class="wrap"><h2>SWOT &amp; TOWS</h2>
+        <div class="quad">
+          <div class="q s"><h4><span class="t-vi">Điểm mạnh</span><span class="t-en">Strengths</span></h4><ul><li class="placeholder-note">PLACEHOLDER</li></ul></div>
+          <div class="q w"><h4><span class="t-vi">Điểm yếu</span><span class="t-en">Weaknesses</span></h4><ul><li class="placeholder-note">PLACEHOLDER</li></ul></div>
+          <div class="q o"><h4><span class="t-vi">Cơ hội</span><span class="t-en">Opportunities</span></h4><ul><li class="placeholder-note">PLACEHOLDER</li></ul></div>
+          <div class="q t"><h4><span class="t-vi">Thách thức</span><span class="t-en">Threats</span></h4><ul><li class="placeholder-note">PLACEHOLDER</li></ul></div>
+        </div>
+      </div>
+    </section>
+    <section id="porter-5-forces" data-nav-vi="Mô hình 5 Áp lực của Porter" data-nav-en="Porter's Five Forces" data-grp-vi="Phân tích chiến lược" data-grp-en="Strategic Analysis">
+      <div class="wrap"><h2><span class="t-vi">Mô hình 5 Áp lực của Porter</span><span class="t-en">Porter's Five Forces</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="competitor-deep-dive" data-nav-vi="Phân tích sâu đối thủ" data-nav-en="Competitor Deep-Dive" data-grp-vi="Phân tích chiến lược" data-grp-en="Strategic Analysis">
+      <div class="wrap"><h2><span class="t-vi">Phân tích sâu đối thủ</span><span class="t-en">Competitor Deep-Dive</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="market-industry" data-nav-vi="Thị trường &amp; Ngành" data-nav-en="Market &amp; Industry" data-grp-vi="Phân tích chiến lược" data-grp-en="Strategic Analysis">
+      <div class="wrap"><h2><span class="t-vi">Thị trường &amp; Ngành</span><span class="t-en">Market &amp; Industry</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="customer-personas" data-nav-vi="Hồ sơ khách hàng mục tiêu" data-nav-en="Customer Personas" data-grp-vi="Phân tích chiến lược" data-grp-en="Strategic Analysis">
+      <div class="wrap"><h2><span class="t-vi">Hồ sơ khách hàng mục tiêu</span><span class="t-en">Customer Personas</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+
+    <section id="operations" data-nav-vi="Vận hành" data-nav-en="Operations" data-grp-vi="Vận hành" data-grp-en="Operations">
+      <div class="wrap"><h2><span class="t-vi">Vận hành</span><span class="t-en">Operations</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="stakeholder-perspectives" data-nav-vi="Góc nhìn các bên liên quan" data-nav-en="Stakeholder Perspectives" data-grp-vi="Vận hành" data-grp-en="Operations">
+      <div class="wrap"><h2><span class="t-vi">Góc nhìn các bên liên quan</span><span class="t-en">Stakeholder Perspectives</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="department-workflows" data-nav-vi="Quy trình phòng ban" data-nav-en="Department Workflows" data-grp-vi="Vận hành" data-grp-en="Operations">
+      <div class="wrap"><h2><span class="t-vi">Quy trình phòng ban</span><span class="t-en">Department Workflows</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="pain-solution-matrix" data-nav-vi="Ma trận Vấn đề → Giải pháp" data-nav-en="Pain → Solution Matrix" data-grp-vi="Vận hành" data-grp-en="Operations">
+      <div class="wrap"><h2><span class="t-vi">Ma trận Vấn đề → Giải pháp</span><span class="t-en">Pain → Solution Matrix</span></h2><p class="placeholder-note">PLACEHOLDER — use .tbl</p></div>
+    </section>
+    <section id="bpmn-blueprint-uml" data-nav-vi="BPMN · Blueprint · UML" data-nav-en="BPMN · Blueprint · UML" data-grp-vi="Vận hành" data-grp-en="Operations">
+      <div class="wrap"><h2>BPMN · Blueprint · UML</h2><p class="placeholder-note">PLACEHOLDER — inline SVG diagram, no external file</p></div>
+    </section>
+
+    <section id="ai-automation-catalog" data-nav-vi="Danh mục AI &amp; Tự động hoá" data-nav-en="AI &amp; Automation Catalog" data-grp-vi="Công nghệ" data-grp-en="Technology">
+      <div class="wrap"><h2><span class="t-vi">Danh mục AI &amp; Tự động hoá</span><span class="t-en">AI &amp; Automation Catalog</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="ai-in-action" data-nav-vi="AI trong thực tế — Câu chuyện điển hình" data-nav-en="AI in Action — Peer Story" data-grp-vi="Công nghệ" data-grp-en="Technology">
+      <div class="wrap"><h2><span class="t-vi">AI trong thực tế — Câu chuyện điển hình</span><span class="t-en">AI in Action — Peer Story</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="odoo-architecture" data-nav-vi="Kiến trúc Odoo 19" data-nav-en="Odoo 19 Architecture" data-grp-vi="Công nghệ" data-grp-en="Technology">
+      <div class="wrap"><h2><span class="t-vi">Kiến trúc Odoo 19</span><span class="t-en">Odoo 19 Architecture</span></h2><p class="placeholder-note">PLACEHOLDER — modules + demo-data plan, concrete</p></div>
+    </section>
+    <section id="data-migration" data-nav-vi="Di chuyển dữ liệu" data-nav-en="Data Migration" data-grp-vi="Công nghệ" data-grp-en="Technology">
+      <div class="wrap"><h2><span class="t-vi">Di chuyển dữ liệu</span><span class="t-en">Data Migration</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="social-media-architecture" data-nav-vi="Kiến trúc &amp; Công cụ Marketing mạng xã hội" data-nav-en="Social Media Marketing Architecture &amp; Tools" data-grp-vi="Công nghệ" data-grp-en="Technology">
+      <div class="wrap"><h2><span class="t-vi">Kiến trúc &amp; Công cụ Marketing mạng xã hội</span><span class="t-en">Social Media Marketing Architecture &amp; Tools</span></h2><p class="placeholder-note">PLACEHOLDER — platforms, content pipeline, tools/APIs, reporting stack</p></div>
+    </section>
+
+    <section id="implementation-roadmap" data-nav-vi="Lộ trình triển khai" data-nav-en="Implementation Roadmap" data-grp-vi="Triển khai" data-grp-en="Delivery">
+      <div class="wrap"><h2><span class="t-vi">Lộ trình triển khai</span><span class="t-en">Implementation Roadmap</span></h2><p class="placeholder-note">PLACEHOLDER — use .tl timeline</p></div>
+    </section>
+    <section id="change-management" data-nav-vi="Quản lý thay đổi" data-nav-en="Change Management" data-grp-vi="Triển khai" data-grp-en="Delivery">
+      <div class="wrap"><h2><span class="t-vi">Quản lý thay đổi</span><span class="t-en">Change Management</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="hypercare-support" data-nav-vi="Hỗ trợ Hypercare" data-nav-en="Hypercare &amp; Support" data-grp-vi="Triển khai" data-grp-en="Delivery">
+      <div class="wrap"><h2><span class="t-vi">Hỗ trợ Hypercare</span><span class="t-en">Hypercare &amp; Support</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="risk-register-raci" data-nav-vi="Bảng rủi ro &amp; RACI" data-nav-en="Risk Register &amp; RACI" data-grp-vi="Triển khai" data-grp-en="Delivery">
+      <div class="wrap"><h2><span class="t-vi">Bảng rủi ro &amp; RACI</span><span class="t-en">Risk Register &amp; RACI</span></h2><p class="placeholder-note">PLACEHOLDER — use .tbl</p></div>
+    </section>
+    <section id="kpis-benefits" data-nav-vi="KPI &amp; Lợi ích" data-nav-en="KPIs &amp; Benefits" data-grp-vi="Triển khai" data-grp-en="Delivery">
+      <div class="wrap"><h2><span class="t-vi">KPI &amp; Lợi ích</span><span class="t-en">KPIs &amp; Benefits</span></h2><p class="placeholder-note">PLACEHOLDER — use .grid.g4 of .kpi</p></div>
+    </section>
+
+    <section id="competitive-intel" data-nav-vi="Thông tin cạnh tranh" data-nav-en="Competitive Intel" data-grp-vi="Thông tin cạnh tranh" data-grp-en="Competitive Intel">
+      <div class="wrap"><h2><span class="t-vi">Thông tin cạnh tranh</span><span class="t-en">Competitive Intel</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="top3-competitor-deep-dive" data-nav-vi="Phân tích sâu Top 3 đối thủ" data-nav-en="Top-3 Competitor Deep-Dive" data-grp-vi="Thông tin cạnh tranh" data-grp-en="Competitive Intel">
+      <div class="wrap"><h2><span class="t-vi">Phân tích sâu Top 3 đối thủ</span><span class="t-en">Top-3 Competitor Deep-Dive</span></h2><p class="placeholder-note">PLACEHOLDER — use .tabs/.tabpane, one tab per competitor</p></div>
+    </section>
+
+    <section id="pricing-strategy" data-nav-vi="Chiến lược giá" data-nav-en="Pricing Strategy" data-grp-vi="Tăng trưởng &amp; Chiến lược" data-grp-en="Growth &amp; Strategy">
+      <div class="wrap"><h2><span class="t-vi">Chiến lược giá</span><span class="t-en">Pricing Strategy</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="regional-expansion" data-nav-vi="Chiến lược mở rộng vùng" data-nav-en="Regional Expansion Strategy" data-grp-vi="Tăng trưởng &amp; Chiến lược" data-grp-en="Growth &amp; Strategy">
+      <div class="wrap"><h2><span class="t-vi">Chiến lược mở rộng vùng</span><span class="t-en">Regional Expansion Strategy</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="modern-alternative-services" data-nav-vi="Dịch vụ thay thế hiện đại" data-nav-en="Modern Alternative Services" data-grp-vi="Tăng trưởng &amp; Chiến lược" data-grp-en="Growth &amp; Strategy">
+      <div class="wrap"><h2><span class="t-vi">Dịch vụ thay thế hiện đại</span><span class="t-en">Modern Alternative Services</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="advisory" data-nav-vi="Tư vấn" data-nav-en="Advisory" data-grp-vi="Tăng trưởng &amp; Chiến lược" data-grp-en="Growth &amp; Strategy">
+      <div class="wrap"><h2><span class="t-vi">Tư vấn</span><span class="t-en">Advisory</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="appendix-sources" data-nav-vi="Phụ lục &amp; Nguồn tham khảo" data-nav-en="Appendix &amp; Sources" data-grp-vi="Tăng trưởng &amp; Chiến lược" data-grp-en="Growth &amp; Strategy">
+      <div class="wrap"><h2><span class="t-vi">Phụ lục &amp; Nguồn tham khảo</span><span class="t-en">Appendix &amp; Sources</span></h2>
+        <p class="lead"><span class="t-vi">Mỗi nguồn dưới đây tương ứng với ít nhất một liên kết trích dẫn (<span class="cite">[n]</span>) xuất hiện cạnh một luận điểm cụ thể trong báo cáo — bấm vào liên kết trích dẫn tại chỗ đó để đi thẳng tới nguồn.</span><span class="t-en">Every source below corresponds to at least one inline citation link (<span class="cite">[n]</span>) sitting next to a specific claim in this report — click the inline citation to jump straight to its source.</span></p>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr>
+          <th><span class="t-vi">#</span><span class="t-en">#</span></th>
+          <th><span class="t-vi">Được dùng ở mục</span><span class="t-en">Used in section</span></th>
+          <th><span class="t-vi">Nguồn</span><span class="t-en">Source</span></th>
+        </tr></thead><tbody>
+          <tr><td class="placeholder-note" colspan="3">PLACEHOLDER — one row per distinct source URL actually cited inline; number rows to match [n] citation ids</td></tr>
+        </tbody></table></div>
+      </div>
+    </section>
+
+    <section id="tool-ai-playbook" data-nav-vi="📘 Sổ tay triển khai AI" data-nav-en="📘 AI Build Playbook" data-grp-vi="Công cụ &amp; Tài liệu" data-grp-en="Tools &amp; Documents">
+      <div class="wrap"><h2><span class="t-vi">📘 Sổ tay triển khai AI</span><span class="t-en">📘 AI Build Playbook</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="tool-profit-estimator" data-nav-vi="📊 Công cụ ước tính lợi nhuận" data-nav-en="📊 Profit Estimator" data-grp-vi="Công cụ &amp; Tài liệu" data-grp-en="Tools &amp; Documents">
+      <div class="wrap"><h2><span class="t-vi">📊 Công cụ ước tính lợi nhuận</span><span class="t-en">📊 Profit Estimator</span></h2><p class="placeholder-note">PLACEHOLDER — plain inline JS calculator, no external libs</p></div>
+    </section>
+    <section id="tool-owner-faq" data-nav-vi="💬 Hỏi đáp cho chủ doanh nghiệp" data-nav-en="💬 Owner FAQ" data-grp-vi="Công cụ &amp; Tài liệu" data-grp-en="Tools &amp; Documents">
+      <div class="wrap"><h2><span class="t-vi">💬 Hỏi đáp cho chủ doanh nghiệp</span><span class="t-en">💬 Owner FAQ</span></h2><p class="placeholder-note">PLACEHOLDER — use .acc accordion, one Q per item</p></div>
+    </section>
+    <section id="tool-odoo-platform" data-nav-vi="⚓ Nền tảng Odoo" data-nav-en="⚓ Odoo Platform" data-grp-vi="Công cụ &amp; Tài liệu" data-grp-en="Tools &amp; Documents">
+      <div class="wrap"><h2><span class="t-vi">⚓ Nền tảng Odoo</span><span class="t-en">⚓ Odoo Platform</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="tool-brd" data-nav-vi="📑 Yêu cầu nghiệp vụ (BRD)" data-nav-en="📑 Requirements (BRD)" data-grp-vi="Công cụ &amp; Tài liệu" data-grp-en="Tools &amp; Documents">
+      <div class="wrap"><h2><span class="t-vi">📑 Yêu cầu nghiệp vụ (BRD)</span><span class="t-en">📑 Requirements (BRD)</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="tool-quotation" data-nav-vi="🧾 Báo giá" data-nav-en="🧾 Quotation" data-grp-vi="Công cụ &amp; Tài liệu" data-grp-en="Tools &amp; Documents">
+      <div class="wrap"><h2><span class="t-vi">🧾 Báo giá</span><span class="t-en">🧾 Quotation</span></h2><p class="placeholder-note">PLACEHOLDER — use .tbl for line items</p></div>
+    </section>
+    <section id="tool-accounting-overhaul" data-nav-vi="📒 Cải tổ kế toán" data-nav-en="📒 Accounting Overhaul" data-grp-vi="Công cụ &amp; Tài liệu" data-grp-en="Tools &amp; Documents">
+      <div class="wrap"><h2><span class="t-vi">📒 Cải tổ kế toán</span><span class="t-en">📒 Accounting Overhaul</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="tool-demo-walkthrough" data-nav-vi="🧭 Hướng dẫn Demo" data-nav-en="🧭 Demo Walkthrough" data-grp-vi="Công cụ &amp; Tài liệu" data-grp-en="Tools &amp; Documents">
+      <div class="wrap"><h2><span class="t-vi">🧭 Hướng dẫn Demo</span><span class="t-en">🧭 Demo Walkthrough</span></h2><p class="placeholder-note">PLACEHOLDER — use .tl step-by-step</p></div>
+    </section>
+    <section id="tool-staff-guides" data-nav-vi="🛎 Hướng dẫn nhân viên" data-nav-en="🛎 Staff Guides" data-grp-vi="Công cụ &amp; Tài liệu" data-grp-en="Tools &amp; Documents">
+      <div class="wrap"><h2><span class="t-vi">🛎 Hướng dẫn nhân viên</span><span class="t-en">🛎 Staff Guides</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="tool-discovery-questions" data-nav-vi="📋 Câu hỏi khám phá" data-nav-en="📋 Discovery Questions" data-grp-vi="Công cụ &amp; Tài liệu" data-grp-en="Tools &amp; Documents">
+      <div class="wrap"><h2><span class="t-vi">📋 Câu hỏi khám phá</span><span class="t-en">📋 Discovery Questions</span></h2><p class="placeholder-note">PLACEHOLDER</p></div>
+    </section>
+    <section id="tool-content-calendar" data-nav-vi="📅 Lịch nội dung mạng xã hội" data-nav-en="📅 Social Media Content Calendar" data-grp-vi="Công cụ &amp; Tài liệu" data-grp-en="Tools &amp; Documents">
+      <div class="wrap"><h2><span class="t-vi">📅 Lịch nội dung mạng xã hội</span><span class="t-en">📅 Social Media Content Calendar</span></h2><p class="placeholder-note">PLACEHOLDER — sample 4-week posting calendar by platform/pillar</p></div>
+    </section>
+
+    <footer>
+      <span class="t-vi">Được tạo bởi sales-proposal-skill · Technext</span><span class="t-en">Generated by sales-proposal-skill · Technext</span>
+    </footer>
+  </main>
+</div>
+
+<script>
+/* ---------- NAV (auto-built from data-nav-vi/en + data-grp-vi/en) ---------- */
+function currentLang(){ return document.body.getAttribute('data-lang') || 'en'; }
+let _installAvailable = false; // survives buildNav() re-renders — see PWA install section below
+function buildNav(){
+  const nav = document.getElementById('sidenav');
+  const lang = currentLang();
+  const groups = {};
+  document.querySelectorAll('main > section[data-nav-vi]').forEach(s=>{
+    const g = lang === 'en' ? (s.dataset.grpEn || '') : (s.dataset.grpVi || '');
+    (groups[g] = groups[g] || []).push(s);
+  });
+  let html = '<div class="nav-brand"><span>Technext</span><span class="tb-sub">× Odoo 19</span></div>'
+    + '<div class="nav-controls"><input id="search" placeholder="' + (lang==='en'?'Search report…':'Tìm trong báo cáo…') + '" oninput="doSearch(this.value)">'
+    + '<div class="nav-btnrow">'
+    + '  <button class="tb-btn" onclick="toggleLang()" aria-label="Switch language">' + (lang==='en'?'EN':'VI') + '</button>'
+    + '  <button class="tb-btn" onclick="toggleTheme()">◐</button>'
+    + '  <button class="tb-btn" id="installBtn" style="display:' + (_installAvailable ? '' : 'none') + '" onclick="pwaInstall()">⬇ ' + (lang==='en'?'Install':'Cài đặt') + '</button>'
+    + '</div></div>';
+  for (const g in groups) {
+    if (g) html += `<div class="grp">${g}</div>`;
+    groups[g].forEach(s => {
+      const label = lang === 'en' ? s.dataset.navEn : s.dataset.navVi;
+      html += `<a href="#${s.id}">${label}</a>`;
+    });
+  }
+  nav.innerHTML = html;
+}
+function setLang(l){
+  document.body.setAttribute('data-lang', l);
+  buildNav();
+}
+function toggleLang(){
+  setLang(currentLang() === 'vi' ? 'en' : 'vi');
+}
+function toggleTheme(){
+  const html = document.documentElement;
+  html.setAttribute('data-theme', html.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+}
+function doSearch(q){
+  q = q.trim().toLowerCase();
+  document.querySelectorAll('main > section[data-nav-vi]').forEach(s=>{
+    s.style.display = (!q || s.textContent.toLowerCase().includes(q)) ? '' : 'none';
+  });
+}
+function toggleNav(){
+  if (window.matchMedia('(max-width:1080px)').matches) {
+    document.body.classList.toggle('nav-open');
+  } else {
+    document.body.classList.toggle('nav-collapsed');
+    try { localStorage.setItem('sp_nav', document.body.classList.contains('nav-collapsed') ? '0' : '1'); } catch (e) {}
+  }
+}
+function closeNavMobile(){ document.body.classList.remove('nav-open'); }
+(function(){
+  try {
+    if (localStorage.getItem('sp_nav') === '0' && !window.matchMedia('(max-width:1080px)').matches) {
+      document.body.classList.add('nav-collapsed');
+    }
+  } catch (e) {}
+})();
+
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const sc = h.scrollTop / (h.scrollHeight - h.clientHeight);
+  document.getElementById('progress').style.width = (sc * 100) + '%';
+  let cur = '';
+  document.querySelectorAll('main > section[id]').forEach(s => { if (s.getBoundingClientRect().top < 140) cur = s.id; });
+  document.querySelectorAll('#sidenav a').forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + cur));
+});
+
+/* ---------- TABS / ACCORDION ---------- */
+function tab(group, idx, btn){
+  document.querySelectorAll(`[data-tabg="${group}"] .tab`).forEach((t,i)=>t.classList.toggle('active', i===idx));
+  document.querySelectorAll(`[data-panes="${group}"] .tabpane`).forEach((p,i)=>p.classList.toggle('active', i===idx));
+}
+function acc(el){ el.parentElement.classList.toggle('open'); }
+
+/* ---------- PWA install (works only if this file is served over http(s), not opened via file://) ---------- */
+// _installAvailable (declared above, near buildNav) is the source of truth for whether
+// the install button should show — buildNav() re-reads it every time it re-renders the
+// nav (e.g. on every VI/EN toggle), so the button's visibility survives those re-renders
+// instead of resetting to hidden.
+let _deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  _deferredPrompt = e;
+  _installAvailable = true;
+  const b = document.getElementById('installBtn');
+  if (b) b.style.display = '';
+});
+function pwaInstall(){
+  if (_deferredPrompt) {
+    _deferredPrompt.prompt();
+    _deferredPrompt.userChoice.finally(() => {
+      _deferredPrompt = null;
+      _installAvailable = false;
+      const b = document.getElementById('installBtn');
+      if (b) b.style.display = 'none';
+    });
+  }
+}
+window.addEventListener('appinstalled', () => {
+  _installAvailable = false;
+  const b = document.getElementById('installBtn');
+  if (b) b.style.display = 'none';
+});
+
+window.addEventListener('DOMContentLoaded', buildNav);
+
+/* ---------- Service worker registration (required for PWA install prompt) ---------- */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
