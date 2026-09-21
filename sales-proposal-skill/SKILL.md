@@ -45,6 +45,21 @@ is putting its name on it. Concretely:
 
 ## Reference files — read before writing anything
 
+**Hard rule, checked mechanically in Phase 4: the delivered file must be
+`assets/proposal-template.html` with placeholders filled in — never a new design
+built from scratch.** A real run of this skill once shipped a light-theme, purple-hero,
+two-separate-button-VI/EN page with none of the template's actual CSS — a completely
+different visual system, not a styling variation. That is a failed run, full stop, even
+if the content inside is good. Every Phase 1 group agent and the final assembly step
+must work from the literal contents of `assets/proposal-template.html` — its
+`:root{--bg:#0a0f1a...--teal:#19c6c6...}` tokens, its `#sidenav`/`buildNav()`
+mechanism, its single sliding `.tb-btn` VI/EN switch (not two separate buttons), its
+`#progress` bar. If an agent's returned section HTML uses different colors, a
+different toggle pattern, or wraps itself in its own `<html>`/`<head>` instead of
+being a `<section>` fragment for the existing shell, that agent's output must be
+rejected and re-generated with the actual template file attached to its prompt — do
+not merge it in and hope it blends.
+
 - `assets/menu-structure.md` — the exact, fixed sidebar structure (group → item →
   slug → VI/EN labels). This is the source of truth for section IDs, order, and
   grouping. Do not drop, rename, or reorder items; you may add an extra item inside an
@@ -156,9 +171,15 @@ the needle on total time, not just token spend.
 Launch **4** `Agent` calls in parallel (single message, multiple tool uses), all
 `general-purpose` (each prompt is fully self-contained — no need for `fork` here).
 Each one gets: the client identifier from Phase 0, the exact section slugs/headings it
-owns (from `assets/menu-structure.md`), the citation/`.assess` rules below, and the
-CSS classes to reuse for structure (`.card`, `.grid.g2/g3/g4`, `.kpi`, `.pill.p-*`,
-`.tbl`, `.quad`, `.tl`, `.acc`, `.tabs`/`.tabpane`, `.callout`). Instruct every agent to
+owns (from `assets/menu-structure.md`), the citation/`.assess` rules below, and **the
+literal contents of `assets/proposal-template.html` pasted into the prompt (or the
+file path if the agent can read files itself) — not just a list of CSS class names.**
+Naming classes like `.card`/`.kpi` without the actual file lets an agent invent its
+own meanings for them (or invent an entirely different page); pasting the real file
+is what forces it to produce a `<section id="...">` fragment matching the existing
+dark navy/teal shell instead of a freestanding page with its own colors, header, and
+toggle mechanism. Tell each agent explicitly: return only the `<section>` fragment(s)
+for its owned slugs, not a full `<html>` document. Instruct every agent to also
 return, alongside its finished section HTML, a short plain-text digest of its 3–5
 most important findings — Phase 2 uses these digests to write the front matter without
 re-reading every agent's full section HTML.
@@ -339,11 +360,18 @@ it would just add another sequential wait for no real benefit.
 
 ## Phase 3 — Assembly
 
-Take a fresh copy of `assets/proposal-template.html`, replace every placeholder
-section body with the corresponding agent's output in the fixed order from
-`assets/menu-structure.md`, fill in the client name/title, and remove every
-`placeholder-note` element and the template-instructions comment. The result must be
-one `.html` file with no other files alongside it.
+Take a fresh copy of `assets/proposal-template.html` — **the actual file, byte for
+byte, as your starting point** — and replace every placeholder section body with the
+corresponding agent's output in the fixed order from `assets/menu-structure.md`, fill
+in the client name/title, and remove every `placeholder-note` element and the
+template-instructions comment. The result must be one `.html` file with no other
+files alongside it. If any Phase 1 agent returned a full page instead of a
+`<section>` fragment (its own `<html>`/`<head>`/different CSS), do not paste that in —
+extract only its content into the existing shell's structure, rewriting it into the
+template's classes if needed. **Before moving to Phase 4, visually sanity-check the
+assembled file has the dark navy/teal theme, the single sliding VI/EN switch, and the
+`#progress` bar at the top** — if it doesn't, something upstream produced an
+off-template page and needs fixing now, not after delivery.
 
 ## Phase 4 — Mandatory second comprehensive pass
 

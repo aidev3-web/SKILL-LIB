@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Mechanical Phase-5 checks for sales-proposal-skill.
+Mechanical Phase-4 checks for sales-proposal-skill.
 
 Run: python validate-proposal.py <client-slug>-proposal.html <client-slug>-findings.json
 
@@ -148,9 +148,32 @@ def main():
     else:
         ok("no stale findings.json entries")
 
+    print(f"\n=== 8. Uses the real proposal-template.html shell (not a rebuilt design) ===")
+    # A real run of this skill once shipped a completely different page (light theme,
+    # purple hero, two separate VI/EN buttons) instead of the actual template. These
+    # markers only exist in the real template's shell — if they're missing, something
+    # upstream built its own design instead of filling in assets/proposal-template.html.
+    TEMPLATE_MARKERS = [
+        ('--teal:#19c6c6', "template's --teal color token"),
+        ('id="sidenav"', "the #sidenav sidebar container"),
+        ('id="progress"', "the #progress scroll bar"),
+        ('onclick="toggleLang()"', "the single sliding VI/EN switch"),
+        ('function buildNav()', "the buildNav() sidebar generator"),
+    ]
+    missing_markers = [desc for marker, desc in TEMPLATE_MARKERS if marker not in html]
+    if missing_markers:
+        passed = fail(
+            "this file does not look like assets/proposal-template.html — missing: "
+            + "; ".join(missing_markers)
+            + ". Likely cause: an agent built its own page design instead of filling in "
+            "the real template. Re-do Phase 1/3 with the actual template file attached."
+        ) and passed
+    else:
+        ok("all template shell markers present — this is the real template, filled in")
+
     print()
     if passed:
-        print("ALL MECHANICAL CHECKS PASSED. Still do the judgment-based Phase 5 checks by hand:")
+        print("ALL MECHANICAL CHECKS PASSED. Still do the judgment-based Phase 4 checks by hand:")
         print("  - spot-check a sample of cited URLs actually supports the claim")
         print("  - devil's-advocate review of Odoo Architecture / Roadmap / RACI")
         print("  - RACI golden rule (exactly one A per row) — not auto-checked here")
