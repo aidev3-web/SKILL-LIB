@@ -93,12 +93,12 @@ is putting its name on it. Concretely:
     delivering. Do not restructure the shell (CSS tokens, `buildNav`/`toggleTheme`/
     `setLang` scripts) per client — only section bodies, hero text, and title/branding
     change.
-- `scripts/validate-proposal.py` — the Phase 5 mechanical validator (run via `python`).
+- `scripts/validate-proposal.py` — the Phase 4 mechanical validator (run via `python`).
   Checks only what's objectively countable: no leftover placeholders, no
   internal-anchor citations, citation/Appendix consistency, required-section
   coverage, `.assess` presence on the three delivery sections, and `findings.json`
   consistency. It does not check factual accuracy or content depth — those stay
-  judgment calls. See Phase 5 for when to run it.
+  judgment calls. See Phase 4 for when to run it.
 
 ## Phase 0 — Intake
 
@@ -139,62 +139,166 @@ role, and never use non-public collection methods (scraping behind logins, socia
 engineering, breach data). If a request pushes past this line, decline that part and
 say why, rather than quietly complying.
 
-## Phase 1 — Parallel research fan-out
+## Phase 1 — Research + write fan-out (one round, not two)
 
-**Cost note — read before spawning anything.** An earlier version of this skill
-suggested 6 research agents here plus 9 section-writing agents in Phase 3 — roughly 16
-agent calls per proposal, which made a single run take 45–60 minutes and burn a large
-amount of tokens for output that wasn't proportionally better. Merged, 3 broader
-research agents here consistently cover the same ground with far less overhead. Do not
-re-expand this back toward one-agent-per-topic — the merge is deliberate, not a
-placeholder to split further "for thoroughness."
+**Wall-clock note — read before spawning anything.** The number of agents controls
+token cost; the number of *sequential phases* controls wall-clock time, and that
+matters more here. An earlier version of this skill ran research and writing as two
+separate sequential phases (agents research → hand off findings → different agents
+write), which — even with every agent inside each phase running in parallel — still
+meant the whole pipeline queued through 4–5 sequential stages, adding up to 45
+minutes–2 hours per proposal. The fix is to stop separating "research" from "write":
+**each agent below does its own research (via its own WebSearch/WebFetch calls) and
+writes its own final HTML sections in the same call**, cutting one entire sequential
+stage. Combined with the earlier agent-count reduction, this is what actually moves
+the needle on total time, not just token spend.
 
-Launch 3 `Agent` calls in parallel (single message, multiple tool uses). Use
-`general-purpose` for all three — each prompt below is fully self-contained; use `fork`
-only if a track genuinely needs this conversation's own context (rare here):
+Launch **4** `Agent` calls in parallel (single message, multiple tool uses), all
+`general-purpose` (each prompt is fully self-contained — no need for `fork` here).
+Each one gets: the client identifier from Phase 0, the exact section slugs/headings it
+owns (from `assets/menu-structure.md`), the citation/`.assess` rules below, and the
+CSS classes to reuse for structure (`.card`, `.grid.g2/g3/g4`, `.kpi`, `.pill.p-*`,
+`.tbl`, `.quad`, `.tl`, `.acc`, `.tabs`/`.tabpane`, `.callout`). Instruct every agent to
+return, alongside its finished section HTML, a short plain-text digest of its 3–5
+most important findings — Phase 2 uses these digests to write the front matter without
+re-reading every agent's full section HTML.
 
-1. **Company & Leadership** — history, business model, products/services, locations,
-   scale, founders/leadership, public org signals, headcount estimates, hiring
-   patterns. (Merges what used to be two separate tracks — company profile and
-   leadership research overlap heavily in practice; splitting them just meant both
-   agents re-reading the same "About" and LinkedIn pages.)
-2. **Digital, Market & Competitors** — website quality, social media activity (posting
-   frequency, follower counts, engagement, platforms used), review sites, customer
-   sentiment, industry sizing/trends, direct competitors, customer personas typical of
-   this industry. Feeds Digital & Web Presence, Market & Industry, Porter's Five
-   Forces, Competitor Deep-Dive, and — capture social-specific detail explicitly
-   (which platforms are active vs. absent, content mix, posting cadence, obvious gaps)
-   — the Social Media Marketing solution pitch.
-3. **Operations & Strategy consultant** — one agent doing both passes that used to be
-   separate: the `business-analyst` discovery checklist (stakeholders, process
-   mapping, pain points, KPIs) to infer likely department workflows and pain points,
-   **and** the management-consultant reasoning (growth strategy, pricing strategy,
-   regional expansion, risk factors) for this client. Feeds Operations,
-   Pain→Solution Matrix, Growth & Strategy, and Risk Register & RACI.
+**Group A — Due Diligence + Strategic Analysis** (`due-diligence`, `company-profile`,
+`product-catalog`, `founders-leadership`, `staff-org`, `digital-web`,
+`reviews-reputation`, `strategic-analysis`, `pestle`, `swot-tows`, `porter-5-forces`,
+`competitor-deep-dive`, `market-industry`, `customer-personas`): research the company
+itself, its founders/leadership, staff/org signals, digital & social presence, reviews,
+market/industry, and direct competitors — then build PESTLE/SWOT-TOWS/Porter's Five
+Forces and write all these sections itself, in the same call. Paired because Strategic
+Analysis is directly derived from Due Diligence facts — one agent keeps that
+traceability tight instead of a second agent guessing what the first one found.
+Capture social-specific detail explicitly in `digital-web` (which platforms are active
+vs. absent, content mix, posting cadence, obvious gaps) — Group C's Social Media
+pitch depends on this. Also build:
+- **TAM/SAM/SOM sizing** (adapted from market-research practice) inside
+  `market-industry` — Total Addressable Market, Serviceable Available Market,
+  Serviceable Obtainable Market — each number sourced (`.cite`) where a real
+  market-sizing figure exists, or `.assess`-tagged with the reasoning shown, never
+  presented as precise when it's actually a rough order-of-magnitude guess.
+- **Competitor comparison table** inside `competitor-deep-dive` — one `.tbl` row per
+  competitor, columns for positioning, pricing tier, strengths/weaknesses, each cell's
+  claims individually cited.
+- **Messaging Comparison Matrix + Content Gap Analysis** (adapted from
+  `marketing:competitive-brief`) inside `top3-competitor-deep-dive` (this section
+  lives with Group C below, but if Group A finds strong messaging/content-gap
+  material while researching competitors, pass it to Group C rather than duplicating
+  the research) — a `.tbl` with one row per messaging theme (e.g. "price", "speed of
+  service") and one column per competitor plus this client, showing who claims what.
+- **Digital & Web Presence as a real audit, not a description** (adapted from
+  `marketing:brand-review` + `marketing:seo-audit`): audit the client's actual
+  site/social content — each issue found gets a severity `.pill`
+  (**High/Medium/Low**), and the highest-severity ones get a short **before/after**
+  example (their actual current text next to a corrected version). Fold in a small
+  SEO checklist table (title tags, meta descriptions, mobile responsiveness, page
+  speed signal, structured data) with a pass/fail `.pill` per item — only for what was
+  actually checked, don't invent technical findings.
+- **Customer Personas** (adapted from persona-building practice): structured cards
+  (`.grid.g2`/`.g3` of `.card`) — name/role archetype, goals, pains, preferred
+  channels, how TechNext addresses each — grounded in this group's own
+  reviews/social/market findings.
 
-Each agent should return **structured findings**, not finished HTML — bullet facts,
-grouped by which sidebar section(s) they feed. **Every fact must carry the exact URL
-it came from** (the specific page, not just the domain) — instruct each research agent
-explicitly to attach a source URL to every claim it reports, and to mark clearly which
-findings it could *not* verify with a real source rather than smoothing over the gap.
-A finding with no URL and no "unverified" flag is not usable in Phase 3 — treat it as
-if it weren't reported.
+**Group B — Operations + Technology** (`operations`, `stakeholder-perspectives`,
+`department-workflows`, `pain-solution-matrix`, `bpmn-blueprint-uml`,
+`ai-automation-catalog`, `ai-in-action`, `odoo-architecture`, `data-migration`,
+`social-media-architecture`): all 4 groups launch in the same parallel batch, so this
+group does its own quick check of the client's leadership/staff/about pages for
+`stakeholder-perspectives` rather than waiting on Group A's output (a little
+redundant research across groups, same trade-off as Group D below — worth it to stay
+parallel). Then infer likely department workflows and pain points for a company of
+this profile/industry (the `business-analyst` discovery checklist — stakeholders,
+process mapping, pain points, KPIs), and build and write, itself, in the same call:
+- **Stakeholder Perspectives** (adapted from `sales:stakeholder-map`): a `.tbl` —
+  Person/Role / Likely stance / Influence level / Evidence — one row per stakeholder
+  found or reasonably inferred. Add a **single-threaded warning** (`.callout.warn`) if
+  only one named contact was found — name which other roles TechNext should try to
+  reach and why. (Phase 4's review pass cross-checks this against Group A's
+  founders/leadership findings and reconciles any mismatch.)
+- **Odoo 19 architecture, module plan, and demo-data plan** — the concrete next step
+  `prompt.txt` calls out. Name specific Odoo 19 modules this client needs, what demo
+  data should populate each for a convincing demo, and the data-migration plan from
+  their likely current tools — concrete, not generic.
+- **AI Solutions plan** — 2–4 concrete AI/automation use cases tied to a real pain
+  point or process gap this group found, not generic "AI can help with everything."
+- **Social Media Marketing architecture plan** inside `social-media-architecture` —
+  platforms, content pipeline, tools/reporting stack; if this group needs specifics
+  about the client's current social presence beyond what it can reasonably infer, do
+  a quick independent check rather than blocking on Group A's output (a little
+  redundant research across groups is a fine trade for staying parallel).
+- **Pain → Solution Matrix**: prioritize with MoSCoW inside the `.tbl` — a
+  `Must/Should/Could/Won't`-style `.pill` per row.
 
-**Source independence (adapted from OSINT investigation practice).** A fact that's been
+**Group C — Delivery + Competitive Intel + Growth & Strategy**
+(`implementation-roadmap`, `change-management`, `hypercare-support`,
+`risk-register-raci`, `kpis-benefits`, `competitive-intel`,
+`top3-competitor-deep-dive`, `pricing-strategy`, `regional-expansion`,
+`modern-alternative-services`, `advisory`, `appendix-sources`): reason about growth
+strategy, pricing strategy, regional expansion, and risk factors for this client (the
+management-consultant pass), do its own competitor research for
+`top3-competitor-deep-dive` (including the Messaging Comparison Matrix + Content Gap
+Analysis described under Group A), and write:
+- **Risk Register & RACI** (adapted from project-risk-register + RACI-matrix
+  practice): Risk register `.tbl` — Risk / Probability (1–5) / Impact (1–5) / Score /
+  Owner / Mitigation / Contingency, scores ≥20 get `.p-red` + an executive-attention
+  note, 12–19 `.p-amber`, below that `.p-green`, realistic spread, plausible owner
+  roles even with no real names yet. RACI `.tbl` — activities as rows, roles as
+  columns. **Golden rule: exactly one A per row, never zero, never two.** Cap
+  Consulted at ~3 roles per row.
+- **`.assess` disclaimer on Implementation Roadmap, Change Management, and Hypercare
+  & Support, every time — not optional.** These are TechNext's own standard delivery
+  methodology (phase names, week counts, SLA thresholds), not researched fact — put
+  one `.assess` span right after each section's `.lead` paragraph saying so. A prior
+  run shipped all three with zero `.assess` labeling — don't repeat that.
+- **Mutual Action Plan** (adapted from `sales:close-plan`) at the end of
+  `implementation-roadmap`: a `.tbl` — Step / Owner (TechNext or Client) / Target date
+  (relative, e.g. "Week 1") / Done-when — the concrete path from "proposal delivered"
+  to signature.
+
+**Group D — Tools & Documents** (all `tool-*` sections): each item is a practical
+artifact inlined as its own section (not a separate file): AI Build Playbook, Profit
+Estimator (plain inline `<script>` calculator, no external libraries), Owner FAQ,
+Odoo Platform overview, Requirements/BRD, Quotation (itemize all three service lines),
+Accounting Overhaul notes, Demo Walkthrough script, Staff Guides outline, Discovery
+Questions, and Social Media Content Calendar. This group works from general
+industry-appropriate assumptions about pain points/modules rather than waiting on
+Groups A/B's exact output — Phase 4's devil's-advocate review is what catches any
+mismatch, so a little independence here is an acceptable trade for staying parallel.
+- **Requirements (BRD)**: Given/When/Then acceptance criteria (adapted from
+  business-analyst practice) tied to a plausible pain point — e.g. "Given a
+  reservation is confirmed, when payment is captured, then Odoo Accounting posts the
+  invoice automatically" rather than "system should handle payments."
+- **Social Media Content Calendar**: a concrete sample 4-week posting plan using
+  **O-A-M-C-M framing** (adapted from `marketing:campaign-plan`) — Objective,
+  Audience, Message, Channel, Measure — with realistic production timelines (a
+  blog-style post ~3–5 days, a landing-page-style asset ~5–7 days) and
+  campaign-type-specific KPIs (lead-gen tracks CPL/MQL; awareness tracks
+  reach/share-of-voice). Include **1–2 real sample posts written out in full**
+  (adapted from `marketing:draft-content` — hook line, body, CTA), not just a
+  schedule grid.
+
+Each agent must attach a source URL to every claim it makes (**every fact must carry
+the exact page it came from**, not just the domain), and mark clearly which findings
+it could *not* verify with a real source rather than smoothing over the gap. A claim
+with no URL and no "unverified"/`.assess` flag is not usable — treat it as if it
+weren't written.
+
+**Source independence (adapted from OSINT investigation practice).** A fact
 copy-pasted across ten content-farm/aggregator sites that all trace back to the same
 original bio or press release is **one source, not ten** — this matters most for
-Founders & Leadership, Staff & Org, and Reviews & Reputation, where mirrored content is
-common. Tell each research agent to trace a claim back toward its original source
-(company site, primary filing, the actual review platform) rather than counting
-duplicates as independent confirmation, and to note in its findings when a claim only
-has one real underlying source even if it "appears" in several places.
+Founders & Leadership, Staff & Org, and Reviews & Reputation. Trace a claim back
+toward its original source rather than counting duplicates as independent
+confirmation.
 
 **Confidence grading.** Alongside the URL, each finding gets a rough confidence grade:
 - **A** — primary/official source (company site, filing, direct quote).
 - **B** — reputable independent secondary source (established press, industry report).
 - **C** — single unverified or user-generated source (one review, one social post).
 - **D** — unverifiable / TechNext inference — this is what becomes an `.assess` tag,
-  never a `.cite` link, in the delivered HTML (see Phase 3).
+  never a `.cite` link, in the delivered HTML.
 
 **Structured findings file.** In addition to the HTML deliverable, also write a
 `<client-slug>-findings.json` alongside it: an array of
@@ -204,259 +308,36 @@ MCP" that `prompt.txt` calls out — a machine-readable fact base is what a late
 MCP-connected session would load into Odoo as CRM/company records, instead of having to
 re-parse the HTML.
 
-## Phase 2 — Build the strategic frameworks and the three service-line plans yourself
+## Phase 2 — Write the front matter yourself (no agent needed)
 
-These are synthesis of Phase 1's findings, not new research — do these directly rather
-than spinning up more agents:
+`overview`, `why-ai`, `exec-summary`, `solution-odoo-erp`, `solution-ai`, and
+`solution-social-media` are written directly by you, not another agent — this is fast
+synthesis of what Phase 1's four groups already found and returned (their short
+digests, from Phase 1's instructions), not new research, so spawning a fifth agent for
+it would just add another sequential wait for no real benefit.
 
-- **PESTLE / SWOT-TOWS / Porter's Five Forces** — derived from the market/competitor
-  findings; internally consistent (a SWOT weakness should trace to something the
-  due-diligence research actually found, not be invented to fill the framework).
-- **TAM/SAM/SOM sizing** (adapted from market-research practice) inside Market &
-  Industry — Total Addressable Market (the whole relevant market), Serviceable
-  Available Market (the slice this client could realistically reach), Serviceable
-  Obtainable Market (what they could realistically capture) — each number sourced
-  (`.cite`) where a real market-sizing figure exists, or explicitly marked as a
-  TechNext estimate (`.assess`) with the reasoning shown, never presented as precise
-  when it's actually a rough order-of-magnitude guess.
-- **Competitor comparison table** (adapted from competitive-intel practice) inside
-  Competitor Deep-Dive / Top-3 Competitor Deep-Dive — one `.tbl` row per competitor,
-  columns for positioning, pricing tier, strengths/weaknesses, each cell's factual
-  claims individually cited — not a wall of prose per competitor.
-- **Messaging Comparison Matrix + Content Gap Analysis** (adapted from
-  `marketing:competitive-brief`), added inside `top3-competitor-deep-dive` alongside
-  the comparison table above: a second `.tbl` with one row per messaging theme
-  (e.g. "price", "speed of service", "sustainability") and one column per competitor
-  plus TechNext's client, showing who claims what — this is what directly answers "why
-  choose this client over competitor X" instead of leaving the reader to infer it from
-  separate paragraphs. Follow it with a short Content Gap Analysis: topics/formats
-  competitors cover in their own marketing that the client doesn't (found from Phase
-  1's digital/social research) — this feeds straight into the Social Media Marketing
-  solution pitch as a concrete opportunity, not a generic "post more" suggestion.
-- **Whitespace framing** (adapted from `sales:expansion-whitespace`) inside
-  `solution-odoo-erp`/`solution-ai`/`solution-social-media`: frame each pitch as what
-  the client already has vs. what they could have — e.g. "has a Facebook page,
-  doesn't have Instagram or a content cadence" → the Social Media whitespace; "has
-  spreadsheet-based inventory, no CRM" → the Odoo whitespace. This is what makes
-  pitching all three services at once read as one coherent story instead of three
-  separate unrelated pitches stapled together.
-- **Odoo 19 architecture, module plan, and demo-data plan** — the concrete next step
-  the prompt calls out ("next step is for the AI to connect to MCP and do... make sure
-  Odoo ERP is filled extensively with demo data"). Name the specific Odoo 19 modules
-  this client needs (based on their business model from Phase 1), what demo data
-  should populate each module for a convincing demo, and the data-migration plan from
-  their likely current tools. This section is what an MCP-connected follow-up session
-  would actually execute against a live Odoo instance — be concrete, not generic.
-- **AI Solutions plan** — 2–4 concrete AI/automation use cases specific to this
-  client's actual operations (found in Phase 1, not generic "AI can help with
-  everything"), each tied to a real pain point or process gap, with a rough sense of
-  what data/system it would need to plug into. This feeds both `solution-ai` and
-  `ai-automation-catalog`.
-- **Social Media Marketing plan** — grounded in the digital/social research from
-  Phase 1's track 3: which platforms this client is missing or under-using, a content
-  strategy sketch (pillars, posting cadence, tone) that fits their industry and
-  current audience size, and how it complements (not duplicates) the AI and Odoo
-  plans — e.g. Odoo CRM capturing leads that social content generates. Feeds
-  `solution-social-media` and `social-media-architecture`.
+- **Executive Summary ICP-fit table** (adapted from `sales:account-research`): before
+  the prose recommendation, a small `.tbl` scoring this client's fit — industry match,
+  company size, likely buyer persona reached, timing signal — each cell **Strong /
+  Moderate / Poor** with its evidence (`.cite`/`.assess`). Close with 2–3 concrete
+  "why now" hooks from Phase 1's findings, not generic value-prop language.
+- **Executive Summary prose** (management-consulting communication style): lead with
+  the answer/recommendation in the first sentence, then supporting evidence, then the
+  roadmap and biggest risk — not a chronological recap. A reader who only reads this
+  section should already know what TechNext recommends and why.
+- **Proposed Solutions** (`solution-odoo-erp`/`solution-ai`/`solution-social-media`):
+  the pitch itself, placed right after Executive Summary, before Due Diligence — what
+  TechNext would actually do for this client in that service line, why it fits Phase
+  1's findings, a rough scope/effort indication (detailed pricing stays in
+  `tool-quotation`, detailed architecture stays in Group A/B's technical sections —
+  this is the pitch, not the spec). **Whitespace framing** (adapted from
+  `sales:expansion-whitespace`): frame each as what the client already has vs. could
+  have — e.g. "has a Facebook page, no Instagram or content cadence" → the Social
+  Media whitespace; "spreadsheet-based inventory, no CRM" → the Odoo whitespace. Every
+  one of the three gets real content every time — TechNext's decision to always pitch
+  all three was made deliberately, this skill doesn't second-guess it per client.
 
-## Phase 3 — Section-writing fan-out
-
-Launch a second batch of **5** parallel `Agent` calls — not one per sidebar group.
-Nine section-writing agents (one per group) was the old design; merging adjacent
-groups into 5 broader agents covers the same ~45 sections with far less overhead and
-more consistent cross-references (an agent writing both Due Diligence and Strategic
-Analysis can cite its own due-diligence facts directly instead of guessing what a
-separate agent found). The 5 groupings:
-
-1. **Overview + Proposed Solutions** — `overview`, `why-ai`, `exec-summary`,
-   `solution-odoo-erp`, `solution-ai`, `solution-social-media`. This is the
-   front-facing pitch — it runs in the same parallel batch as the other four agents
-   (no need to wait for their output), just make sure it also receives the Phase 2
-   service-line plans directly, since that's what it's pitching.
-2. **Due Diligence + Strategic Analysis** — `due-diligence`, `company-profile`,
-   `product-catalog`, `founders-leadership`, `staff-org`, `digital-web`,
-   `reviews-reputation`, `strategic-analysis`, `pestle`, `swot-tows`,
-   `porter-5-forces`, `competitor-deep-dive`, `market-industry`,
-   `customer-personas`. Paired because Strategic Analysis is directly derived from
-   Due Diligence facts — one agent keeps that traceability tight.
-3. **Operations + Technology** — `operations`, `stakeholder-perspectives`,
-   `department-workflows`, `pain-solution-matrix`, `bpmn-blueprint-uml`,
-   `ai-automation-catalog`, `ai-in-action`, `odoo-architecture`, `data-migration`,
-   `social-media-architecture`. Paired because the Technology plan is the direct
-   answer to the pains found in Operations.
-4. **Delivery + Competitive Intel + Growth & Strategy** — `implementation-roadmap`,
-   `change-management`, `hypercare-support`, `risk-register-raci`, `kpis-benefits`,
-   `competitive-intel`, `top3-competitor-deep-dive`, `pricing-strategy`,
-   `regional-expansion`, `modern-alternative-services`, `advisory`,
-   `appendix-sources`.
-5. **Tools & Documents** — all `tool-*` sections. Kept separate because these are a
-   different genre entirely (practical artifacts — calculators, playbooks, BRD,
-   quotation) rather than research-derived narrative, so mixing it into another
-   agent's prompt would dilute both.
-
-Give each agent:
-- The relevant Phase 1/2 findings for its group.
-- The exact section slugs/headings it owns, from `assets/menu-structure.md`.
-- Instructions to write bilingual VI/EN content: every visible string as a
-  `<span class="t-vi">...</span><span class="t-en">...</span>` pair (see the toggle
-  pattern already wired into `proposal-template.html` — `t-vi`/`t-en` siblings shown/
-  hidden by `body[data-lang]`, do not invent a different mechanism).
-- The existing CSS classes to reuse for structure (`.card`, `.grid.g2/g3/g4`, `.kpi`,
-  `.pill.p-*`, `.tbl`, `.quad`, `.tl`, `.acc`, `.tabs`/`.tabpane`, `.callout`) —
-  sections should look consistent without a later restyle pass.
-
-**Citations — required, not optional.** Every sourced claim gets an inline citation
-link immediately after it, using the template's `.cite` class:
-```html
-<span class="t-vi">Công ty được thành lập năm 2009</span><span class="t-en">The company was founded in 2009</span><a class="cite" href="https://example.com/about" target="_blank" rel="noopener">[1]</a>
-```
-- Number citations sequentially as they first appear (`[1]`, `[2]`, ...) across the
-  whole document — reuse the same number if the same source is cited again elsewhere.
-- **The `href` is always the real external source URL directly, never an internal
-  anchor jump like `href="#src-1"` pointing at the Appendix row.** A reader clicking a
-  citation should land on the actual evidence page in one click, not on a table row
-  that then makes them click again. This has been gotten wrong before — a fresh run of
-  this skill built every inline citation as `href="#src-slug"` pointing into the
-  Appendix table instead of the source itself; treat that as a defect to catch in the
-  Phase 5 citation audit below, not an acceptable alternative pattern.
-- Every citation number must have a matching row in the `appendix-sources` section's
-  table (section slug it's used in + the real URL) — a `[n]` with no row in Appendix,
-  or a row with no `[n]` anywhere in the body, means Phase 5 isn't done yet.
-- A claim that is TechNext's own inference, not sourced, gets `<span class="assess">
-  <span class="t-vi">Đánh giá của Technext</span><span class="t-en">Technext assessment</span></span>`
-  next to it instead of a `.cite` link — never attach a citation link to something
-  nobody actually looked up.
-
-**Customer Personas** (adapted from persona-building practice): each persona is a
-structured card, not a paragraph — name/role archetype, goals, pains/frustrations,
-preferred channels, and how Odoo/TechNext specifically addresses their pains. Use
-`.grid.g2`/`.g3` of `.card` elements, one per persona; ground each in patterns actually
-observed in Phase 1's reviews/social/market findings, cited where a specific pattern
-traces to a real review or source, `.assess`-tagged where it's a reasonable inference
-for the industry.
-
-**Stakeholder Perspectives** (adapted from `sales:stakeholder-map`): a `.tbl` with
-columns Person/Role (or inferred title if no name is public) / Likely stance toward
-this project / Influence level / Evidence — one row per stakeholder found or
-reasonably inferred from Phase 1 (founders/leadership, staff/org, reviews). Then a
-**single-threaded warning**: if research surfaced only one named contact or decision-
-maker for this client, say so explicitly in a `.callout.warn` — a deal that only ever
-reaches one person at the client is a known, common failure mode, and the proposal
-should name which other roles (ops manager, IT lead, finance) TechNext should try to
-reach and why, not silently leave the gap unmentioned.
-
-**Executive Summary ICP-fit table** (adapted from `sales:account-research`): inside
-`exec-summary`, before the prose recommendation, add a small `.tbl` scoring this
-client's fit — rows for industry match, company size, likely buyer persona reached,
-and timing signal (e.g. a recent expansion, a hiring wave, a visible pain point found
-in Phase 1) — each cell tagged **Strong / Moderate / Poor** with the evidence it's
-based on (`.cite` or `.assess`). Close the table with 2–3 concrete "why now" hooks —
-specific findings from Phase 1 that make this client worth pursuing right now, not
-generic value-prop language that could apply to any prospect.
-
-**Pain → Solution Matrix** (adapted from business-analyst practice): prioritize with
-MoSCoW inside the `.tbl` — a `Must/Should/Could/Won't`-style `.pill` per row — so the
-client can see at a glance which pains Odoo addresses in phase one vs. later.
-
-**Digital & Web Presence as a real audit, not a description** (adapted from
-`marketing:brand-review` + `marketing:seo-audit`): don't just describe the client's
-website/social presence — audit it. For each issue found (weak meta tags, missing
-alt text, inconsistent brand voice across pages, an unsubstantiated marketing claim,
-missing legal disclaimer, thin content on a key page), give it a severity `.pill`
-(**High/Medium/Low**, reusing `.p-red`/`.p-amber`/`.p-green`) and, for the highest-
-severity ones, a short **before/after** example — the client's actual current text
-next to a corrected version — so the reader sees a concrete fix, not just a critique.
-Fold in a small SEO checklist table (title tags, meta descriptions, mobile
-responsiveness, page speed signal, structured data) with a pass/fail `.pill` per item,
-sourced from what Phase 1 actually observed on their site — don't invent technical
-findings that weren't actually checked.
-
-**Risk Register & RACI** (adapted from project-risk-register + RACI-matrix practice):
-- Risk register: a `.tbl` with columns Risk / Probability (1–5) / Impact (1–5) / Score
-  (probability × impact) / Owner / Mitigation / Contingency. Scores ≥20 get a `.p-red`
-  pill and a note that they need executive attention; 12–19 `.p-amber`; below that
-  `.p-green`. Aim for a realistic spread (not every risk scored 3×3) and name a
-  plausible owner role (e.g. "TechNext Project Lead", "Client IT Owner") even when this
-  is a proposal stage and no real names are assigned yet.
-- RACI: a `.tbl` with activities as rows, roles as columns, R/A/C/I cells. **Golden
-  rule: exactly one A per row, never zero, never two** — if a row seems to need two
-  Accountables, that's a sign the activity should split into two rows. Cap Consulted at
-  roughly 3 roles per row; more than that usually means the row is too broad.
-
-**Implementation Roadmap, Change Management, and Hypercare & Support all get an
-`.assess` disclaimer, every time — not optional.** These three sections are inherently
-TechNext's own standard delivery methodology (phase names, week counts, training
-cadence, SLA response thresholds) — none of it is researched fact about the specific
-client, and a long, detailed-looking timeline reads as more "verified" than it actually
-is if left unlabeled. Put one `.assess` span right after each section's `.lead`
-paragraph (before the phase timeline/cards), stating plainly that the specific
-durations/thresholds are a standard template, not yet confirmed against this client's
-real team capacity, data readiness, or signed SLA — see the fixed pattern already
-applied to `kpis-benefits`, `pricing-strategy`, and `risk-register-raci` for the exact
-tone and placement to reuse. A benchmark run of this skill shipped all three of these
-sections with zero `.assess` labeling despite being just as much "TechNext's own
-projection" as the KPI targets — don't repeat that gap.
-
-**Mutual Action Plan** (adapted from `sales:close-plan`), added at the end of
-`implementation-roadmap` after the phase timeline: a short `.tbl` with columns Step /
-Owner (TechNext or Client) / Target date (relative, e.g. "Week 1", not a fake
-calendar date) / Done-when, covering the concrete path from "proposal delivered" to
-signature — discovery call scheduled, BRD sign-off, contract review, kickoff. This is
-what gives the client a next step to act on immediately instead of the roadmap
-implicitly starting only after a contract already exists.
-
-**Proposed Solutions** group specifically (`solution-odoo-erp`, `solution-ai`,
-`solution-social-media`) is the pitch itself, placed early (right after Executive
-Summary, before Due Diligence) — this is "what TechNext recommends," written before
-the reader has seen all the supporting research, so each of the three sections must
-stand on its own: what TechNext would actually do for this client in that service
-line, why it fits what Phase 1 found about them specifically, and a rough indication of
-scope/effort (detailed pricing stays in `tool-quotation`, detailed architecture stays
-in `odoo-architecture`/`ai-automation-catalog`/`social-media-architecture` — this
-section is the pitch, not the technical spec). Every one of the three gets real
-content every time; never present only one or two service lines because the client
-"seems like" a better fit for those — TechNext's decision to always pitch all three was
-made deliberately, this skill doesn't second-guess it per client.
-
-For the **Tools & Documents** group specifically, each item is a practical artifact
-inlined as its own section (not a link to a separate file): AI Build Playbook (a short
-how-to for adopting AI in this client's context), Profit Estimator (a simple
-interactive calculator — plain inline `<script>`, inputs/outputs only, no external
-libraries), Owner FAQ, Odoo Platform overview, Requirements/BRD draft, Quotation
-(indicative pricing table — must itemize all three service lines, not just Odoo),
-Accounting Overhaul notes, Demo Walkthrough script, Staff Guides outline, Discovery
-Questions (the questions TechNext would ask this client in a real discovery call), and
-**Social Media Content Calendar** — a concrete sample 4-week posting plan grounded in
-the Phase 2 social media plan, upgraded with two techniques from the marketing
-skills:
-- **O-A-M-C-M framing** (adapted from `marketing:campaign-plan`): before the calendar
-  grid, state the Objective (what this content is actually meant to achieve —
-  awareness, leads, retention), the Audience segment it targets, the core Message,
-  the Channel(s), and how it will be Measured — with **realistic production
-  timelines** (a blog-style post ~3–5 days, a landing-page-style asset ~5–7 days) and
-  **campaign-type-specific KPIs** (lead-gen tracks CPL/MQL conversion; awareness
-  tracks reach/share-of-voice) rather than one generic "engagement" metric for
-  everything.
-- **Real sample posts, not just a schedule grid** (adapted from
-  `marketing:draft-content`): write out 1–2 actual sample posts in full (hook line,
-  body, CTA) for the highest-priority pillar/platform, not just a row in a table
-  saying "post about X" — this is what lets the client see actual content quality
-  instead of an abstract plan.
-
-**Requirements (BRD)** specifically: write
-requirements as
-Given/When/Then acceptance criteria (adapted from business-analyst practice) tied to a
-pain point from the Pain → Solution Matrix, not vague statements — e.g. "Given a
-reservation is confirmed, when payment is captured, then Odoo Accounting posts the
-invoice automatically" rather than "system should handle payments."
-
-**Executive Summary** (adapted from management-consulting communication style): lead
-with the answer/recommendation in the first sentence, then the supporting evidence,
-then the roadmap and biggest risk — not a chronological recap of the research process.
-A reader who only reads this one section should already know what TechNext recommends
-and why.
-
-## Phase 4 — Assembly
+## Phase 3 — Assembly
 
 Take a fresh copy of `assets/proposal-template.html`, replace every placeholder
 section body with the corresponding agent's output in the fixed order from
@@ -464,12 +345,12 @@ section body with the corresponding agent's output in the fixed order from
 `placeholder-note` element and the template-instructions comment. The result must be
 one `.html` file with no other files alongside it.
 
-## Phase 5 — Mandatory second comprehensive pass
+## Phase 4 — Mandatory second comprehensive pass
 
 `prompt.txt`'s own instruction is explicit: *"after completion, do another round, make
 it super comprehensive."* Treat this as a required step, not optional polish.
 
-**Step 5a — run the mechanical validator first, every time:**
+**Step 4a — run the mechanical validator first, every time:**
 ```
 python scripts/validate-proposal.py <client-slug>-proposal.html <client-slug>-findings.json
 ```
@@ -484,7 +365,7 @@ looking complete). Fix every failure it reports before moving on. It does **not*
 replace the judgment-based checks below — a clean run of the script is necessary, not
 sufficient.
 
-**Step 5b — judgment-based review pass** over the assembled file (a `fork` works well
+**Step 4b — judgment-based review pass** over the assembled file (a `fork` works well
 here since it needs this conversation's full context of what was researched):
 
 - Every one of the ~45 sections has real, specific content — grep the file for
@@ -492,8 +373,8 @@ here since it needs this conversation's full context of what was researched):
 - Every visible string has both a `t-vi` and a `t-en` span filled in — spot-check
   several sections, not just the first few.
 - Any section that reads thin (a couple of generic sentences instead of grounded
-  detail) gets re-sent to its Phase 3 agent with a "go deeper, more specific to this
-  client" instruction — don't pad thin sections by hand with filler.
+  detail) gets re-sent to its Phase 1 group agent with a "go deeper, more specific to
+  this client" instruction — don't pad thin sections by hand with filler.
 - Cross-check internal consistency: the Odoo module plan should match the pain points
   found in Operations; the pricing/quotation should match the module plan's scope.
 - **Citation content check** (the script already confirmed the *links* aren't
@@ -501,7 +382,7 @@ here since it needs this conversation's full context of what was researched):
   cited pages and confirm each one really supports the claim it's attached to, don't
   just trust that a URL resolves. Any sentence that states a specific fact about the
   client (a number, a date, a quote, a review, a named person) with neither a `.cite`
-  link nor an `.assess` tag is a gap — go back to Phase 1/3 and either find the source
+  link nor an `.assess` tag is a gap — go back to Phase 1 and either find the source
   or mark it as an assessment, don't leave it looking like an unverified fact.
 
 **Devil's-advocate review (adapted from issue-task-planning practice).** Before calling
