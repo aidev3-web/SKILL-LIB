@@ -141,32 +141,36 @@ say why, rather than quietly complying.
 
 ## Phase 1 — Parallel research fan-out
 
-Launch multiple `Agent` calls in parallel (single message, multiple tool uses) — this
-is the "spin up as many agents as needed" step. Use `general-purpose` for tracks that
-are fully self-contained from a prompt (most research tracks below); use `fork` only
-where continuing this conversation's own context matters. Suggested split — merge or
-split further based on how much there is to research for this particular client:
+**Cost note — read before spawning anything.** An earlier version of this skill
+suggested 6 research agents here plus 9 section-writing agents in Phase 3 — roughly 16
+agent calls per proposal, which made a single run take 45–60 minutes and burn a large
+amount of tokens for output that wasn't proportionally better. Merged, 3 broader
+research agents here consistently cover the same ground with far less overhead. Do not
+re-expand this back toward one-agent-per-topic — the merge is deliberate, not a
+placeholder to split further "for thoroughness."
 
-1. **Company profile & product catalog** — history, business model, products/services,
-   locations, scale.
-2. **Founders, leadership & staff/org** — who runs it, public org signals, headcount
-   estimates, hiring patterns.
-3. **Digital & web presence, reviews & reputation** — website quality, social media
-   activity (posting frequency, follower counts, engagement, platforms used), review
-   sites, customer sentiment — this track is the primary input for the Social Media
-   Marketing solution pitch, so have it capture social-specific detail (which
-   platforms are active vs. absent, content mix, posting cadence, obvious gaps) in
-   enough depth for that pitch, not just a due-diligence footnote.
-4. **Market, industry & competitors** — industry sizing/trends, direct competitors,
-   customer personas typical of this industry — this track's output feeds both
-   "Market & Industry" and the Porter's Five Forces / competitor-deep-dive sections.
-5. **Business-analyst pass** — give this agent the `business-analyst` skill's
-   discovery checklist (stakeholders, process mapping, pain points, KPIs) and ask it to
-   infer likely department workflows, pain points, and stakeholder perspectives for a
-   company of this profile/industry — feeds Operations + Pain→Solution Matrix.
-6. **Management-consultant pass** — ask this agent to reason about growth strategy,
-   pricing strategy, regional expansion options, and risk factors for this client —
-   feeds Growth & Strategy + Risk Register & RACI.
+Launch 3 `Agent` calls in parallel (single message, multiple tool uses). Use
+`general-purpose` for all three — each prompt below is fully self-contained; use `fork`
+only if a track genuinely needs this conversation's own context (rare here):
+
+1. **Company & Leadership** — history, business model, products/services, locations,
+   scale, founders/leadership, public org signals, headcount estimates, hiring
+   patterns. (Merges what used to be two separate tracks — company profile and
+   leadership research overlap heavily in practice; splitting them just meant both
+   agents re-reading the same "About" and LinkedIn pages.)
+2. **Digital, Market & Competitors** — website quality, social media activity (posting
+   frequency, follower counts, engagement, platforms used), review sites, customer
+   sentiment, industry sizing/trends, direct competitors, customer personas typical of
+   this industry. Feeds Digital & Web Presence, Market & Industry, Porter's Five
+   Forces, Competitor Deep-Dive, and — capture social-specific detail explicitly
+   (which platforms are active vs. absent, content mix, posting cadence, obvious gaps)
+   — the Social Media Marketing solution pitch.
+3. **Operations & Strategy consultant** — one agent doing both passes that used to be
+   separate: the `business-analyst` discovery checklist (stakeholders, process
+   mapping, pain points, KPIs) to infer likely department workflows and pain points,
+   **and** the management-consultant reasoning (growth strategy, pricing strategy,
+   regional expansion, risk factors) for this client. Feeds Operations,
+   Pain→Solution Matrix, Growth & Strategy, and Risk Register & RACI.
 
 Each agent should return **structured findings**, not finished HTML — bullet facts,
 grouped by which sidebar section(s) they feed. **Every fact must carry the exact URL
@@ -257,9 +261,40 @@ than spinning up more agents:
 
 ## Phase 3 — Section-writing fan-out
 
-Launch a second batch of parallel `Agent` calls, one per major sidebar group (Proposed
-Solutions, Due Diligence, Strategic Analysis, Operations, Technology, Delivery,
-Competitive Intel, Growth & Strategy, Tools & Documents). Give each agent:
+Launch a second batch of **5** parallel `Agent` calls — not one per sidebar group.
+Nine section-writing agents (one per group) was the old design; merging adjacent
+groups into 5 broader agents covers the same ~45 sections with far less overhead and
+more consistent cross-references (an agent writing both Due Diligence and Strategic
+Analysis can cite its own due-diligence facts directly instead of guessing what a
+separate agent found). The 5 groupings:
+
+1. **Overview + Proposed Solutions** — `overview`, `why-ai`, `exec-summary`,
+   `solution-odoo-erp`, `solution-ai`, `solution-social-media`. This is the
+   front-facing pitch — it runs in the same parallel batch as the other four agents
+   (no need to wait for their output), just make sure it also receives the Phase 2
+   service-line plans directly, since that's what it's pitching.
+2. **Due Diligence + Strategic Analysis** — `due-diligence`, `company-profile`,
+   `product-catalog`, `founders-leadership`, `staff-org`, `digital-web`,
+   `reviews-reputation`, `strategic-analysis`, `pestle`, `swot-tows`,
+   `porter-5-forces`, `competitor-deep-dive`, `market-industry`,
+   `customer-personas`. Paired because Strategic Analysis is directly derived from
+   Due Diligence facts — one agent keeps that traceability tight.
+3. **Operations + Technology** — `operations`, `stakeholder-perspectives`,
+   `department-workflows`, `pain-solution-matrix`, `bpmn-blueprint-uml`,
+   `ai-automation-catalog`, `ai-in-action`, `odoo-architecture`, `data-migration`,
+   `social-media-architecture`. Paired because the Technology plan is the direct
+   answer to the pains found in Operations.
+4. **Delivery + Competitive Intel + Growth & Strategy** — `implementation-roadmap`,
+   `change-management`, `hypercare-support`, `risk-register-raci`, `kpis-benefits`,
+   `competitive-intel`, `top3-competitor-deep-dive`, `pricing-strategy`,
+   `regional-expansion`, `modern-alternative-services`, `advisory`,
+   `appendix-sources`.
+5. **Tools & Documents** — all `tool-*` sections. Kept separate because these are a
+   different genre entirely (practical artifacts — calculators, playbooks, BRD,
+   quotation) rather than research-derived narrative, so mixing it into another
+   agent's prompt would dilute both.
+
+Give each agent:
 - The relevant Phase 1/2 findings for its group.
 - The exact section slugs/headings it owns, from `assets/menu-structure.md`.
 - Instructions to write bilingual VI/EN content: every visible string as a
