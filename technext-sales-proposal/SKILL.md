@@ -1,6 +1,6 @@
 ---
-name: sales-proposal-skill
-description: Turn a prospective TechNext client (a company name, website, or short brief) into one comprehensive, bilingual (VI/EN toggle) self-contained HTML sales proposal website covering all three TechNext service lines — Odoo ERP implementation, AI Solutions, and Social Media Marketing — deep web/social research, a fixed ~45-item sidebar covering Due Diligence, Strategic Analysis (PESTLE/SWOT/Porter's/competitors), Operations, Technology architecture (Odoo 19 + AI + social media) & demo-data plan, Delivery roadmap, Growth strategy, and a Tools & Documents section (AI Build Playbook, Profit Estimator, Quotation, Content Calendar, Discovery Questions, etc). Use when asked to research a client and build a sales proposal / due-diligence site, "làm sales proposal", "nghiên cứu khách hàng làm đề xuất", or when the request matches the client-research-to-proposal workflow (spin up agents, research a company, produce a growth plan with a big sidebar).
+name: technext-sales-proposal
+description: Turn a prospective TechNext client (a company name, website, or short brief) into one comprehensive, bilingual (VI/EN toggle) self-contained HTML sales proposal website covering all three TechNext service lines — Odoo ERP implementation, AI Solutions, and Social Media Marketing — deep web/social research, a fixed sidebar covering Due Diligence, Strategic Analysis (competitors/market), Operations, Technology architecture (Odoo 19 + AI + social media) & demo-data plan, Delivery roadmap, Growth strategy, and a Tools & Documents section (AI Build Playbook, Profit Estimator, Quotation, Meeting Minutes, Discovery Questions, etc). Use when asked to research a client and build a sales proposal / due-diligence site, "làm sales proposal", "nghiên cứu khách hàng làm đề xuất", or when the request matches the client-research-to-proposal workflow (spin up agents, research a company, produce a growth plan with a big sidebar).
 ---
 
 # Sales proposal skill — client research → TechNext sales proposal site (Odoo ERP · AI · Social Media)
@@ -23,7 +23,7 @@ pitch copy-pasted across clients. Don't ask the user which service(s) to include
 that decision was already made — always all three.
 
 **Output**: exactly one self-contained `.html` file, `<client-slug>-proposal.html`,
-with a fixed ~45-item sidebar (client-side JS nav, no page reloads), a VI/EN language
+with a fixed ~42-item sidebar (client-side JS nav, no page reloads), a VI/EN language
 toggle, and a light/dark theme toggle. Never split "Tools & Documents" items into
 separate files — they are sections inside the same file.
 
@@ -32,8 +32,12 @@ hard requirement, not a style preference: a sales/due-diligence document that st
 facts about a real company with no way to check them is not trustworthy, and TechNext
 is putting its name on it. Concretely:
 - Any claim that came from a real source (a web page, an article, a review site, a
-  social profile, an official filing) gets a visible, clickable citation link right
-  next to it in the delivered HTML — see "Citations" under Phase 3/4 below.
+  social profile, an official filing) gets a citation marker right next to it in the
+  delivered HTML — see "Citations" under Phase 3/4 below. **The source preview appears
+  on hover/focus, not only on click** — the reader shouldn't have to leave the page or
+  click through to see what's being cited; clicking still works underneath as a
+  fallback (opens the real source in a new tab), it's just not the primary way to see
+  it anymore.
 - Any claim that is TechNext's own inference/estimate/opinion rather than something
   found in a source (an assumption about likely pain points, a projected KPI, a
   strategic recommendation) must be **labeled as such** — never presented with the
@@ -42,6 +46,117 @@ is putting its name on it. Concretely:
 - Never invent a number, quote, review, or named person and attach a fake-looking
   citation to it. If something can't be found or verified, say so in the section
   instead of guessing confidently.
+
+## Charts & diagrams — required, not optional
+
+Trung's original reference build (`full1`, Casa Escondida Anilao) is not just tables and
+prose — it has **21 Chart.js canvas charts** and **9 Mermaid diagrams**, styled
+consistently (theme-aware grid/legend colors, a shared color palette, re-rendered on
+light/dark toggle). A proposal with zero, or with charts that look like bare
+default-styled Chart.js output, is missing a real part of the deliverable — an earlier
+real run of this skill shipped with none at all, and a later one shipped a handful that
+didn't match the reference's look.
+
+**Use the real helper functions, don't hand-roll chart configs.**
+`assets/proposal-template.html` now ports these **verbatim from `full1`** — every chart
+must be built through them, never via a bare `new Chart(el, {...})` call, so it
+automatically gets the right colors and survives the light/dark theme toggle:
+```js
+regChart(() => mkChart('cSentiment', {
+  type: 'bar',
+  data: {
+    labels: ['5★','4★','3★','2★','1★'],
+    datasets: [{ label: 'Share of reviews (est. %)', data: [72,18,6,2,2], backgroundColor: PAL, borderRadius: 6 }]
+  },
+  options: baseOpts({ scales: gridScale(), plugins: { legend: { display: false } } })
+}));
+```
+- `regChart(fn)` registers the chart-builder so it (re-)runs on load **and** whenever
+  `toggleTheme()` fires (`reRenderCharts()` destroys and rebuilds every registered
+  chart) — a chart built with a bare `new Chart(...)` call outside `regChart(...)`
+  will look wrong after a theme switch. Always wrap in `regChart(() => mkChart(...))`.
+- `PAL` is the shared 10-color palette (`#19c6c6`, `#3b82f6`, `#6366f1`, `#ffb454`,
+  `#ff6b6b`, `#36d399`, `#a78bfa`, `#f472b6`, `#37e0c8`, `#7eb0ff`) — use it for
+  multi-category datasets (doughnut slices, grouped bars) instead of inventing new
+  colors per chart.
+- `baseOpts(extra)` sets `responsive`/`maintainAspectRatio`/theme-aware legend text
+  color; merge your own `scales`/`plugins` into it via the `extra` argument rather than
+  writing `options` from scratch.
+- `gridScale(stacked?)` gives theme-aware x/y grid+tick colors for bar/line charts —
+  use it for any chart with cartesian axes.
+- `inkColors()` returns the current theme's `{grid, tick, ink}` — needed directly for
+  radar (`scales.r`) configs, which `gridScale()` doesn't cover.
+- **Chart labels/dataset labels are always plain strings, never HTML.** Chart.js
+  renders them as plain canvas text, not HTML — `'<span class="t-vi">Facebook</span>
+  <span class="t-en">Facebook</span>'` as a label literally prints the tag markup on
+  the chart, it doesn't toggle with VI/EN like the rest of the page (a real run once
+  did exactly this). Charts don't support the bilingual toggle — use a single combined
+  string instead, e.g. `'Trực tiếp/Direct'` or just the term if it's the same in both
+  languages (`'Facebook'`, `'Analytics'`).
+
+**Full chart manifest — all 19, not a representative sample.** `full1` has 21 named
+charts; this skill drops the 2 tied to the removed PESTLE/Porter's Five Forces
+sections, leaving 19 required. Content adapted per client's
+actual industry, counts/labels never invented from nothing — an `.assess`-labeled
+illustrative estimate is fine, an empty/missing chart is not). Each row below is one
+required `<canvas id="...">`, its Chart.js `type`, which group writes it, and what it
+shows (adapt the specific framing to the client's actual business — e.g. `cSeason`
+becomes whatever this client's real demand-cycle driver is, not literally diving
+season, if the client isn't a dive resort):
+
+| Canvas id | Type | Owner | Shows |
+|---|---|---|---|
+| `cRevMix` | doughnut | Phase 2 (`exec-summary`) | Illustrative revenue/effort mix across the 3 proposed service lines |
+| `cScorecard` | bar | Phase 2 (`exec-summary`) | Today vs. 12-months-post-engagement, indexed to 100 |
+| `cRevStream` | bar (horizontal) | Group A (`company-profile`/`due-diligence`) | Revenue or activity share by product/service line |
+| `cHeadcount` | bar | Group A (`staff-org`) | Estimated headcount by department |
+| `cSeasonStaff` | line (dual-axis) | Group A (`staff-org`) | Staffing level vs. demand-cycle driver over the year |
+| `cChannel` | doughnut | Group A (`digital-web`) | Acquisition/inquiry channel mix |
+| `cDigital` | radar | Group A (`digital-web`) | Digital maturity today vs. post-engagement target |
+| `cSentiment` | bar | Group A (`reviews-reputation`) | Review star-rating distribution |
+| `cThemes` | bar (stacked) | Group A (`reviews-reputation`) | Recurring praise vs. complaint themes |
+| `cPosition` | bubble | Group A (`competitor-deep-dive`) | Positioning map — price vs. rating, bubble ≈ scale |
+| `cGap` | radar | Group A (`competitor-deep-dive`) | Feature-gap vs. premium peers |
+| `cOrigin` | doughnut | Group A (`market-industry`) | Customer origin/segment mix |
+| `cSeason` | line | Group A (`market-industry`) | Demand-cycle curve for this client's actual industry |
+| `cPersona` | bubble | Group A (`customer-personas`) | CLV & volume by persona, bubble = share |
+| `cAuto` | bubble | Group B (`ai-automation-catalog`) | Automation portfolio — impact vs. effort (top-left = quick win) |
+| `cRisk` | bubble | Group C (`risk-register-raci`) | Risk heat-map — probability × impact, bubble = urgency |
+| `cKpi` | bar | Group C (`kpis-benefits`) | Baseline vs. 12-month target per KPI |
+| `cRoi` | line | Group C (`kpis-benefits`) | Cumulative cost vs. cumulative benefit, break-even visible |
+| `cOwner` | bubble | Group C (`advisory` or growth-strategy section) | The major recommended decisions — impact vs. effort |
+
+That's **12 charts for Group A, 1 for Group B, 4 for Group C, 2 for Phase 2** = 19 total.
+Group A owning most of them is expected — it's chart-config generation from research
+Group A already did, not new research, so it doesn't need extra research time.
+
+**Full Mermaid manifest — all 9:**
+
+| # | Type | Owner | Shows |
+|---|---|---|---|
+| 1 | `flowchart` | Group A (`staff-org`) | Organisation chart / reporting lines |
+| 2 | `flowchart` | Group B (`department-workflows`) | Acquisition funnel / manual-handling load, as-is |
+| 3 | `flowchart` | Group B (`odoo-architecture`) | Module dependency & data flow |
+| 4 | `flowchart` | Group B (`odoo-architecture` or `ai-in-action`) | Integration map (Odoo ↔ AI ↔ social/other systems) |
+| 5 | `flowchart` | Group B (`bpmn-blueprint-uml`) | BPMN-style swimlane — the client's core operational process, as-is → to-be |
+| 6 | `sequenceDiagram` | Group B (`bpmn-blueprint-uml`) | UML sequence — a key transaction flow (e.g. order → fulfillment → invoice) |
+| 7 | `flowchart` | Group C (`implementation-roadmap`) | Migration approach / cutover flow |
+| 8 | `gantt` | Group C (`implementation-roadmap`) | Roadmap timeline by phase |
+| 9 | `flowchart` | Group C (`hypercare-support`) | Issue-triage flow during hypercare |
+
+That's **1 for Group A, 5 for Group B, 3 for Group C** = 9 total. Group D (Tools &
+Documents) does not own any required chart/diagram in this manifest — its content is
+mostly tables/calculators, per its own instructions above.
+
+Each `<canvas id="...">` above must appear in the HTML with that exact id and exactly
+one matching `regChart(() => mkChart('...', {...}))` call in a `<script>` block placed
+right after that section's HTML (or batched at the end of `<main>` — either is fine as
+long as every canvas gets registered). Each Mermaid diagram is a
+`<div class="mermaid">...</div>` containing raw Mermaid syntax
+(`flowchart`/`gantt`/`sequenceDiagram`), never a hand-drawn image — Mermaid renders it
+client-side automatically (`startOnLoad:true`, already wired in the template). Phase 4's
+mechanical validator (check #9) now checks for all 21 canvases and all 9 diagrams by
+count — missing several is a fail, not a warning.
 
 ## Reference files — read before writing anything
 
@@ -70,9 +185,9 @@ not merge it in and hope it blends.
   Blueprint · Technext.html", kept alongside `prompt.txt` in the original working
   folder): dark/light `--bg`/`--panel`/`--teal` CSS-variable theme, sticky `#sidenav`,
   scroll progress bar, mobile hamburger nav, hero cover section, and a component
-  library (`.card`, `.grid.g2/g3/g4`, `.kpi`, `.pill.p-*`, `.tbl`, `.quad` for SWOT,
-  `.tl` timeline, `.acc` accordion, `.tabs`/`.tabpane`, `.callout`). Copy this file as
-  your starting point for every run.
+  library (`.card`, `.grid.g2/g3/g4`, `.kpi`, `.pill.p-*`, `.tbl`, `.quad` for any
+  2×2 layout, `.tl` timeline, `.acc` accordion, `.tabs`/`.tabpane`, `.callout`). Copy
+  this file as your starting point for every run.
   - **The sidebar is not hand-written.** `buildNav()` generates it at load time from
     every `<section data-nav-vi="..." data-nav-en="..." data-grp-vi="..." data-grp-en="...">`
     in `<main>` — tag each section correctly and the nav (grouped, ordered by DOM
@@ -108,12 +223,17 @@ not merge it in and hope it blends.
     delivering. Do not restructure the shell (CSS tokens, `buildNav`/`toggleTheme`/
     `setLang` scripts) per client — only section bodies, hero text, and title/branding
     change.
-- `scripts/validate-proposal.py` — the Phase 4 mechanical validator (run via `python`).
+- `assets/validate-proposal.py` — the Phase 4 mechanical validator (run via `python`).
   Checks only what's objectively countable: no leftover placeholders, no
-  internal-anchor citations, citation/Appendix consistency, required-section
-  coverage, `.assess` presence on the three delivery sections, and `findings.json`
-  consistency. It does not check factual accuracy or content depth — those stay
-  judgment calls. See Phase 4 for when to run it.
+  internal-anchor citations, citation/Sources & Citation consistency, required-section
+  coverage, `.assess` presence on the three delivery sections, `findings.json`
+  consistency, that the real template shell was used, that a real spread of
+  Chart.js canvases + Mermaid diagrams is present (not a text/table-only file), that
+  citations use the hover-card markup, and that no `<CLIENT NAME>` placeholder or
+  stale "Odoo 19" sidebar-brand text is left unfilled anywhere (including inside
+  `buildNav()`'s JS string, not just the visible hero/`<title>`). It
+  does not check factual accuracy, content depth, or whether a chart's data is any
+  good — those stay judgment calls. See Phase 4 for when to run it.
 
 ## Phase 0 — Intake
 
@@ -131,11 +251,11 @@ findable) a registration number or official domain. If two candidates are plausi
 so and ask rather than silently picking one and researching the wrong company for 40
 sections.
 
-**Research depth.** Default to a full "Standard" pass across every section. If the user
-says they just want a quick draft, or the client clearly has very little public
-footprint, use a "Quick" pass instead: fewer research agents, thinner sections, but
-still real citations — never fabricate depth that wasn't actually researched. State
-which depth you're using before starting.
+**Research depth.** Always a full "Standard" pass across every section — there is no
+"Quick" mode anymore, don't offer or default to one. If a client genuinely has very
+little public footprint, say so plainly in the relevant sections (see "Judgment calls"
+below) rather than switching to a thinner research pass; the depth of effort stays the
+same regardless of how much was actually found.
 
 **Engagement framing (adapted from management-consulting practice).** Before research
 starts, note — in your own head, not necessarily asked aloud unless genuinely unclear —
@@ -146,6 +266,17 @@ Summary, a warm follow-up can lean harder into the relevant Proposed Solutions s
 + Quotation. It does **not** change which service lines appear — all three (Odoo ERP,
 AI, Social Media) are always pitched, only how much depth each gets.
 
+**Client-provided info (discovery call notes, transcript, direct answers) — ask for
+this before researching, don't skip it.** Ask: *"Bạn có ghi chú/bản ghi/transcript nào
+từ buổi gọi hoặc họp với khách hàng này chưa? Nếu có, dán vào đây."* If the user
+pastes something, this is a **different, higher-trust source than anything found by
+web/social research** — a client directly stating "we have 24 rooms, 8 ocean-view" or
+naming their own operations lead is not something to re-verify by searching the web,
+it's simply true (assuming the user pasted it accurately). Treat it as the first thing
+to check when writing any section, before falling back to public search for the same
+fact. See "Confidence grading" under Phase 1 for how this is graded and cited
+differently from `.cite`/`.assess`.
+
 **Scope & ethics boundary (adapted from OSINT practice).** Research stays limited to
 information a company and its leadership have made public in a business capacity
 (company sites, business filings, press, professional social profiles, public reviews).
@@ -154,7 +285,85 @@ role, and never use non-public collection methods (scraping behind logins, socia
 engineering, breach data). If a request pushes past this line, decline that part and
 say why, rather than quietly complying.
 
+## Checkpoints — run one phase at a time instead of the whole pipeline
+
+**Ask this in Phase 0, right after confirming the client:** *"Chạy toàn bộ pipeline
+luôn, hay chỉ chạy 1 phase cụ thể?"* Running the full Phase 1→4 pipeline in one go is
+the default, but it's also the slowest/most expensive path — if the user only wants to
+re-run Group B after a bad first pass, or just wants Phase 4's validator re-checked
+after a manual edit, don't force them through everything again.
+
+**How checkpointing works.** Every phase writes its output to its own intermediate
+file(s) instead of only living in conversation context, so a *later, separate*
+invocation of this skill can resume from any completed phase without re-running the
+ones before it:
+
+- `<client-slug>-checkpoint.json` — one small file tracking what's done:
+  `{ "phase1_groupA": "done", "phase1_groupB": "done", "phase1_groupC": "pending", "phase1_groupD": "pending", "phase2": "pending", "phase3": "pending", "phase4": "pending" }`.
+  Read this file first, if it exists, to know what's already been done before deciding
+  what to run.
+- **Every intermediate file must be a real, directly-openable HTML page — never a bare
+  `<section>` fragment saved on its own.** A fragment can't be previewed in a browser
+  to sanity-check it, which is exactly when you most want to look at it (right after a
+  single group/section just ran). So `<client-slug>-p1-groupA.html` (and B/C/D) is a
+  **full copy of `assets/proposal-template.html`** with that group's real sections
+  filled in and every other section left as its original `placeholder-note` — openable
+  and previewable on its own, dark navy/teal theme, nav, hover-citations and all,
+  exactly like the final deliverable, just with most sections still empty. Plus a
+  shared `<client-slug>-p1-digests.json` (each group's 3–5-point digest for Phase 2,
+  kept separate since Phase 2 only needs the digests, not full HTML). A group can be
+  (re-)run alone — e.g. "chạy lại Group B thôi" — by reading the other 3 groups'
+  already-saved files rather than re-invoking them.
+- **Phase 2** saves its own preview the same way — a full template copy with just the
+  front-matter sections (`overview`, `exec-summary`, `solution-*`) filled in — to
+  `<client-slug>-p2-frontmatter.html` (reads `<client-slug>-p1-digests.json` for
+  content, not the full Phase 1 group files, per its own instructions below).
+- **Phase 3 (Assembly)** requires all of Phase 1 (4 groups) + Phase 2 to be `"done"` in
+  the checkpoint file — if any are still `"pending"`, say so and stop rather than
+  assembling with gaps. Since every `-p1-group*.html`/`-p2-frontmatter.html` is itself a
+  full template-shaped page (see above), Phase 3 doesn't paste them in whole — it
+  **extracts only the finished `<section id="...">...</section>` blocks** from each one
+  (the same extraction `assets/validate-proposal.py` already does — grab from a
+  section's opening tag to the next `<section id="` or `</main>`) and drops each into a
+  fresh copy of `assets/proposal-template.html` in the fixed order from
+  `assets/menu-structure.md`, producing the final `<client-slug>-proposal.html`.
+- **Phase 4** only needs Phase 3's `<client-slug>-proposal.html` to exist — it can be
+  re-run alone any time (e.g. after a manual fix) without touching Phases 1–3.
+
+After running whichever phase(s) were requested, update `<client-slug>-checkpoint.json`
+and tell the user plainly what just ran and what's still pending — e.g. *"Đã chạy xong
+Phase 1 Group A + B (2 agent). Group C, D, Phase 2-4 vẫn đang pending."* Note: this
+tracks **how many `Agent` calls were made**, a rough proxy for cost — it is not an
+exact token/dollar count (only Claude Code's own session-cost reporting has that).
+
+**Section-level touch-ups — smaller than a whole group.** A group is 6–14 sidebar
+sections bundled into one `Agent` call — if the user only wants one specific section
+redone (e.g. "chỉ nghiên cứu lại phần Digital & Web Presence thôi" — that's one section
+inside Group A, not all of Group A), don't re-run the whole group:
+1. Identify which group owns that section (see the Group A/B/C/D descriptions below,
+   or just match the section name against `assets/menu-structure.md`).
+2. Spawn a single, narrowly-scoped `Agent` call for **just that one section** (still
+   give it the real template contents + the citation/chart rules that apply, same as
+   any Phase 1 agent — a smaller scope doesn't mean lower quality bar).
+3. Open the group's existing `<client-slug>-p1-group<X>.html`, find that section's
+   `<section id="...">...</section>` block, and replace only that block in place —
+   every other section in the file stays untouched, byte for byte.
+4. The group's checkpoint status stays whatever it already was (this is an in-place
+   patch, not a new phase) — no new checkpoint field needed for this.
+If the user doesn't know which group owns a section, they don't need to — just name
+the section (as it appears in the sidebar) and resolve the mapping yourself.
+
 ## Phase 1 — Research + write fan-out (one round, not two)
+
+*Running this phase alone, or just one group (checkpoint resume)? Only spawn the
+group(s) actually requested/still `"pending"` in `<client-slug>-checkpoint.json` — a
+single group (e.g. "chạy lại Group B") is a single `Agent` call, not all 4. Each group
+saves its own `<client-slug>-p1-group<X>.html` — **a full copy of
+`assets/proposal-template.html` with just this group's sections filled in, everything
+else left as `placeholder-note`** (so it's directly openable in a browser to preview,
+not a bare fragment) — and appends its digest to the shared
+`<client-slug>-p1-digests.json` (create it if it doesn't exist yet), then marks its
+own `phase1_group<X>: "done"`.*
 
 **Wall-clock note — read before spawning anything.** The number of agents controls
 token cost; the number of *sequential phases* controls wall-clock time, and that
@@ -185,17 +394,31 @@ most important findings — Phase 2 uses these digests to write the front matter
 re-reading every agent's full section HTML.
 
 **Group A — Due Diligence + Strategic Analysis** (`due-diligence`, `company-profile`,
-`product-catalog`, `founders-leadership`, `staff-org`, `digital-web`,
-`reviews-reputation`, `strategic-analysis`, `pestle`, `swot-tows`, `porter-5-forces`,
-`competitor-deep-dive`, `market-industry`, `customer-personas`): research the company
-itself, its founders/leadership, staff/org signals, digital & social presence, reviews,
-market/industry, and direct competitors — then build PESTLE/SWOT-TOWS/Porter's Five
-Forces and write all these sections itself, in the same call. Paired because Strategic
+`product-catalog`, `founders-leadership`, `staff-org`, `current-operations`,
+`current-tools-saas`, `digital-web`,
+`reviews-reputation`, `strategic-analysis`,
+`competitor-deep-dive`, `market-industry`, `customer-personas`): also owns **12 of the
+19 required charts + 1 Mermaid diagram** — see the full manifest under "Charts &
+diagrams" above (`cRevStream`, `cHeadcount`, `cSeasonStaff`, `cChannel`, `cDigital`,
+`cSentiment`, `cThemes`, `cPosition`, `cGap`, `cOrigin`,
+`cSeason`, `cPersona`, plus the org-chart flowchart) — build all of them as part of
+this same call, via `regChart(() => mkChart(...))`, not a separate pass. Research the
+company itself, its founders/leadership, staff/org signals, digital & social presence,
+reviews, market/industry, and direct competitors — then write all these sections
+itself, in the same call. Paired because Strategic
 Analysis is directly derived from Due Diligence facts — one agent keeps that
 traceability tight instead of a second agent guessing what the first one found.
 Capture social-specific detail explicitly in `digital-web` (which platforms are active
 vs. absent, content mix, posting cadence, obvious gaps) — Group C's Social Media
 pitch depends on this. Also build:
+- **Current Operations** (`current-operations`) and **Current Tools & SaaS**
+  (`current-tools-saas`): document how the client actually runs today — before any
+  TechNext change — and every tool/spreadsheet/SaaS currently in use, each with what
+  it's used for and its observed limitation (`.cite` where found publicly, `.assess`
+  where inferred). This is the "as-is" baseline the Proposed Solutions pitch and the
+  Odoo/AI/Social architecture plans (Group B) are pitched against — a whitespace claim
+  like "spreadsheet-based inventory, no CRM" needs this section to actually say so
+  first, not just assert it later in Phase 2.
 - **TAM/SAM/SOM sizing** (adapted from market-research practice) inside
   `market-industry` — Total Addressable Market, Serviceable Available Market,
   Serviceable Obtainable Market — each number sourced (`.cite`) where a real
@@ -222,11 +445,22 @@ pitch depends on this. Also build:
   (`.grid.g2`/`.g3` of `.card`) — name/role archetype, goals, pains, preferred
   channels, how TechNext addresses each — grounded in this group's own
   reviews/social/market findings.
+- **Reviews & Reputation — mine it, don't just chart it** (`full1`'s reference build
+  has this and it's easy to skip): beyond `cSentiment`/`cThemes`, add a two-column
+  `.grid.g2` breakdown — `.q s` "👍 What customers love" and `.q w` "👎 Friction
+  points" — each a bullet list of **specific, concrete items actually found** in
+  reviews/social comments (not generic filler like "good service"). Close with a
+  `.callout` giving an **estimated NPS/reputation-score range** (e.g. "modelled NPS of
+  +40 to +60 given a 4.3★ Google profile") — this is a modelled estimate, not a
+  measured metric, so tag it `.assess` and say what it's based on.
 
 **Group B — Operations + Technology** (`operations`, `stakeholder-perspectives`,
 `department-workflows`, `pain-solution-matrix`, `bpmn-blueprint-uml`,
 `ai-automation-catalog`, `ai-in-action`, `odoo-architecture`, `data-migration`,
-`social-media-architecture`): all 4 groups launch in the same parallel batch, so this
+`social-media-architecture`): also owns **1 chart (`cAuto`) + 5 Mermaid diagrams** —
+see the full manifest under "Charts & diagrams" above (acquisition-funnel flowchart,
+module-dependency flowchart, integration-map flowchart, BPMN swimlane, UML sequence).
+All 4 groups launch in the same parallel batch, so this
 group does its own quick check of the client's leadership/staff/about pages for
 `stakeholder-perspectives` rather than waiting on Group A's output (a little
 redundant research across groups, same trade-off as Group D below — worth it to stay
@@ -257,7 +491,10 @@ process mapping, pain points, KPIs), and build and write, itself, in the same ca
 (`implementation-roadmap`, `change-management`, `hypercare-support`,
 `risk-register-raci`, `kpis-benefits`, `competitive-intel`,
 `top3-competitor-deep-dive`, `pricing-strategy`, `regional-expansion`,
-`modern-alternative-services`, `advisory`, `appendix-sources`): reason about growth
+`advisory`, `sources-citation`): also owns **4 charts
+(`cRisk`, `cKpi`, `cRoi`, `cOwner`) + 3 Mermaid diagrams** (cutover-flow, roadmap
+`gantt`, hypercare issue-triage flowchart) — see the full manifest under "Charts &
+diagrams" above. Reason about growth
 strategy, pricing strategy, regional expansion, and risk factors for this client (the
 management-consultant pass), do its own competitor research for
 `top3-competitor-deep-dive` (including the Messaging Comparison Matrix + Content Gap
@@ -279,33 +516,72 @@ Analysis described under Group A), and write:
   (relative, e.g. "Week 1") / Done-when — the concrete path from "proposal delivered"
   to signature.
 
-**Group D — Tools & Documents** (all `tool-*` sections): each item is a practical
-artifact inlined as its own section (not a separate file): AI Build Playbook, Profit
-Estimator (plain inline `<script>` calculator, no external libraries), Owner FAQ,
-Odoo Platform overview, Requirements/BRD, Quotation (itemize all three service lines),
-Accounting Overhaul notes, Demo Walkthrough script, Staff Guides outline, Discovery
-Questions, and Social Media Content Calendar. This group works from general
-industry-appropriate assumptions about pain points/modules rather than waiting on
-Groups A/B's exact output — Phase 4's devil's-advocate review is what catches any
-mismatch, so a little independence here is an acceptable trade for staying parallel.
+**Group D — Tools & Documents** (all `tool-*` sections plus `meeting-minutes`): each
+item is a practical artifact inlined as its own section (not a separate file): AI
+Build Playbook, Profit Estimator (plain inline `<script>` calculator, no external
+libraries), Owner FAQ, Odoo Platform overview, Requirements/BRD, Quotation (itemize
+all three service lines), Accounting Overhaul notes, Demo Walkthrough script, Staff
+Guides outline, Discovery Questions, and Meeting Minutes. This group works from
+general industry-appropriate assumptions about pain points/modules rather than
+waiting on Groups A/B's exact output — Phase 4's devil's-advocate review is what
+catches any mismatch, so a little independence here is an acceptable trade for
+staying parallel.
 - **Requirements (BRD)**: Given/When/Then acceptance criteria (adapted from
   business-analyst practice) tied to a plausible pain point — e.g. "Given a
   reservation is confirmed, when payment is captured, then Odoo Accounting posts the
   invoice automatically" rather than "system should handle payments."
-- **Social Media Content Calendar**: a concrete sample 4-week posting plan using
-  **O-A-M-C-M framing** (adapted from `marketing:campaign-plan`) — Objective,
-  Audience, Message, Channel, Measure — with realistic production timelines (a
-  blog-style post ~3–5 days, a landing-page-style asset ~5–7 days) and
-  campaign-type-specific KPIs (lead-gen tracks CPL/MQL; awareness tracks
-  reach/share-of-voice). Include **1–2 real sample posts written out in full**
-  (adapted from `marketing:draft-content` — hook line, body, CTA), not just a
-  schedule grid.
+- **Meeting Minutes**: a realistic template for the discovery/kickoff meeting this
+  proposal is based on — date, attendees (role, not necessarily a real name if
+  unconfirmed), key discussion points, decisions made, and action items with an owner
+  and due date per row. Mark clearly which parts are illustrative/assumed (`.assess`)
+  vs. anything actually confirmed with the client.
 
 Each agent must attach a source URL to every claim it makes (**every fact must carry
 the exact page it came from**, not just the domain), and mark clearly which findings
 it could *not* verify with a real source rather than smoothing over the gap. A claim
 with no URL and no "unverified"/`.assess` flag is not usable — treat it as if it
 weren't written.
+
+**Citation markup — Wikipedia-style hover card, not click-to-see.** Every citation is
+a `.cite-wrap` span (already styled in the template) wrapping the `.cite` link plus a
+`.cite-tip` card shown on hover/focus, with the actual excerpt up top and the
+source's domain + a link-out affordance in a footer row at the bottom — mirroring how
+Wikipedia's own link-preview popups work (excerpt text, then where it's from, no
+click needed to see either):
+```html
+<span class="cite-wrap" tabindex="0">
+  <a class="cite" href="https://jrtech.com.my/" target="_blank" rel="noopener">[2]</a>
+  <span class="cite-tip">
+    <span class="cite-tip-excerpt">"24/7/365 service availability with 100% spare parts stock, 18 in-house technicians committed to a 24-hour response time."</span>
+    <span class="cite-tip-foot">
+      <a class="cite-tip-domain" href="https://jrtech.com.my/" target="_blank" rel="noopener">jrtech.com.my</a>
+      <span class="cite-tip-icon">↗</span>
+    </span>
+  </span>
+</span>
+```
+- `.cite-tip-excerpt` is a **real short quote or close paraphrase actually taken from
+  that source page** supporting this exact claim (1–2 sentences) — not a restatement
+  of the claim itself and not a generic description of the site. If you can't produce
+  a real excerpt for a claim, that's a signal the source may not actually support it —
+  re-check it rather than inventing filler text for the tooltip.
+- `.cite-tip-domain` is a **real clickable `<a href="...">`** (same URL as the `.cite`
+  link above it), showing just the bare domain (`jrtech.com.my`, not the full URL) —
+  the reader can click it directly from inside the open card, they don't have to
+  chase the tiny `[n]` marker again. The card itself is hoverable
+  (`pointer-events:auto`) and stays open while the mouse is over it, specifically so
+  there's time to move the pointer down and click this link — if a card closes before
+  the pointer reaches it, that's the `.cite-tip`/`::before` bridge CSS being broken,
+  fix that rather than reverting to click-only.
+- Never emit a bare `<a class="cite" href="...">[n]</a>` with no `.cite-wrap`/
+  `.cite-tip` around it, and never leave `.cite-tip-excerpt` empty — both are checked
+  mechanically (see Phase 4 check #10).
+- **Mobile/touch has no hover at all**, so the template's shared `<script>` (already
+  in `assets/proposal-template.html`, nothing per-run to author here) adds a
+  tap-to-preview fallback: first tap on `[n]` opens the card instead of navigating,
+  a second tap (or tapping the domain link inside the open card) navigates to the
+  source, and tapping elsewhere closes it. Don't re-implement this per client — it's
+  shell behavior, not content.
 
 **Source independence (adapted from OSINT investigation practice).** A fact
 copy-pasted across ten content-farm/aggregator sites that all trace back to the same
@@ -315,24 +591,48 @@ toward its original source rather than counting duplicates as independent
 confirmation.
 
 **Confidence grading.** Alongside the URL, each finding gets a rough confidence grade:
+- **Confirmed** — stated directly by the client themselves, in meeting notes/transcript
+  the user pasted at Phase 0. This is not "higher than A" on the same scale — it's a
+  **different kind of source** (nobody else needs to publish it for it to be true; the
+  client saying it *is* the fact). Never render it as a `.cite` link (there's no URL to
+  link to) — use a distinct `.grade.confirmed` badge instead (see template CSS), with a
+  short note of what it's from, e.g. "Confirmed — discovery call 18/06".
 - **A** — primary/official source (company site, filing, direct quote).
 - **B** — reputable independent secondary source (established press, industry report).
 - **C** — single unverified or user-generated source (one review, one social post).
 - **D** — unverifiable / TechNext inference — this is what becomes an `.assess` tag,
   never a `.cite` link, in the delivered HTML.
 
+**"To confirm" gaps — a third state, not the same as `.assess`.** When the pasted
+meeting notes/transcript **raise** a topic but don't actually answer it (the client's
+own certifications, an unconfirmed headcount, a detail the meeting ran out of time
+for), that's neither a sourced fact nor a TechNext inference — it's a known gap with a
+clear next action. Flag it with a `.callout warn` right in the relevant section: *"Chưa
+xác nhận được X trong buổi họp — cần hỏi lại khách trước khi [ví dụ: chốt số liệu
+demo]."* Don't silently drop it, and don't disguise it as an `.assess` estimate.
+
 **Structured findings file.** In addition to the HTML deliverable, also write a
 `<client-slug>-findings.json` alongside it: an array of
-`{ "claim": "...", "section": "<sidebar slug>", "source_url": "...", "grade": "A|B|C|D" }`
-objects, one per citation actually used. This is the "next step for the AI to connect to
-MCP" that `prompt.txt` calls out — a machine-readable fact base is what a later
-MCP-connected session would load into Odoo as CRM/company records, instead of having to
-re-parse the HTML.
+`{ "claim": "...", "section": "<sidebar slug>", "source_url": "...", "grade": "Confirmed|A|B|C|D" }`
+objects, one per citation actually used (`source_url` is omitted/null for `Confirmed`
+entries — cite the meeting instead, e.g. `"source": "discovery call 18/06/2026"`). This
+is the "next step for the AI to connect to MCP" that `prompt.txt` calls out — a
+machine-readable fact base is what a later MCP-connected session would load into Odoo
+as CRM/company records, instead of having to re-parse the HTML.
 
 ## Phase 2 — Write the front matter yourself (no agent needed)
 
-`overview`, `why-ai`, `exec-summary`, `solution-odoo-erp`, `solution-ai`, and
+*Running this phase alone (checkpoint resume)? Read `<client-slug>-p1-digests.json` —
+you don't need the full Phase 1 group HTML files, just the digests. Save output to
+`<client-slug>-p2-frontmatter.html` as a full template copy (like Phase 1's group
+files — openable/previewable, everything but the front matter left as
+`placeholder-note`) and mark `phase2: "done"` in the checkpoint file.*
+
+`overview`, `exec-summary`, `solution-odoo-erp`, `solution-ai`, and
 `solution-social-media` are written directly by you, not another agent — this is fast
+(also add the revenue-mix + scorecard charts described under "Charts & diagrams" above
+while you're writing `exec-summary`, via `regChart(() => mkChart(...))`, not a separate
+step later)
 synthesis of what Phase 1's four groups already found and returned (their short
 digests, from Phase 1's instructions), not new research, so spawning a fifth agent for
 it would just add another sequential wait for no real benefit.
@@ -360,33 +660,57 @@ it would just add another sequential wait for no real benefit.
 
 ## Phase 3 — Assembly
 
+*Running this phase alone (checkpoint resume)? Check `<client-slug>-checkpoint.json`
+first — all 4 Phase 1 groups and Phase 2 must be `"done"`; if not, say what's still
+missing and stop rather than assembling with gaps. Read all 4
+`<client-slug>-p1-group*.html` files + `<client-slug>-p2-frontmatter.html` —
+**extract just the finished `<section>` blocks from each** (they're full template
+pages, not fragments — see "Checkpoints" above), don't paste the whole files in. Mark
+`phase3: "done"` once `<client-slug>-proposal.html` is written.*
+
 Take a fresh copy of `assets/proposal-template.html` — **the actual file, byte for
 byte, as your starting point** — and replace every placeholder section body with the
 corresponding agent's output in the fixed order from `assets/menu-structure.md`, fill
-in the client name/title, and remove every `placeholder-note` element and the
+in the client name/title. **There are three spots, not one** — the `<title>`, the
+hero's `.chip` badge (`'× &lt;CLIENT NAME&gt;'`), and the sidebar brand line inside
+`buildNav()` (`'× &lt;CLIENT NAME&gt;'`, generated by JS — the easiest of the three to
+miss since it's not visible as literal HTML). A prior real run fixed the hero title but
+left the hero chip AND the sidebar both still reading "Technext × Odoo 19" — check all
+three every time, don't assume fixing one fixes the others. Remove every
+`placeholder-note` element and the
 template-instructions comment. The result must be one `.html` file with no other
 files alongside it. If any Phase 1 agent returned a full page instead of a
 `<section>` fragment (its own `<html>`/`<head>`/different CSS), do not paste that in —
 extract only its content into the existing shell's structure, rewriting it into the
 template's classes if needed. **Before moving to Phase 4, visually sanity-check the
-assembled file has the dark navy/teal theme, the single sliding VI/EN switch, and the
-`#progress` bar at the top** — if it doesn't, something upstream produced an
-off-template page and needs fixing now, not after delivery.
+assembled file has the dark navy/teal theme, the single sliding VI/EN switch, the
+`#progress` bar at the top, and a real spread of Chart.js canvases + Mermaid diagrams
+across sections (not just tables)** — if any of these is missing, something upstream
+produced an off-template or chart-less page and needs fixing now, not after delivery.
 
 ## Phase 4 — Mandatory second comprehensive pass
+
+*Running this phase alone (checkpoint resume)? Only `<client-slug>-proposal.html` from
+Phase 3 needs to exist — safe to re-run any time, e.g. right after a manual fix,
+without touching Phases 1–3. Mark `phase4: "done"` when it passes.*
 
 `prompt.txt`'s own instruction is explicit: *"after completion, do another round, make
 it super comprehensive."* Treat this as a required step, not optional polish.
 
 **Step 4a — run the mechanical validator first, every time:**
 ```
-python scripts/validate-proposal.py <client-slug>-proposal.html <client-slug>-findings.json
+python assets/validate-proposal.py <client-slug>-proposal.html <client-slug>-findings.json
 ```
 This checks exactly the objectively-countable rules — no leftover `placeholder-note`,
-no internal-anchor citations, every citation has a matching Appendix row and vice
+no internal-anchor citations, every citation has a matching Sources & Citation row and vice
 versa, every required section from `menu-structure.md` is present, the three
-`.assess`-required sections actually have one, and `findings.json` matches the body's
-citations. **Do not skip this because the file "looks" done** — the whole point is
+`.assess`-required sections actually have one, `findings.json` matches the body's
+citations, the real template shell was used (not a rebuilt design), a real spread
+of Chart.js canvases + Mermaid diagrams is present, citations use the hover-card
+markup, and no `<CLIENT NAME>` placeholder or stale "Odoo 19" sidebar text is left
+unfilled anywhere — including inside `buildNav()`'s JS string, which a quick visual
+skim of the rendered page can miss until the sidebar is actually opened. **Do not
+skip this because the file "looks" done** — the whole point is
 that these are exactly the mistakes a careful-looking pass still makes (a prior real
 run of this skill shipped with 27 orphaned citations and zero `.assess` labels despite
 looking complete). Fix every failure it reports before moving on. It does **not**
@@ -396,7 +720,7 @@ sufficient.
 **Step 4b — judgment-based review pass** over the assembled file (a `fork` works well
 here since it needs this conversation's full context of what was researched):
 
-- Every one of the ~45 sections has real, specific content — grep the file for
+- Every one of the ~42 sections has real, specific content — grep the file for
   `placeholder-note` or generic filler phrases; there should be none left.
 - Every visible string has both a `t-vi` and a `t-en` span filled in — spot-check
   several sections, not just the first few.
@@ -412,6 +736,10 @@ here since it needs this conversation's full context of what was researched):
   client (a number, a date, a quote, a review, a named person) with neither a `.cite`
   link nor an `.assess` tag is a gap — go back to Phase 1 and either find the source
   or mark it as an assessment, don't leave it looking like an unverified fact.
+- If Phase 0 had meeting notes/transcript pasted in: confirm every fact actually
+  stated there made it in with a `.grade.confirmed` badge (not silently downgraded to
+  `.assess`), and every topic the notes *raised but didn't answer* has an explicit
+  `.callout warn` "to confirm" note rather than being quietly dropped.
 
 **Devil's-advocate review (adapted from issue-task-planning practice).** Before calling
 the proposal done, argue against your own Odoo Architecture, Implementation Roadmap,
@@ -431,13 +759,18 @@ with the 4 PWA companion files (`manifest.webmanifest`, `sw.js`, `icon-192.png`,
 works if all four are deployed alongside the HTML at a real static path (see the
 Reference files note above), not when the HTML is opened alone via `file://`. Note in
 your summary which research areas came back thin or unverifiable (e.g. no public data
-on staff count) rather than presenting guesses as fact, and which research depth
-(Quick/Standard) was actually used.
+on staff count) rather than presenting guesses as fact.
+
+Once Phase 4 passes and the file is handed over, the `-p1-group*.html`,
+`-p1-digests.json`, and `-p2-frontmatter.html` intermediate files are no longer
+needed for a fresh run — but **don't delete them automatically**; ask the user first
+in case they want to keep them around for a future incremental re-run (e.g. after a
+follow-up client meeting surfaces new confirmed details).
 
 ## Judgment calls
 
 - **Client has very little public presence** (small/local business) — say so plainly
-  in the relevant sections rather than inventing specifics; keep frameworks (SWOT etc.)
+  in the relevant sections rather than inventing specifics; keep every framework
   grounded in what's actually knowable, note assumptions explicitly.
 - **User wants fewer sections for a quick draft** — you can trim scope if they
   explicitly ask for a shorter version, but the default or unspecified case always

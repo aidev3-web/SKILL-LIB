@@ -14,7 +14,6 @@ Group headers (bold) are non-clickable sidebar section dividers, not their own `
 ## Overview
 
 - `overview` — Tổng quan / Overview
-- `why-ai` — Vì sao AI quan trọng / Why AI is Important
 - `exec-summary` — Tóm tắt điều hành / Executive Summary
 
 ## Proposed Solutions
@@ -34,15 +33,14 @@ across clients.
 - `product-catalog` — Danh mục sản phẩm / Product Catalog
 - `founders-leadership` — Nhà sáng lập & Ban lãnh đạo / Founders & Leadership
 - `staff-org` — Nhân sự & Cơ cấu tổ chức / Staff & Org Analysis
+- `current-operations` — Vận hành hiện tại / Current Operations
+- `current-tools-saas` — Công cụ & Phần mềm đang dùng / Current Tools & SaaS
 - `digital-web` — Hiện diện số & Website / Digital & Web Presence
 - `reviews-reputation` — Đánh giá & Uy tín / Reviews & Reputation
 
 ## Strategic Analysis
 
 - `strategic-analysis` — Phân tích chiến lược / Strategic Analysis
-- `pestle` — Phân tích PESTLE / PESTLE Analysis
-- `swot-tows` — SWOT & TOWS / SWOT & TOWS
-- `porter-5-forces` — Mô hình 5 Áp lực của Porter / Porter's Five Forces
 - `competitor-deep-dive` — Phân tích sâu đối thủ / Competitor Deep-Dive
 - `market-industry` — Thị trường & Ngành / Market & Industry
 - `customer-personas` — Hồ sơ khách hàng mục tiêu / Customer Personas
@@ -80,9 +78,8 @@ across clients.
 
 - `pricing-strategy` — Chiến lược giá / Pricing Strategy
 - `regional-expansion` — Chiến lược mở rộng vùng / Regional Expansion Strategy
-- `modern-alternative-services` — Dịch vụ thay thế hiện đại / Modern Alternative Services
 - `advisory` — Tư vấn / Advisory
-- `appendix-sources` — Phụ lục & Nguồn tham khảo / Appendix & Sources
+- `sources-citation` — Nguồn & Trích dẫn / Sources & Citation
 
 ## Tools & Documents
 
@@ -96,7 +93,7 @@ across clients.
 - `tool-demo-walkthrough` — 🧭 Hướng dẫn Demo / Demo Walkthrough
 - `tool-staff-guides` — 🛎 Hướng dẫn nhân viên / Staff Guides
 - `tool-discovery-questions` — 📋 Câu hỏi khám phá / Discovery Questions
-- `tool-content-calendar` — 📅 Lịch nội dung mạng xã hội / Social Media Content Calendar
+- `meeting-minutes` — 🗒 Biên bản họp / Meeting Minutes
 
 ## Notes on operations appearing twice
 

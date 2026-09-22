@@ -52,11 +52,11 @@ def extract_section_body(html, section_id):
 
 
 def extract_cite_links(html):
-    """Returns list of (href, is_inside_appendix) for every <a class="cite" href="...">."""
-    appendix_body = extract_section_body(html, "appendix-sources") or ""
+    """Returns list of (href, is_inside_sources_citation) for every <a class="cite" href="...">."""
+    sources_body = extract_section_body(html, "sources-citation") or ""
     all_links = re.findall(r'<a class="cite" href="([^"]+)"', html)
-    appendix_links = set(re.findall(r'<a class="cite" href="([^"]+)"', appendix_body))
-    return all_links, appendix_links
+    sources_links = set(re.findall(r'<a class="cite" href="([^"]+)"', sources_body))
+    return all_links, sources_links
 
 
 def main():
@@ -99,21 +99,21 @@ def main():
     else:
         ok("every citation href is an external URL")
 
-    print(f"\n=== 4. Citation <-> Appendix consistency ===")
-    _, appendix_links = extract_cite_links(html)
-    appendix_body = extract_section_body(html, "appendix-sources") or ""
-    non_appendix_html = html.replace(appendix_body, "")
-    body_only_links = set(re.findall(r'<a class="cite" href="([^"]+)"', non_appendix_html))
-    orphaned = body_only_links - appendix_links
-    unused = appendix_links - body_only_links
+    print(f"\n=== 4. Citation <-> Sources & Citation consistency ===")
+    _, sources_links = extract_cite_links(html)
+    sources_body = extract_section_body(html, "sources-citation") or ""
+    non_sources_html = html.replace(sources_body, "")
+    body_only_links = set(re.findall(r'<a class="cite" href="([^"]+)"', non_sources_html))
+    orphaned = body_only_links - sources_links
+    unused = sources_links - body_only_links
     if orphaned:
-        passed = fail(f"{len(orphaned)} citation(s) in the body have no matching Appendix row: {sorted(orphaned)[:5]}") and passed
+        passed = fail(f"{len(orphaned)} citation(s) in the body have no matching Sources & Citation row: {sorted(orphaned)[:5]}") and passed
     else:
-        ok("every body citation has a matching Appendix row")
+        ok("every body citation has a matching Sources & Citation row")
     if unused:
-        passed = fail(f"{len(unused)} Appendix source(s) are never cited in the body: {sorted(unused)[:5]}") and passed
+        passed = fail(f"{len(unused)} Sources & Citation entries are never cited in the body: {sorted(unused)[:5]}") and passed
     else:
-        ok("every Appendix source is actually cited")
+        ok("every Sources & Citation entry is actually cited")
 
     print(f"\n=== 5. Required sections present (from menu-structure.md) ===")
     required = load_required_slugs()
@@ -136,7 +136,7 @@ def main():
 
     print(f"\n=== 7. findings.json matches the body's citations ===")
     finding_urls = {f.get("source_url") for f in findings if f.get("source_url")}
-    cited_urls = appendix_links  # appendix URLs are the canonical cited-source list
+    cited_urls = sources_links  # Sources & Citation URLs are the canonical cited-source list
     missing_in_findings = cited_urls - finding_urls
     stale_in_findings = finding_urls - cited_urls
     if missing_in_findings:
@@ -170,6 +170,79 @@ def main():
         ) and passed
     else:
         ok("all template shell markers present — this is the real template, filled in")
+
+    print(f"\n=== 9. Full chart & Mermaid manifest present (19 canvases + 9 diagrams, exact ids) ===")
+    # The reference build (full1 / Casa Escondida) ships 21 named Chart.js canvases;
+    # this skill drops the 2 tied to the removed PESTLE/Porter's Five Forces sections,
+    # leaving 19 — SKILL.md's "Charts & diagrams" manifest requires this skill's output
+    # to match that count and those exact canvas ids (content adapted per client, but
+    # the slot itself must exist). This does not judge whether the plotted data is any
+    # good — that's a judgment call.
+    REQUIRED_CANVAS_IDS = [
+        "cRevMix", "cScorecard", "cRevStream", "cHeadcount", "cSeasonStaff", "cChannel",
+        "cDigital", "cSentiment", "cThemes", "cPosition", "cGap",
+        "cOrigin", "cSeason", "cPersona", "cAuto", "cRisk", "cKpi", "cRoi", "cOwner",
+    ]
+    canvas_count = len(re.findall(r'<canvas\s+id="', html))
+    mermaid_count = len(re.findall(r'class="mermaid"', html))
+    regchart_count = len(re.findall(r'regChart\s*\(', html))
+    has_chartjs = "chart.js" in html.lower() or "new Chart(" in html or "mkChart(" in html
+    present_ids = set(re.findall(r'<canvas\s+id="([^"]+)"', html))
+    missing_ids = [cid for cid in REQUIRED_CANVAS_IDS if cid not in present_ids]
+    if missing_ids:
+        passed = fail(f"{len(missing_ids)} of {len(REQUIRED_CANVAS_IDS)} required chart canvas ids missing: {missing_ids}") and passed
+    else:
+        ok(f"all {len(REQUIRED_CANVAS_IDS)} required canvas ids present")
+    if canvas_count < len(REQUIRED_CANVAS_IDS):
+        passed = fail(f"only {canvas_count} <canvas> chart(s) found total (manifest requires {len(REQUIRED_CANVAS_IDS)})") and passed
+    else:
+        ok(f"{canvas_count} chart canvas(es) found")
+    if mermaid_count < 9:
+        passed = fail(f"only {mermaid_count} Mermaid diagram(s) found (manifest requires 9: 1 Group A + 5 Group B + 3 Group C)") and passed
+    else:
+        ok(f"{mermaid_count} Mermaid diagram(s) found")
+    if canvas_count and not has_chartjs:
+        passed = fail("canvas elements present but no Chart.js script/mkChart() call found — charts won't render") and passed
+    if canvas_count and regchart_count < canvas_count:
+        passed = fail(f"{canvas_count} canvas(es) but only {regchart_count} regChart(...) registration(s) — charts built via a bare new Chart(...) call won't re-render on theme toggle") and passed
+
+    print(f"\n=== 10. Citations use Wikipedia-style hover-card markup (.cite-wrap/.cite-tip + real excerpt) ===")
+    # A citation must be wrapped so the source previews on hover/focus instead of only
+    # being visible after clicking through, and the preview must actually contain an
+    # excerpt (not an empty/placeholder tooltip).
+    all_cite_tags = re.findall(r'<a class="cite" href="[^"]+"[^>]*>', html)
+    wrapped_cites = re.findall(
+        r'<span class="cite-wrap"[^>]*>\s*<a class="cite"[^>]*>.*?</a>\s*'
+        r'<span class="cite-tip">\s*<span class="cite-tip-excerpt">(.*?)</span>',
+        html, re.DOTALL,
+    )
+    bare_count = len(all_cite_tags) - len(wrapped_cites)
+    empty_excerpts = sum(1 for ex in wrapped_cites if len(ex.strip()) < 10)
+    if all_cite_tags and bare_count > 0:
+        passed = fail(f"{bare_count} of {len(all_cite_tags)} .cite link(s) are not wrapped in .cite-wrap/.cite-tip/.cite-tip-excerpt — hover preview won't work for them") and passed
+    elif all_cite_tags:
+        ok(f"all {len(all_cite_tags)} citations use the .cite-wrap/.cite-tip hover-card markup")
+    else:
+        ok("no citations found to check (nothing to fail on)")
+    if empty_excerpts:
+        passed = fail(f"{empty_excerpts} .cite-tip-excerpt(s) are empty or near-empty (<10 chars) — need a real quote/paraphrase from the source") and passed
+
+    print(f"\n=== 11. No unfilled <CLIENT NAME> placeholder anywhere ===")
+    # The hero title, <title>, and the sidebar brand line in buildNav() ('× <CLIENT
+    # NAME>') are all supposed to be replaced with the real client name during Phase 3
+    # assembly. A real run once shipped with the hero still literally reading
+    # "<CLIENT NAME>" and the sidebar still reading "Technext × Odoo 19" — both easy to
+    # miss by eye since one is inside a JS string, not visible in a quick HTML skim.
+    CLIENT_PLACEHOLDER_PATTERNS = [
+        r'<CLIENT NAME>', r'&lt;CLIENT NAME&gt;',
+        r'<TÊN KHÁCH HÀNG>', r'&lt;TÊN KHÁCH HÀNG&gt;',
+        r'×\s*Odoo 19',  # the old hardcoded sidebar brand text this must never still say
+    ]
+    found_placeholders = [p for p in CLIENT_PLACEHOLDER_PATTERNS if re.search(p, html)]
+    if found_placeholders:
+        passed = fail(f"unfilled client-name placeholder(s)/stale text still in the file: {found_placeholders} — check the hero, <title>, AND the buildNav() sidebar brand line") and passed
+    else:
+        ok("no unfilled <CLIENT NAME> placeholder or stale 'Odoo 19' sidebar text found")
 
     print()
     if passed:
