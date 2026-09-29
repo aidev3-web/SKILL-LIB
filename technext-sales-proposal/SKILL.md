@@ -82,6 +82,30 @@ didn't fan out.
 
 ## Phase 0 — Intake
 
+### Setup check — the 5 research agents (runs first, silently when all is fine)
+
+Phase 1 dispatches 5 agents by name: `research-due-diligence-agent`,
+`research-ops-tech-agent`, `research-delivery-growth-agent`, `tools-documents-agent`,
+`competitor-research-worker`. Some install routes (e.g. SKILL-LIB via mcp-skill-lib)
+copy only skill folders, leaving the agent files in this skill's own `agents/` folder
+where the host does not look. Check and self-heal before anything else:
+
+1. **Claude Code:** list `~/.claude/agents/`. For each of the 5 files that is missing,
+   copy it from `<this skill's folder>/agents/<name>.md` into `~/.claude/agents/`
+   (create the folder if needed; never overwrite an existing file there — if one exists
+   but differs, tell the user and leave it). Report in one line, e.g.
+   *"Đã cài thêm 5 agent nghiên cứu vào ~/.claude/agents/ — lần sau khởi động lại Claude Code để dùng bản chính thức."*
+2. **This run still fans out.** A host only registers new agent files on restart, so
+   for any agent that was missing at the start of this run, dispatch a
+   **`general-purpose`** subagent instead and put the full body of
+   `<this skill's folder>/agents/<name>.md` (below its frontmatter) at the top of that
+   subagent's prompt, followed by the run-specific inputs. Same parallelism, same
+   outputs — never fall back to doing all 4 groups yourself in this session just
+   because the named agents are not registered yet.
+3. **Other hosts** (Codex, Gemini CLI…): skip step 1; use step 2 with whatever
+   sub-agent mechanism the host has, or run the groups in sequence and say so in the
+   checkpoint.
+
 Get the client identifier: company name, plus any URL/socials the user already gives.
 If all you have is a bare name, do one round of web search to find their site/socials
 yourself rather than stopping to ask — only ask the user directly if the name is too
