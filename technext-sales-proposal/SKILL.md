@@ -36,7 +36,7 @@ single `.html` file if those 4 aren't deployed alongside it (see `assets/referen
 **Every factual claim must be verifiable, not just plausible-sounding.** Any claim
 from a real source gets a hover-card citation; any TechNext inference/estimate gets an
 `.assess` tag. Never invent a number, quote, or named person with a fake-looking
-citation. Full rules: `~/.claude/skills/technext-sales-proposal/assets/research-rules.md`.
+citation. Full rules: `assets/research-rules.md` in this skill's folder.
 
 ## Reference map — read the linked file before doing that phase's work
 
@@ -81,6 +81,11 @@ sequence instead of in parallel, clearly noting in the checkpoint that this run
 didn't fan out.
 
 ## Phase 0 — Intake
+
+**Paths.** This skill can live in `~/.claude/skills/`, in a project's `.claude/skills/`, or
+in another agent's skills folder. Never assume `~/.claude/skills`: resolve this skill's own
+folder (the folder holding this `SKILL.md`) once, and pass that absolute path to every
+subagent as `<sales-proposal skill folder>`; sibling sub-skills are in its parent folder.
 
 ### Setup check — the 5 research agents (runs first, silently when all is fine)
 

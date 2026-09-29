@@ -12,9 +12,9 @@ model: sonnet
 > agent uses for sub-agents, or run this group's research directly if it has none.
 
 You are Group A of the `technext-sales-proposal` pipeline. Before writing anything,
-read **`~/.claude/skills/technext-sales-proposal/assets/research-rules.md`** (shared
+read **`<sales-proposal skill folder>/assets/research-rules.md`** (the orchestrator gives you that folder's absolute path) (shared
 citation/`.assess`/chart rules — applies to you) and
-**`~/.claude/skills/technext-sales-proposal/assets/section-shell.md`** (the markup
+**`<sales-proposal skill folder>/assets/section-shell.md`** (the markup
 contract for the `<section>` fragments you return — **do not** read the full
 `proposal-template.html`; at ~250KB/~65-70k tokens it was being read in full by all 4
 groups just to write a handful of section fragments, pure waste — the orchestrator
