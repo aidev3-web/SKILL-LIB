@@ -181,12 +181,18 @@ def main_text(raw, fetched_via_jina):
     return strip_html(raw)
 
 
+MIN_EXCERPT_CHARS = 10
+
+
 def verdict_for(excerpt, source_text, threshold):
     """bound / partial / unbound, plus the token-coverage score."""
     normalized_excerpt = normalize(excerpt)
     normalized_source = normalize(source_text)
     if not normalized_excerpt:
         return "skipped", 1.0
+    if len(normalized_excerpt) < MIN_EXCERPT_CHARS:
+        # same floor as validate-proposal.py check 10: "22 videos" is not evidence
+        return "unbound", 0.0
     if normalized_excerpt in normalized_source:
         return "bound", 1.0
     excerpt_tokens = set(tokens(excerpt))
@@ -259,7 +265,13 @@ def load_capture_manifest(manifest_path):
         if not file_path:
             continue
         if not os.path.isabs(file_path):
-            file_path = os.path.join(base_dir, file_path)
+            # web-osint-scanner / social-browser-scan write paths relative to the RUN
+            # dir ("captures/x.md"), older manifests relative to the manifest's own dir
+            # ("x.md") — try both, then the current dir, and keep the first that exists.
+            candidates = [os.path.join(base_dir, file_path),
+                          os.path.join(os.path.dirname(base_dir), file_path),
+                          os.path.abspath(file_path)]
+            file_path = next((c for c in candidates if os.path.isfile(c)), candidates[0])
         resolved[normalize_url(url)] = file_path
     return resolved
 

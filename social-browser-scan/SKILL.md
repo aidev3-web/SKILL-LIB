@@ -138,8 +138,13 @@ comparisons. They cite items as grade **B** (official account of the company) or
 
 - **Read-only.** No like, comment, share, follow, connect, message, form submission or
   cookie/consent acceptance beyond the most privacy-preserving choice.
-- **Never bypass a block.** Login page, CAPTCHA, bot check, geo-block, age gate → stop on
-  that page, record it in `blocked[]`, tell the user, move on. No VPN, no fake accounts.
+- **Never bypass a block yourself.** Login page, CAPTCHA, bot check or age gate → pause
+  and send **one** message: *"Trang <link> cần đăng nhập / xác minh. Bạn mở tab đó trong
+  Chrome, tự đăng nhập hoặc bấm xác minh, xong nhắn 'xong' để mình đọc tiếp; hoặc nhắn
+  'bỏ qua'."* Batch every blocked page found so far into that one message. On "xong",
+  re-read the page; on "bỏ qua" (or still blocked), record it in `blocked[]` and move on.
+  The user getting past it with their own account is fine; you never solve a CAPTCHA,
+  use a VPN, a fake account or a bypass tool. Geo-blocks: record and move on.
 - **Privacy.** Store aggregates and review/post text only — never reviewer or commenter
   names, profile links, photos, emails or phone numbers. For leadership, public
   professional role information only.

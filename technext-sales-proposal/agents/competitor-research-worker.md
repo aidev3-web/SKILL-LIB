@@ -42,8 +42,9 @@ Write `competitor-research/<competitor-slug>.json`:
   "confidence": "A/B/C/D — how much real public info existed for this competitor"
 }
 ```
-Every `claim`/`positioning`/`pricing_tier` needs a `source_url` + `excerpt` (a real
-quote/close paraphrase actually on that page), or gets folded into `confidence`/notes
+Every `claim`/`positioning`/`pricing_tier` needs a `source_url` + `excerpt` (copied
+**verbatim** from that page, at least 10 characters - copy-paste the words, never
+rephrase them; `source-auditor` rejects anything that is not literally on the page), or gets folded into `confidence`/notes
 as an assessment instead of stated as fact — the two Phase 1 groups reading this file
 apply `research-rules.md`'s citation rules to whatever you hand them, so an uncited
 "fact" here becomes their problem to catch or silently trust. Don't write it as fact

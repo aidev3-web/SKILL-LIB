@@ -27,6 +27,12 @@ the sidebar, `<head>`, or any other section's id.
 Every visible string needs both a `t-vi` and a `t-en` sibling span — the page's
 language toggle just shows/hides these, nothing else. Never leave one language empty.
 
+**Keep the opening tag plain:** write exactly `<section id="slug">`. The template's own
+`<section>` tag carries `data-nav`/`data-star`; `assembler` keeps that tag and swaps in
+only your section's inner content, so extra attributes on yours are dropped.
+**Citation labels are plain numbers** (`[1]`, `[2]`… in first-use order within your own
+fragments) - never `[B1]`/`[D1]`-style group prefixes; `assembler` renumbers them globally.
+
 ## Citations — `.cite-wrap`/`.cite-tip` hover card
 
 Every specific factual claim (a number, date, quote, named person) needs one of
@@ -35,8 +41,8 @@ these, never a bare link:
 <span class="cite-wrap">
   <a class="cite" href="https://real-source-url">[1]</a>
   <span class="cite-tip">
-    <span class="cite-tip-excerpt">A real short quote or close paraphrase actually
-    taken from that source page.</span>
+    <span class="cite-tip-excerpt">A verbatim quote (10+ characters) copied from
+    that source page - never a paraphrase.</span>
   </span>
 </span>
 ```
@@ -112,7 +118,7 @@ anywhere.
 ## Charts — canvas + `regChart(() => mkChart(...))`
 
 ```html
-<div class="chart-box"><canvas id="cYourChartId"></canvas></div>
+<div class="chart-box" style="height:300px"><canvas id="cYourChartId"></canvas></div>
 <script>
 regChart(() => mkChart('cYourChartId', {
   type: 'bar', // or doughnut/radar/line/bubble — see assets/charts-and-diagrams.md
@@ -121,6 +127,12 @@ regChart(() => mkChart('cYourChartId', {
 }));
 </script>
 ```
+**Every canvas is the direct child of a `<div class="chart-box">` with a fixed height**
+(260–400px) — never a bare `<canvas>` inside a `.card`: with no fixed-height box the chart
+grows without limit. **Colours only from `PAL[i]`** (add an alpha suffix as `PAL[0]+'33'`),
+never hex/`rgba()` literals — hard-coded colours ignore the palette and theme.
+`validate-proposal.py` check 14 fails the build on either.
+
 **Always use `regChart(() => mkChart(...))`, never a bare `new Chart(...)`** — charts
 built without `regChart` don't re-render on theme toggle. Which exact canvas id/chart
 type you owe is listed in `assets/charts-and-diagrams.md` and your own agent

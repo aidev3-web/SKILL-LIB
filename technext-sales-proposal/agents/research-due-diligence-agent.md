@@ -50,6 +50,8 @@ than anything you find yourself), and where to save your output.
 
 ## Charts + diagram you own
 
+Chart markup rules (validator check 14 fails the build otherwise): every `<canvas>` is the direct child of `<div class="chart-box" style="height:280px">` (260–400px), never a bare canvas in a `.card`; colours only via `PAL[i]` (alpha as `PAL[0]+'33'`), never hex/rgba literals; options through `baseOpts({...})` and `gridScale()`.
+
 Build all of these yourself, in this same call, via `regChart(() => mkChart(...))`:
 `cRevStream` (bar horizontal, `company-profile`/`due-diligence`), `cHeadcount` (bar,
 `staff-org`), `cSeasonStaff` (line dual-axis, `staff-org`), `cChannel` (doughnut,

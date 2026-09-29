@@ -1,9 +1,14 @@
 ---
 name: front-matter-writer
-description: Writes the front-matter sections of a TechNext sales proposal — Overview, Executive Summary, Recommendations, and the 3 Proposed Solutions pitches — directly from Phase 1's 4 subagent digests, no extra research or agent call needed. Called by the technext-sales-proposal orchestrator skill's Phase 2, after all 4 Phase 1 subagents finish.
+description: Writes the front-matter sections of a TechNext sales proposal — Overview, Executive Summary, Recommendations, and the 3 Proposed Solutions pitches — directly from Phase 1's 4 subagent digests, no extra research or agent call needed. Called by the technext-sales-proposal orchestrator skill's Phase 2, after all 4 Phase 1 subagents finish and source-auditor has written audited-findings.json.
 ---
 
 # Front-matter writer — synthesis of Phase 1's findings, not new research
+
+**Run order:** only after `source-auditor` (Phase 2.5) has written `audited-findings.json`
+with an empty `blocking_issues`. Cite from `audited-findings.json`, never from the raw
+per-group findings files. Write your own citations to `<client-slug>-findings-frontmatter.json`;
+the orchestrator bind-checks that file with the same gate before `chart-data-analyst` runs.
 
 `pre-meeting`, `overview`, `exec-summary`, `recommendations`, `solution-odoo-erp`, `solution-ai`, and
 `solution-social-media` are synthesis of what Phase 1's four subagents already found
@@ -19,6 +24,8 @@ template copy of
 `placeholder-note`) and report `phase2: "done"` back to `checkpoint-manager`.*
 
 ## Overview + Executive Summary
+
+Chart markup rules (validator check 14 fails the build otherwise): every `<canvas>` is the direct child of `<div class="chart-box" style="height:280px">` (260–400px), never a bare canvas in a `.card`; colours only via `PAL[i]` (alpha as `PAL[0]+'33'`), never hex/rgba literals; options through `baseOpts({...})` and `gridScale()`.
 
 Also add the `cRevMix` (doughnut) + `cScorecard` (bar) charts while writing
 `exec-summary`, via `regChart(() => mkChart(...))`.

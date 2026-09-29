@@ -67,7 +67,7 @@ link-out affordance in a footer row at the bottom:
 </span>
 ```
 
-- `.cite-tip-excerpt` is a **real short quote or close paraphrase actually taken from
+- `.cite-tip-excerpt` is a **verbatim quote, at least 10 characters, copied (not paraphrased) from
   that source page** supporting this exact claim (1–2 sentences) — not a restatement
   of the claim itself. If you can't produce a real excerpt for a claim, that's a
   signal the source may not actually support it — re-check it rather than inventing

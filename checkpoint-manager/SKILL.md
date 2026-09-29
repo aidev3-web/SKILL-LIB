@@ -17,7 +17,10 @@ shouldn't be forced through everything again.
    ```json
    { "phase1_groupA": "done", "phase1_groupB": "done", "phase1_groupC": "pending", "phase1_groupD": "pending", "phase2": "pending", "phase3": "pending", "phase4": "pending" }
    ```
-   If it doesn't exist yet, this is a fresh run — everything is `"pending"`.
+   If it doesn't exist yet, this is a fresh run: **create it now**, before any Phase 1
+   dispatch, with every phase `"pending"`, a `started_at` timestamp and an empty
+   `timeline` array (see below). Cost reporting in Phase 4b reads this file; a run
+   without it cannot produce `<client-slug>-cost-report.csv`.
 2. **Ask the orchestrator's caller (via the orchestrator), right after the client is
    confirmed**: *"Chạy toàn bộ pipeline luôn, hay chỉ chạy 1 phase cụ thể?"* Report
    back which phases/groups are already `"done"` vs. `"pending"` so the orchestrator
