@@ -105,6 +105,28 @@ where the host does not look. Check and self-heal before anything else:
 3. **Other hosts** (Codex, Gemini CLI…): skip step 1; use step 2 with whatever
    sub-agent mechanism the host has, or run the groups in sequence and say so in the
    checkpoint.
+4. **Sub-skills.** Look in the skills directory that holds this skill (its parent
+   folder) for the sub-skills the pipeline calls by name:
+   - **Required (11):** `company-verifier`, `officers-lookup`, `web-osint-scanner`,
+     `social-browser-scan`, `checkpoint-manager`, `front-matter-writer`,
+     `source-auditor`, `chart-data-analyst`, `assembler`, `mechanical-validator`,
+     `judgment-reviewer`.
+   - **Optional (1):** `diagram-design` — nicer SVG diagrams; without it the 4 diagram
+     blocks fall back to plain HTML `.tl` markup (still passes the validator).
+
+   If any is missing, tell the user in **one** message which ones, and offer to install
+   them — never install silently:
+   > *"Thiếu skill con: <danh sách>. Mình cài giúp từ SKILL-LIB (aidev3-web/SKILL-LIB)
+   > nhé? (có / không)"* — add *"diagram-design không bắt buộc, thiếu thì sơ đồ vẽ bằng
+   > HTML thường"* when only that one is missing.
+
+   On **yes**: if the `mcp-skill-lib` tools are available, run `pull_skill` then
+   `deploy_skill` for each missing one from `aidev3-web/SKILL-LIB`; otherwise give the
+   user the GitHub installer command (`install.ps1` / `install.sh`). Remind them to
+   restart the host so the new skills are picked up. On **no** (or install fails):
+   continue — a missing **optional** skill just uses the fallback; a missing
+   **required** one means doing that step's work directly from its description in the
+   reference map above, and saying so in the checkpoint.
 
 Get the client identifier: company name, plus any URL/socials the user already gives.
 If all you have is a bare name, do one round of web search to find their site/socials
