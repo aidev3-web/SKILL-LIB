@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cost dashboard — TechNext sales-proposal runs</title>
+<style>
+:root{
+  --bg:#f6f8f8;--panel:#fff;--ink:#1b2430;--ink2:#46536a;--muted:#79859a;
+  --line:#e4e8ee;--teal:#0f766e;--teal-soft:#e7f3f1;--amber:#a15c07;--amber-soft:#fdf4e4;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:32px 22px;background:var(--bg);color:var(--ink);
+  font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:1240px;margin:0 auto}
+.topbar{display:flex;align-items:flex-start;gap:16px;justify-content:space-between}
+.eyebrow{font:600 .7rem/1 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+h1{font-size:1.45rem;margin:10px 0 6px;letter-spacing:-.01em}
+.sub{color:var(--ink2);font-size:.85rem;margin:0;max-width:70ch}
+.lang{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:3px;display:flex;gap:2px;flex:none}
+.lang button{border:0;background:none;padding:5px 11px;border-radius:999px;cursor:pointer;font:600 .75rem/1 inherit;color:var(--muted)}
+.lang button.on{background:var(--teal-soft);color:var(--teal)}
+.drop{margin:24px 0 0;border:1.5px dashed #c8d2d0;border-radius:14px;background:var(--panel);
+  padding:26px 22px;text-align:center}
+.drop.over{border-color:var(--teal);background:var(--teal-soft)}
+.drop p{margin:0 0 6px;font-size:.9rem}
+.drop .hint{color:var(--muted);font-size:.79rem;margin:0}
+.btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+button.act{font:600 .82rem/1 inherit;padding:10px 16px;border-radius:9px;border:1px solid var(--teal);
+  background:var(--teal);color:#fff;cursor:pointer}
+button.act.ghost{background:var(--panel);color:var(--teal)}
+button.act:hover{filter:brightness(.96)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:22px 0 0}
+@media(max-width:860px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+.stat .v{font:700 1.35rem/1.1 var(--mono);color:var(--teal)}
+.stat .l{color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;margin-top:6px}
+.toolbar{display:flex;gap:10px;align-items:center;margin:22px 0 10px;flex-wrap:wrap}
+input[type=search]{flex:1;min-width:200px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;
+  font:inherit;font-size:.85rem;background:var(--panel);color:var(--ink)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:auto}
+table{border-collapse:collapse;width:100%;font-size:.8rem}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{background:var(--teal-soft);color:var(--teal);font-size:.7rem;text-transform:uppercase;
+  letter-spacing:.05em;position:sticky;top:0;white-space:nowrap;z-index:1}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.mono{font-family:var(--mono);font-size:.74rem;color:var(--ink2)}
+tr.run td{background:#f0f4f4;font-weight:700;border-top:1px solid #d7e0df;border-bottom:1px solid #d7e0df}
+tr.run .slug{font-weight:700}
+tr.run .pct{font-weight:400;color:var(--muted);font-size:.73rem;margin-left:8px}
+tr.run td.num{color:var(--teal)}
+tfoot td{font-weight:700;background:var(--teal-soft);border-top:2px solid var(--teal);white-space:nowrap}
+.warn{margin:16px 0 0;background:var(--amber-soft);border:1px solid #f0d8ad;border-left:4px solid var(--amber);
+  border-radius:10px;padding:13px 17px;color:#6b3f06;font-size:.83rem}
+.warn b{display:block;margin-bottom:5px}
+.warn ul{margin:6px 0 0;padding-left:20px}
+.warn code{font-family:var(--mono);font-size:.78rem}
+.foot{margin-top:22px;color:var(--muted);font-size:.75rem;font-family:var(--mono)}
+[hidden]{display:none !important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div>
+      <div class="eyebrow" data-vi="TechNext · chi phí các lần chạy sales-proposal" data-en="TechNext · sales-proposal run costs">TechNext · chi phí các lần chạy sales-proposal</div>
+      <h1 data-vi="Cost dashboard" data-en="Cost dashboard">Cost dashboard</h1>
+      <p class="sub" data-vi="Đọc mọi file &lt;slug&gt;-cost-report.csv của các lần chạy và gộp thành một bảng. File này tạo một lần, không cần build lại — chỉ cần nạp CSV mới." data-en="Reads every run's &lt;slug&gt;-cost-report.csv and merges them into one table. Built once, never regenerated — just load the new CSVs.">Đọc mọi file &lt;slug&gt;-cost-report.csv của các lần chạy và gộp thành một bảng.</p>
+    </div>
+    <div class="lang">
+      <button id="btn-vi" class="on" onclick="setLang('vi')">VI</button>
+      <button id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+
+  <div class="drop" id="drop">
+    <p data-vi="Kéo thả các file CSV vào đây, hoặc chọn:" data-en="Drop the CSV files here, or pick:">Kéo thả các file CSV vào đây, hoặc chọn:</p>
+    <p class="hint" data-vi="Nên chọn cả thư mục _runs để lấy được cả file checkpoint (dùng để biết task nào bị thiếu dòng chi phí)." data-en="Pick the whole _runs folder if you can — that also brings the checkpoint files, which is how missing cost rows are detected.">Nên chọn cả thư mục _runs để lấy được cả file checkpoint.</p>
+    <div class="btns">
+      <button class="act" onclick="document.getElementById('pick-files').click()" data-vi="Chọn file CSV" data-en="Pick CSV files">Chọn file CSV</button>
+      <button class="act ghost" onclick="document.getElementById('pick-dir').click()" data-vi="Chọn thư mục _runs" data-en="Pick the _runs folder">Chọn thư mục _runs</button>
+    </div>
+    <input type="file" id="pick-files" accept=".csv,.json" multiple hidden>
+    <input type="file" id="pick-dir" webkitdirectory directory multiple hidden>
+  </div>
+
+  <div id="report" hidden>
+    <div class="stats" id="stats"></div>
+    <div class="toolbar">
+      <input type="search" id="filter" placeholder="Lọc theo task / run…" oninput="render()">
+    </div>
+    <div class="panel" id="table"></div>
+    <div id="warns"></div>
+  </div>
+
+  <div class="foot">cost-dashboard.html · đọc &lt;slug&gt;-cost-report.csv · không CDN, không cần mạng</div>
+</div>
+
+<script>
+var T = {
+  vi: { runs:"Lần chạy", tasks:"Task", rows:"Dòng", tokens:"Tokens", total:"Tổng chi phí",
+        run:"Lần chạy / Task", dur:"Thời lượng", agent:"Agent", model:"Model",
+        inp:"Input", outp:"Output", cache:"Cache read", cost:"Chi phí",
+        grand:"TỔNG CỘNG", none:"Không có dòng nào khớp bộ lọc.",
+        noCp:"không có checkpoint cho lần chạy này — không kiểm tra được task thiếu",
+        missHead:"task không có dòng chi phí", missBody:"Đừng đọc tổng của lần chạy này như thể đã bao phủ toàn bộ pipeline.",
+        empty:"Không tìm thấy file nào kết thúc bằng -cost-report.csv trong những gì bạn vừa chọn." },
+  en: { runs:"Runs", tasks:"Tasks", rows:"Rows", tokens:"Tokens", total:"Total cost",
+        run:"Run / Task", dur:"Duration", agent:"Agent", model:"Model",
+        inp:"Input", outp:"Output", cache:"Cache read", cost:"Cost",
+        grand:"GRAND TOTAL", none:"No rows match the filter.",
+        noCp:"no checkpoint for this run — missing tasks cannot be checked",
+        missHead:"task(s) have no cost row", missBody:"Do not read this run's total as full-pipeline coverage.",
+        empty:"No file ending in -cost-report.csv was found among what you picked." }
+};
+var lang = "vi";
+function t(k){ return T[lang][k]; }
+
+function setLang(l){
+  lang = l;
+  document.getElementById("btn-vi").className = l === "vi" ? "on" : "";
+  document.getElementById("btn-en").className = l === "en" ? "on" : "";
+  document.querySelectorAll("[data-vi]").forEach(function(el){ el.textContent = el.dataset[l]; });
+  if (state.runs.length) render();
+}
+
+// --- CSV ---
+function parseCsv(text){
+  var rows = [], row = [], field = "", q = false, i, c;
+  for (i = 0; i < text.length; i++){
+    c = text[i];
+    if (q){
+      if (c === '"'){ if (text[i+1] === '"'){ field += '"'; i++; } else { q = false; } }
+      else { field += c; }
+    } else if (c === '"'){ q = true; }
+    else if (c === ","){ row.push(field); field = ""; }
+    else if (c === "\n"){ row.push(field); rows.push(row); row = []; field = ""; }
+    else if (c !== "\r"){ field += c; }
+  }
+  if (field !== "" || row.length){ row.push(field); rows.push(row); }
+  return rows;
+}
+
+function toObjects(text){
+  var rows = parseCsv(text);
+  if (!rows.length) return [];
+  var head = rows[0], out = [];
+  for (var i = 1; i < rows.length; i++){
+    if (rows[i].length === 1 && rows[i][0] === "") continue;
+    var o = {};
+    for (var j = 0; j < head.length; j++) o[head[j]] = rows[i][j] === undefined ? "" : rows[i][j];
+    out.push(o);
+  }
+  return out;
+}
+
+function num(v){ var n = parseFloat(v); return isFinite(n) ? n : 0; }
+function fmt(n){ return n.toLocaleString("en-US"); }
+function usd(n){ return "$" + n.toFixed(4); }
+function esc(s){ return String(s).replace(/[&<>"]/g, function(ch){
+  return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[ch]; }); }
+
+// path helpers — folder-picked files carry webkitRelativePath
+function pathOf(f){ return f.webkitRelativePath || f.name; }
+function folderOf(f){ var p = pathOf(f).split("/"); return p.length > 1 ? p[p.length-2] : ""; }
+function runKeyOf(f, name){
+  if (name.endsWith("-cost-report.csv")) return folderOf(f) || name.slice(0, -"-cost-report.csv".length);
+  return "";
+}
+
+var state = { runs: [] };
+
+function buildRuns(files){
+  var csvs = files.filter(function(f){ return f.name.endsWith("-cost-report.csv"); });
+  var cps  = files.filter(function(f){ return f.name.endsWith("-checkpoint.json"); });
+  var byRun = {}, order = [];
+
+  csvs.forEach(function(f){
+    var key = runKeyOf(f, f.name), bucket = byRun[key];
+    if (!bucket){ bucket = byRun[key] = { key:key, rows:[], texts:[] }; order.push(key); }
+    bucket.texts.push(f.text);
+  });
+  cps.forEach(function(f){
+    var key = folderOf(f);
+    var bucket = byRun[key];
+    if (!bucket){ bucket = byRun[key] = { key:key, rows:[], texts:[] }; order.push(key); }
+    try { bucket.cp = JSON.parse(f.text); } catch (e) { bucket.cpErr = String(e); }
+  });
+
+  order.forEach(function(key){
+    var b = byRun[key];
+    b.texts.forEach(function(txt){
+      toObjects(txt).forEach(function(o){
+        b.rows.push({
+          task: o.task_label, dur: o.task_duration, agent: o.agent, model: o.model_name,
+          inp: num(o.input_tokens), outp: num(o.output_tokens),
+          cache: num(o.cache_read_tokens) + num(o.cache_creation_tokens),
+          cost: num(o.cost_usd)
+        });
+      });
+    });
+    b.rows.sort(function(a, c){ return c.cost - a.cost; });
+    b.cost = b.rows.reduce(function(s, r){ return s + r.cost; }, 0);
+    b.tokens = b.rows.reduce(function(s, r){ return s + r.inp + r.outp + r.cache; }, 0);
+    b.tasks = new Set(b.rows.map(function(r){ return r.task; })).size;
+    if (b.cp && b.cp.timeline){
+      var have = new Set(b.rows.map(function(r){ return r.task; }));
+      // A session that hosted several inline tasks is written as ONE row-set labelled
+      // "shared-session: a + b". Those tasks ARE covered - unwrap the label so they
+      // are not falsely reported as missing cost rows.
+      var haveShared = new Set();
+      b.rows.forEach(function(r){
+        var P = 'shared-session:';
+        if (r.task.indexOf(P) === 0){
+          r.task.slice(P.length).split('+').forEach(function(s){ haveShared.add(s.trim()); });
+        }
+      });
+      b.expected = b.cp.timeline.map(function(e){ return e.task; });
+      b.missing = b.expected.filter(function(x){ return !have.has(x) && !haveShared.has(x); });
+    }
+  });
+
+  return order.map(function(k){ return byRun[k]; })
+              .filter(function(b){ return b.rows.length || b.expected || b.cpErr; });
+}
+
+function render(){
+  var runs = state.runs, q = (document.getElementById("filter").value || "").toLowerCase();
+  var grand = { cost:0, tokens:0, rows:0, tasks:0 };
+  runs.forEach(function(b){ grand.cost += b.cost; grand.tokens += b.tokens; grand.rows += b.rows.length; grand.tasks += b.tasks; });
+
+  document.getElementById("stats").innerHTML =
+    [[runs.length, t("runs")], [grand.tasks, t("tasks")], [grand.rows, t("rows")],
+     [fmt(grand.tokens), t("tokens")], [usd(grand.cost), t("total")]]
+    .map(function(p){ return '<div class="stat"><div class="v">' + p[0] + '</div><div class="l">' + p[1] + '</div></div>'; }).join("");
+
+  var h = ['<table><thead><tr>',
+    '<th>' + t("run") + '</th><th>' + t("dur") + '</th><th>' + t("agent") + '</th><th>' + t("model") + '</th>',
+    '<th class="num">' + t("inp") + '</th><th class="num">' + t("outp") + '</th>',
+    '<th class="num">' + t("cache") + '</th><th class="num">' + t("cost") + '</th>',
+    '</tr></thead><tbody>'].join("");
+
+  var shown = 0, fCost = 0, fTokens = 0;
+  runs.forEach(function(b){
+    var rows = b.rows.filter(function(r){
+      return !q || r.task.toLowerCase().indexOf(q) >= 0 || b.key.toLowerCase().indexOf(q) >= 0; });
+    if (!rows.length && q) return;
+    shown += rows.length;
+    fCost += rows.reduce(function(s, r){ return s + r.cost; }, 0);
+    fTokens += rows.reduce(function(s, r){ return s + r.inp + r.outp + r.cache; }, 0);
+    var pct = grand.cost ? (b.cost / grand.cost * 100).toFixed(1) + "%" : "—";
+    h += '<tr class="run"><td class="slug">' + esc(b.key) + '<span class="pct">' + b.tasks + " " + t("tasks") + " · " + pct + '</span></td>'
+       + '<td></td><td></td><td></td><td class="num"></td><td class="num"></td><td class="num"></td>'
+       + '<td class="num">' + usd(b.cost) + '</td></tr>';
+    rows.forEach(function(r){
+      h += '<tr><td>' + esc(r.task) + '</td><td class="mono">' + esc(r.dur) + '</td><td>' + esc(r.agent) + '</td>'
+         + '<td class="mono">' + esc(r.model) + '</td>'
+         + '<td class="num">' + fmt(r.inp) + '</td><td class="num">' + fmt(r.outp) + '</td>'
+         + '<td class="num">' + fmt(r.cache) + '</td><td class="num" style="color:var(--teal);font-weight:600">' + usd(r.cost) + '</td></tr>';
+    });
+  });
+  if (!shown) h += '<tr><td colspan="8" style="color:var(--muted)">' + t("none") + '</td></tr>';
+  h += '</tbody><tfoot><tr><td>' + t("grand") + '</td><td></td><td></td><td></td>'
+     + '<td class="num"></td><td class="num"></td><td class="num">' + fmt(fTokens) + '</td>'
+     + '<td class="num">' + usd(fCost) + '</td></tr></tfoot></table>';
+  document.getElementById("table").innerHTML = h;
+
+  var w = "";
+  runs.forEach(function(b){
+    if (b.missing && b.missing.length){
+      w += '<div class="warn"><b>' + esc(b.key) + ' — ' + b.missing.length + " " + t("missHead") + '.</b>'
+         + '<span>' + t("missBody") + '</span><ul>'
+         + b.missing.map(function(m){ return '<li><code>' + esc(m) + '</code></li>'; }).join("")
+         + '</ul></div>';
+    } else if (!b.cp && !q){
+      w += '<div class="warn" style="background:#f4f6f7;border-color:var(--line);border-left-color:var(--muted);color:var(--ink2)">'
+         + '<span>' + esc(b.key) + " — " + t("noCp") + '</span></div>';
+    }
+  });
+  document.getElementById("warns").innerHTML = w;
+}
+
+function load(files){
+  var list = Array.prototype.slice.call(files).filter(function(f){
+    return f.name.endsWith("-cost-report.csv") || f.name.endsWith("-checkpoint.json"); });
+  if (!list.length){ alert(t("empty")); return Promise.resolve(); }
+  return Promise.all(list.map(function(f){
+    return f.text().then(function(txt){ return { name:f.name, webkitRelativePath:f.webkitRelativePath, text:txt }; });
+  })).then(function(loaded){
+    state.runs = buildRuns(loaded);
+    document.getElementById("drop").hidden = true;
+    document.getElementById("report").hidden = false;
+    render();
+  });
+}
+
+document.getElementById("pick-files").addEventListener("change", function(e){ load(e.target.files); });
+document.getElementById("pick-dir").addEventListener("change", function(e){ load(e.target.files); });
+
+var drop = document.getElementById("drop");
+["dragenter","dragover"].forEach(function(ev){
+  drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add("over"); });
+});
+["dragleave","drop"].forEach(function(ev){
+  drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove("over"); });
+});
+drop.addEventListener("drop", function(e){ if (e.dataTransfer) load(e.dataTransfer.files); });
+
+setLang("vi");
+</script>
+</body>
+</html>
