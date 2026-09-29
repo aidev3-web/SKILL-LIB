@@ -229,6 +229,7 @@ footer{padding:50px 24px 70px;text-align:center;color:var(--muted);font-size:.82
   .g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr}
 }
 @media(max-width:680px){.g2,.g4,.quad{grid-template-columns:1fr}#search{display:none}}
+.chart-box{position:relative;height:300px;max-width:100%}
 </style>
 <script>
 /* ---------- Charts (Chart.js) — ported verbatim from the original reference build
@@ -282,6 +283,18 @@ function mkChart(id, cfg){
     return;
   }
   trChartCfg(cfg);
+  // Safety net for charts that skipped baseOpts/gridScale: fixed-box sizing and
+  // theme-aware text/grid colours, so a chart can neither grow endlessly nor stay
+  // unreadable after a light/dark toggle.
+  const ic = inkColors(), o = cfg.options = cfg.options || {};
+  o.responsive = true; o.maintainAspectRatio = false;
+  o.plugins = o.plugins || {}; o.plugins.legend = o.plugins.legend || {};
+  o.plugins.legend.labels = Object.assign({ color: ic.ink }, o.plugins.legend.labels || {});
+  Object.values(o.scales || {}).forEach(s => {
+    s.ticks = Object.assign({ color: ic.tick }, s.ticks || {});
+    s.grid = Object.assign({ color: ic.grid }, s.grid || {});
+    if (s.pointLabels || (o.scales.r === s)) s.pointLabels = Object.assign({ color: ic.ink }, s.pointLabels || {});
+  });
   const ch = new Chart(el, cfg);
   CHARTS.push({ id, cfg });
   return ch;

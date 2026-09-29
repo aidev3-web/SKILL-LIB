@@ -52,12 +52,17 @@ citation. Full rules: `assets/research-rules.md` in this skill's folder.
 | 1 — Research fan-out | 4 parallel subagents, each researches + writes its own section group + charts, reading `captures/*.md`/`officers.json`/`competitor-research/*.json` first (not live web fetches for anything already captured) | Agents named `research-due-diligence-agent`, `research-ops-tech-agent`, `research-delivery-growth-agent`, `tools-documents-agent` — find each one wherever this agent/tool keeps its own agent definitions (Claude Code: `~/.claude/agents/<name>.md`; a different tool may have no such file at all — see note below) — shared markup contract in `assets/section-shell.md` (not the full template — see note below), citation rules in `assets/research-rules.md` |
 | Charts & diagrams manifest | Exact canvas ids/diagram slots, ownership; diagrams drawn with the bundled `diagram-design` skill (installed together with this skill) | `assets/charts-and-diagrams.md` + Skill: `diagram-design` |
 | Template/validator reference | The shell you must build from, the per-client palette rule, what `validate-proposal.py` checks | `assets/reference-files.md` |
-| 2 — Front matter | Overview/Executive Summary/Recommendations/3 Proposed Solutions, written directly (no agent) | Skill: `front-matter-writer` |
-| 2.5 — Source audit (hard gate) | Confirm every citation's excerpt is really on its source page (`bind_check.py`) before assembly proceeds — a blocking gate, not an FYI | Skill: `source-auditor` |
+| 2.5 — Source audit (hard gate) — **runs before Phase 2** | Confirm every Phase 1 citation's excerpt is really on its source page (`bind_check.py`) and write `audited-findings.json` — a blocking gate, not an FYI | Skill: `source-auditor` |
+| 2 — Front matter — **runs after 2.5** | Overview/Executive Summary/Recommendations/3 Proposed Solutions, written directly (no agent) from the digests + `audited-findings.json`; its own new citations are then bind-checked with the same gate before 2.6 | Skill: `front-matter-writer` |
 | 2.6 — Chart data | Build the final `chart-manifest.json` from audited findings — only runs after `source-auditor` passes with an empty `blocking_issues` array | Skill: `chart-data-analyst` |
 | 3 — Assembly | Extract sections from Phase 1 previews, drop into the template in fixed order | Skill: `assembler` |
 | 4a — Mechanical validation | Run `validate-proposal.py`'s 13 hard checks (incl. no-CDN gate) | Skill: `mechanical-validator` |
 | 4b — Judgment review | Content/citation spot-check, devil's-advocate pass, then a per-task `ccusage` cost report | Skill: `judgment-reviewer` |
+
+**Execution order after Phase 1:** 2.5 source audit → 2 front matter (reads
+`audited-findings.json`) → re-run `bind_check.py` on the front matter's own findings
+(same gate, merged into `audited-findings.json`) → 2.6 chart data → 3 assembly → 4.
+The phase numbers are labels kept for continuity; this order is what to run.
 
 **Note on Phase 1's input cost.** Group agents no longer read the full
 `proposal-template.html` (~250KB/~65-70k tokens each, ×4 groups = ~260k tokens before
@@ -217,6 +222,8 @@ explicitly said they want to keep them for a future incremental re-run.
 - `<client-slug>-cost-report.csv`
 - `web-scan.json`, `officers.json`, `competitor-research/*.json` (the raw research
   inputs everything else cites back to — cheap to keep, expensive to re-derive)
+- `captures/social/*.md` (the only copy of login-walled social pages that browser-observed
+  citations bind to - they cannot be re-fetched without the user's login)
 - `bind-check-report.json`, `competitor-facts-bind-check.json` (the citation
   bind-check's own audit trail, for both gates)
 - `audited-findings.json` (the merged, re-graded findings `chart-data-analyst` and
@@ -233,7 +240,7 @@ no value):
   `audited-findings.json`/`<client-slug>-findings.json` by `source-auditor` — the
   per-group files themselves are superseded once merged)
 - `chart-manifest.json` (validated already, not needed once the final file has the charts)
-- **`captures/*.md`** (the full page-text cache from `web-osint-scanner`'s Phase 0.8
+- **`captures/*.md`** - top level only, never `captures/social/` (the full page-text cache from `web-osint-scanner`'s Phase 0.8
   pre-fetch — this is a fetch cache, not a citable record; it's the largest
   intermediate by far (~39 full pages of text) and keeping it around across runs is
   exactly the pileup this cleanup rule exists to prevent). Keep `captures/manifest.json`

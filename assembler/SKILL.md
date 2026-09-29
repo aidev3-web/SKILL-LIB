@@ -24,6 +24,13 @@ section body with the corresponding subagent's output, in the fixed order from
 `<skill-root>/assets/menu-structure.md`, fill in the
 client name/title.
 
+**Keep the template's own `<section ...>` tags.** Replace only what sits *between* the
+template's opening and closing tag with the fragment's inner content - the template tag
+carries `data-nav`/`data-star`, which some fragments leave out. Then **renumber every
+citation globally**: one number per unique `href`, in first-use order across the whole
+file, rewriting each `<a class="cite">[…]</a>` label (including any stray `[B1]`-style
+labels) and building `sources-citation` from the same numbering.
+
 **There are three spots for the client name, not one:**
 - The `<title>`.
 - The hero's `.chip` badge (`'× <CLIENT NAME>'`).

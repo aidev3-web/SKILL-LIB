@@ -36,7 +36,9 @@ its 5 placeholders (30-second pitch, 2-minute story, 8–10 objections with answ
 this client's facts, a 15-minute demo script, 3–4 things to close). **`tool-profit-estimator`**
 already contains the interactive ROI calculator (`#roiTool`): set its `data-currency`
 (e.g. `₱`, `$`, `₫`) and each input's `value` to realistic defaults for this client, and
-mark any assumed default in the section text; do not rewrite its script. Full list: `tool-ai-playbook`,
+mark any assumed default in the section text; do not rewrite its script. The
+calculator's cost input must equal the **year-1 total of your own `tool-quotation`**
+(midpoint if it is a range, same currency) - never a separate, smaller figure. Full list: `tool-ai-playbook`,
 `tool-profit-estimator`, `tool-owner-faq`, `tool-odoo-platform`, `tool-brd`,
 `tool-quotation`, `tool-accounting-overhaul`, `tool-demo-walkthrough`,
 `tool-staff-guides`, `tool-discovery-questions`, `meeting-minutes`.

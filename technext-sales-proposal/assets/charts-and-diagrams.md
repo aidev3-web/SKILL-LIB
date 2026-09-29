@@ -124,6 +124,14 @@ whenever it produces a clearer, better-looking result — pick the type that fit
 content, e.g. **org chart / tree** (#1), **funnel / pyramid** (#2), **swimlane** (#3),
 **sequence** (#4). Hand-built `.tl` remains a valid fallback.
 
+**Numbering and ids (a real run broke on both):**
+- Use the manifest number above for `data-diagram="N"`, exactly - Group A's org chart is
+  always `1`, Group B's are always `2`, `3`, `4`. Never renumber your own diagrams from 1.
+- Every `id` inside an SVG (arrow `<marker>`, gradient, `clipPath`, pattern) must be
+  prefixed `d<N>-` (e.g. `id="d3-ah"`, `marker-end="url(#d3-ah)"`). diagram-design's
+  examples all use `id="ah"`; three diagrams on one page then share an id and the
+  validator's duplicate-id check fails.
+
 Rules when embedding its output:
 - Paste only the **inline `<svg>…</svg>`** inside the `<div class="diagram-block"
   data-diagram="N">` wrapper — never its full example page, never a `<link>` to Google

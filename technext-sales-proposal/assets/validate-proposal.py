@@ -209,6 +209,15 @@ def main():
         passed = fail(f"only {diagram_count} diagram-block(s) found (manifest requires 4: 1 Group A + 3 Group B, static HTML, no Mermaid)") and passed
     else:
         ok(f"{diagram_count} diagram-block(s) found")
+    nums = re.findall(r'class="diagram-block"[^>]*data-diagram="(\d+)"', html)
+    missing = sorted({"1", "2", "3", "4"} - set(nums))
+    dup = sorted({n for n in nums if nums.count(n) > 1})
+    if missing or dup:
+        passed = fail(f"diagram-block numbering must be exactly 1-4 from the manifest "
+                      f"(A=1, B=2,3,4) - missing {missing or 'none'}, duplicated "
+                      f"{dup or 'none'}") and passed
+    else:
+        ok("diagram-blocks numbered 1-4 as in the manifest")
     if canvas_count and not has_chartjs:
         passed = fail("canvas elements present but no Chart.js script/mkChart() call found — charts won't render") and passed
     if canvas_count and regchart_count < canvas_count:
@@ -326,7 +335,12 @@ def main():
     #      that entire <script> block never executes.
     # The template now keeps the chart framework in <head> so (1) cannot happen; this
     # check exists because a delivered file once had all 18 charts blank from it.
-    scan = re.sub(r"/\*.*?\*/", "", re.sub(r"<!--.*?-->", "", html, flags=re.S), flags=re.S)
+    # Strip JS comments only inside <script> bodies - prose such as
+    # "competitor-research/*.json" in a section must not swallow the markup after it.
+    no_html_comments = re.sub(r"<!--.*?-->", "", html, flags=re.S)
+    scan = re.sub(r"(<script\b[^>]*>)(.*?)(</script>)",
+                  lambda m: m.group(1) + re.sub(r"/\*.*?\*/", "", m.group(2), flags=re.S) + m.group(3),
+                  no_html_comments, flags=re.S | re.I)
 
     canvas_ids = re.findall(r'<canvas[^>]*\bid="([^"]+)"', html)
     reg_ids = re.findall(r"mkChart\(\s*['\"]([^'\"]+)['\"]", scan)
@@ -357,6 +371,31 @@ def main():
     if orphan_regs:
         passed = fail(f"{len(orphan_regs)} mkChart() registration(s) target an id with no "
                       f"<canvas>: {orphan_regs}") and passed
+
+    # Chart.js with maintainAspectRatio:false grows to its parent's height - a canvas
+    # whose parent has no fixed height grows without limit (seen: 15,000px tall charts).
+    loose = []
+    for m in re.finditer(r'<canvas[^>]*\bid="([^"]+)"', html):
+        before = html[max(0, m.start() - 400):m.start()].rstrip()
+        parent = re.search(r"<([a-z0-9]+)\b([^>]*)>$", before)
+        if not (parent and "chart-box" in parent.group(2)):
+            loose.append(m.group(1))
+    if loose:
+        passed = fail(f"{len(loose)} canvas(es) are not the direct child of a "
+                      f"<div class=\"chart-box\"> - with no fixed-height box they stretch "
+                      f"endlessly: {loose}") and passed
+    elif canvas_ids:
+        ok("every canvas sits in a fixed-height .chart-box")
+
+    chart_scripts = re.findall(r"<script\b[^>]*>\s*regChart\(.*?</script>", scan, flags=re.S)
+    hard = [re.search(r"mkChart\(\s*['\"]([^'\"]+)", sc).group(1) for sc in chart_scripts
+            if re.search(r"['\"](?:#[0-9A-Fa-f]{6}|rgba?\()", sc)
+            and re.search(r"mkChart\(\s*['\"]([^'\"]+)", sc)]
+    if hard:
+        passed = fail(f"{len(hard)} chart(s) hard-code colours instead of PAL[...] - they "
+                      f"ignore the palette and theme: {hard}") and passed
+    elif chart_scripts:
+        ok("chart colours come from PAL (palette/theme aware)")
 
     bad_merge = re.findall(r"\}\s*\+\s*(?:plugins|scales|legend|tooltip|options|data|"
                            r"elements|layout)\s*:", scan)
