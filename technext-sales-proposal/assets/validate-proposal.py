@@ -18,7 +18,13 @@ import re
 import sys
 from pathlib import Path
 
-REQUIRED_ASSESS_SECTIONS = ["implementation-roadmap", "change-management", "hypercare-support"]
+try:
+    from bs4 import BeautifulSoup
+    HAS_BS4 = True
+except ImportError:
+    HAS_BS4 = False
+
+REQUIRED_ASSESS_SECTIONS = ["recommendations"]
 
 MENU_STRUCTURE_PATH = Path(__file__).parent / "menu-structure.md"
 
@@ -171,19 +177,19 @@ def main():
     else:
         ok("all template shell markers present — this is the real template, filled in")
 
-    print(f"\n=== 9. Full chart & Mermaid manifest present (19 canvases + 9 diagrams, exact ids) ===")
-    # The reference build (full1 / Casa Escondida) ships 21 named Chart.js canvases;
-    # this skill drops the 2 tied to the removed PESTLE/Porter's Five Forces sections,
-    # leaving 19 — SKILL.md's "Charts & diagrams" manifest requires this skill's output
-    # to match that count and those exact canvas ids (content adapted per client, but
-    # the slot itself must exist). This does not judge whether the plotted data is any
-    # good — that's a judgment call.
+    print(f"\n=== 9. Full chart & diagram manifest present (18 canvases + 4 static diagram blocks, exact ids) ===")
+    # SKILL.md's "Charts & diagrams" manifest requires this skill's output to match this
+    # count and these exact canvas ids (content adapted per client, but the slot itself
+    # must exist). Diagrams are static HTML (no Mermaid), wrapped in
+    # <div class="diagram-block">. This does not judge whether the plotted
+    # data is any good — that's a judgment call.
     REQUIRED_CANVAS_IDS = [
         "cRevMix", "cScorecard", "cRevStream", "cHeadcount", "cSeasonStaff", "cChannel",
         "cDigital", "cSentiment", "cThemes", "cPosition", "cGap",
-        "cOrigin", "cSeason", "cPersona", "cAuto", "cRisk", "cKpi", "cRoi", "cOwner",
+        "cOrigin", "cSeason", "cPersona", "cRisk", "cKpi", "cRoi", "cOwner",
     ]
     canvas_count = len(re.findall(r'<canvas\s+id="', html))
+    diagram_count = len(re.findall(r'class="diagram-block"', html))
     mermaid_count = len(re.findall(r'class="mermaid"', html))
     regchart_count = len(re.findall(r'regChart\s*\(', html))
     has_chartjs = "chart.js" in html.lower() or "new Chart(" in html or "mkChart(" in html
@@ -197,10 +203,12 @@ def main():
         passed = fail(f"only {canvas_count} <canvas> chart(s) found total (manifest requires {len(REQUIRED_CANVAS_IDS)})") and passed
     else:
         ok(f"{canvas_count} chart canvas(es) found")
-    if mermaid_count < 9:
-        passed = fail(f"only {mermaid_count} Mermaid diagram(s) found (manifest requires 9: 1 Group A + 5 Group B + 3 Group C)") and passed
+    if mermaid_count:
+        passed = fail(f"{mermaid_count} Mermaid diagram(s) found — Mermaid is banned, rebuild as static diagram-block HTML") and passed
+    if diagram_count < 4:
+        passed = fail(f"only {diagram_count} diagram-block(s) found (manifest requires 4: 1 Group A + 3 Group B, static HTML, no Mermaid)") and passed
     else:
-        ok(f"{mermaid_count} Mermaid diagram(s) found")
+        ok(f"{diagram_count} diagram-block(s) found")
     if canvas_count and not has_chartjs:
         passed = fail("canvas elements present but no Chart.js script/mkChart() call found — charts won't render") and passed
     if canvas_count and regchart_count < canvas_count:
@@ -231,7 +239,7 @@ def main():
     # The hero title, <title>, and the sidebar brand line in buildNav() ('× <CLIENT
     # NAME>') are all supposed to be replaced with the real client name during Phase 3
     # assembly. A real run once shipped with the hero still literally reading
-    # "<CLIENT NAME>" and the sidebar still reading "Technext × Odoo 19" — both easy to
+    # "<CLIENT NAME>" and the sidebar still reading "TechNext × Odoo 19" — both easy to
     # miss by eye since one is inside a JS string, not visible in a quick HTML skim.
     CLIENT_PLACEHOLDER_PATTERNS = [
         r'<CLIENT NAME>', r'&lt;CLIENT NAME&gt;',
@@ -243,6 +251,142 @@ def main():
         passed = fail(f"unfilled client-name placeholder(s)/stale text still in the file: {found_placeholders} — check the hero, <title>, AND the buildNav() sidebar brand line") and passed
     else:
         ok("no unfilled <CLIENT NAME> placeholder or stale 'Odoo 19' sidebar text found")
+
+    print(f"\n=== 12. Structural HTML validity (BeautifulSoup4 + html5lib parser) ===")
+    # Checks 1-11 above are regex-based — fast, but can miss real structural bugs that
+    # only a real HTML parser catches (a regex has no idea what's "inside" a tag).
+    # html5lib parses exactly like a real browser would (same forgiving recovery
+    # rules as the HTML5 spec), so if IT reports something is wrong, a browser
+    # would genuinely render it wrong too — not a style nitpick.
+    if not HAS_BS4:
+        print("  SKIP  beautifulsoup4 not installed (pip install beautifulsoup4 html5lib) — "
+              "this check is skipped, not failed, so it doesn't block delivery on a missing "
+              "local dependency; install it and re-run for the real check.")
+    else:
+        try:
+            import html5lib  # noqa: F401
+            soup = BeautifulSoup(html, "html5lib")
+        except ImportError:
+            soup = BeautifulSoup(html, "html.parser")
+            print("  SKIP  html5lib not installed (pip install html5lib) — falling back to "
+                  "Python's built-in parser, which is more lenient and may miss real errors.")
+            soup = None
+        if soup is not None:
+            # Duplicate ids are a real bug: breaks #anchor links, getElementById(),
+            # and buildNav()'s section lookup — a regex pass can't reliably catch
+            # this (would need to track every id= across the whole file itself).
+            all_ids = [tag.get("id") for tag in soup.find_all(id=True)]
+            seen, dupes = set(), set()
+            for i in all_ids:
+                (dupes.add(i) if i in seen else seen.add(i))
+            if dupes:
+                passed = fail(f"{len(dupes)} duplicate id(s) found — breaks internal navigation and JS lookups: {sorted(dupes)}") and passed
+            else:
+                ok(f"no duplicate ids across {len(all_ids)} ided elements")
+
+            # A canvas with no closing awareness, or a section tag that swallowed
+            # the rest of the document because an earlier tag never closed, shows
+            # up here as a section with a wildly wrong number of children — cheap
+            # sanity check html5lib's real tree gives us for free.
+            sections = soup.find_all("section", id=True)
+            empty_sections = [s.get("id") for s in sections if len(s.get_text(strip=True)) < 5]
+            if empty_sections:
+                passed = fail(f"{len(empty_sections)} section(s) parse as essentially empty (<5 chars of text) — likely a tag-closing bug swallowed their content: {empty_sections}") and passed
+            else:
+                ok(f"all {len(sections)} sections have real parsed content")
+
+    print(f"\n=== 13. No external CDN dependency (script/link must be inline, not fetched) ===")
+    # SKILL.md promises "all CSS/JS/charts inline, no CDN — opens correctly via
+    # file:// with no network." A <script src="https://...">/<link ... href="https://...">
+    # pointing at an external host breaks that promise silently: the page still opens,
+    # but every chart goes blank the moment the machine is offline or a CDN is blocked
+    # (this happened for real — a delivered file still had the old
+    # cdn.jsdelivr.net/npm/chart.js reference after the template was fixed to embed it).
+    external_scripts = re.findall(r'<script[^>]+src="(https?://[^"]+)"', html)
+    external_stylesheets = re.findall(
+        r'<link[^>]+rel="stylesheet"[^>]+href="(https?://[^"]+)"', html)
+    # manifest.webmanifest / PWA icons are same-origin relative paths by design, not CDN —
+    # only flag scheme-qualified (http/https) external hosts.
+    external_assets = external_scripts + external_stylesheets
+    if external_assets:
+        passed = fail(f"{len(external_assets)} external CDN reference(s) found — page "
+                       f"is not self-contained/offline-safe: {external_assets}") and passed
+    else:
+        ok("no external <script src=\"http...\"> or stylesheet <link> found — fully inline")
+
+    print(f"\n=== 14. Charts are actually wired up (registration order, ids, option syntax) ===")
+    # A chart only paints if mkChart() runs at render time, which only happens for the
+    # definitions regChart() pushed. Two ways a WHOLE page's charts silently go blank,
+    # both seen for real in this project:
+    #   1. a section emits <script>regChart(...)</script> BEFORE the script that defines
+    #      regChart. Every call throws "ReferenceError: regChart is not defined" and the
+    #      page renders ZERO charts even though all 18 canvases are present in the DOM.
+    #   2. the options object is built with `+` instead of `,` -
+    #      baseOpts({ scales:{...} + plugins:{...} }) - which is a JS *syntax* error, so
+    #      that entire <script> block never executes.
+    # The template now keeps the chart framework in <head> so (1) cannot happen; this
+    # check exists because a delivered file once had all 18 charts blank from it.
+    scan = re.sub(r"/\*.*?\*/", "", re.sub(r"<!--.*?-->", "", html, flags=re.S), flags=re.S)
+
+    canvas_ids = re.findall(r'<canvas[^>]*\bid="([^"]+)"', html)
+    reg_ids = re.findall(r"mkChart\(\s*['\"]([^'\"]+)['\"]", scan)
+
+    defn = re.search(r"function\s+regChart\s*\(", scan)
+    calls = [m.start() for m in re.finditer(r"(?<![\w.])regChart\s*\(", scan)]
+    if canvas_ids and not defn:
+        passed = fail("no `function regChart(` found - the chart framework is missing "
+                      "(was the template shell rebuilt by hand?)") and passed
+    elif defn:
+        late = [c for c in calls if c < defn.start()]
+        if late:
+            passed = fail(f"{len(late)} regChart(...) call(s) appear BEFORE `function "
+                          f"regChart` - those throw ReferenceError and leave their canvas "
+                          f"blank. Keep the chart framework above every section that "
+                          f"registers a chart (the template puts it in <head> for this "
+                          f"reason).") and passed
+        else:
+            ok(f"regChart is defined before all {len(calls)} registration call(s)")
+
+    unregistered = [c for c in canvas_ids if c not in reg_ids]
+    if unregistered:
+        passed = fail(f"{len(unregistered)} <canvas> element(s) have no mkChart() "
+                      f"registration - they render blank: {unregistered}") and passed
+    elif canvas_ids:
+        ok(f"every one of the {len(canvas_ids)} canvas(es) has a mkChart() registration")
+    orphan_regs = [r for r in reg_ids if r not in canvas_ids]
+    if orphan_regs:
+        passed = fail(f"{len(orphan_regs)} mkChart() registration(s) target an id with no "
+                      f"<canvas>: {orphan_regs}") and passed
+
+    bad_merge = re.findall(r"\}\s*\+\s*(?:plugins|scales|legend|tooltip|options|data|"
+                           r"elements|layout)\s*:", scan)
+    if bad_merge:
+        passed = fail(f"{len(bad_merge)} chart option(s) merge objects with `+` "
+                      f"(e.g. '{{...}} + plugins:') - that is a JS syntax error, so the "
+                      f"whole <script> never runs. Use one object literal with a comma: "
+                      f"baseOpts({{ scales: {{...}}, plugins: {{...}} }}).") and passed
+    else:
+        ok("chart options are valid object literals (no object-merge with '+')")
+
+    print(f"\n=== 15. Colour themes, starred must-reads and bilingual chart labels ===")
+    swatches = len(re.findall(r'class="pal-sw"', html))
+    if 'id="palPop"' not in html or swatches < 8 or 'function setCustomColour' not in html:
+        passed = fail(f"palette picker missing or incomplete ({swatches} preset swatch(es); need 8 + custom colour)") and passed
+    else:
+        ok(f"palette picker present ({swatches} presets + custom colour)")
+    if not re.search(r'<html[^>]*data-palette-default="[a-z]+"', html):
+        passed = fail("<html> has no data-palette-default — set the colour the user chose at intake") and passed
+    else:
+        ok("default palette set on <html>")
+    stars = len(re.findall(r'<section id="[a-z0-9-]+" data-star="1"', html))
+    if stars < 5:
+        passed = fail(f"only {stars} section(s) tagged data-star=\"1\" — the must-read list needs the key sections starred") and passed
+    else:
+        ok(f"{stars} must-read sections starred")
+    if 'function trChartStr' not in html and 'CHART_I18N' not in html:
+        passed = fail("no bilingual chart-label handler (trChartStr) — chart text will not follow VI/EN") and passed
+    else:
+        ok("chart labels follow the VI/EN toggle")
 
     print()
     if passed:

@@ -13,8 +13,11 @@ Group headers (bold) are non-clickable sidebar section dividers, not their own `
 
 ## Overview
 
+- `pre-meeting` — Trước khi họp cần đọc / Read before the meeting ★ (written by front-matter-writer; 4 fixed parts: `pm-company`, `pm-person`, `pm-issues`, `pm-unknowns`; the ★ must-read list inside it is auto-built from every section tagged `data-star="1"`)
 - `overview` — Tổng quan / Overview
 - `exec-summary` — Tóm tắt điều hành / Executive Summary
+
+- `recommendations` — Khuyến nghị / Recommendations
 
 ## Proposed Solutions
 
@@ -47,27 +50,9 @@ across clients.
 
 ## Operations
 
-- `operations` — Vận hành / Operations
-- `stakeholder-perspectives` — Góc nhìn các bên liên quan / Stakeholder Perspectives
 - `department-workflows` — Quy trình phòng ban / Department Workflows
 - `pain-solution-matrix` — Ma trận Vấn đề → Giải pháp / Pain → Solution Matrix
 - `bpmn-blueprint-uml` — BPMN · Blueprint · UML / BPMN · Blueprint · UML
-
-## Technology
-
-- `ai-automation-catalog` — Danh mục AI & Tự động hoá / AI & Automation Catalog
-- `ai-in-action` — AI trong thực tế — Câu chuyện điển hình / AI in Action — Peer Story
-- `odoo-architecture` — Kiến trúc Odoo 19 / Odoo 19 Architecture
-- `data-migration` — Di chuyển dữ liệu / Data Migration
-- `social-media-architecture` — Kiến trúc & Công cụ Marketing mạng xã hội / Social Media Marketing Architecture & Tools
-
-## Delivery
-
-- `implementation-roadmap` — Lộ trình triển khai / Implementation Roadmap
-- `change-management` — Quản lý thay đổi / Change Management
-- `hypercare-support` — Hỗ trợ Hypercare / Hypercare & Support
-- `risk-register-raci` — Bảng rủi ro & RACI / Risk Register & RACI
-- `kpis-benefits` — KPI & Lợi ích / KPIs & Benefits
 
 ## Competitive Intel
 
@@ -92,14 +77,20 @@ across clients.
 - `tool-accounting-overhaul` — 📒 Cải tổ kế toán / Accounting Overhaul
 - `tool-demo-walkthrough` — 🧭 Hướng dẫn Demo / Demo Walkthrough
 - `tool-staff-guides` — 🛎 Hướng dẫn nhân viên / Staff Guides
+- `sales-playbook` — 🎯 Sales Playbook ★ (30-second + 2-minute pitch, objections, 15-minute demo script, what to close)
 - `tool-discovery-questions` — 📋 Câu hỏi khám phá / Discovery Questions
 - `meeting-minutes` — 🗒 Biên bản họp / Meeting Minutes
 
-## Notes on operations appearing twice
+## Removed sections — boss feedback 2026-09-23
 
-`prompt.txt` lists a group called "Operations" twice (once under Delivery-adjacent
-content near line 36, once again near line 58 right before "Modern Alternative
-Services"). Treat the second occurrence as the same `operations` group already covered
-above — don't create a duplicate sidebar entry; if the client's research has
-operations-related content that didn't fit the first pass, add it to the existing
-`operations`/`department-workflows` sections instead.
+The following 12 items (and the now-empty "Technology" and "Delivery" groups they
+lived in) were removed per direct boss feedback, and must **not** be regenerated:
+`operations`, `stakeholder-perspectives`, `ai-automation-catalog`, `ai-in-action`,
+`odoo-architecture`, `data-migration`, `social-media-architecture`,
+`implementation-roadmap`, `change-management`, `hypercare-support`,
+`risk-register-raci`, `kpis-benefits`. Their chart/diagram ownership (`cRisk`, `cKpi`,
+`cRoi`, plus 5 of the 9 diagram slots) moved to the new `recommendations` section and
+`bpmn-blueprint-uml` — see `SKILL.md`'s "Charts & diagrams" section for the current
+manifest. `operations`'s old content (Current Operations/Current Tools & SaaS) already
+lives separately under Due Diligence (`current-operations`/`current-tools-saas`) —
+unaffected by this removal.
