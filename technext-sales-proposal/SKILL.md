@@ -115,14 +115,18 @@ where the host does not look. Check and self-heal before anything else:
 3. **Other hosts** (Codex, Gemini CLI…): skip step 1; use step 2 with whatever
    sub-agent mechanism the host has, or run the groups in sequence and say so in the
    checkpoint.
-4. **Sub-skills.** Look in the skills directory that holds this skill (its parent
-   folder) for the sub-skills the pipeline calls by name:
-   - **Required (11):** `company-verifier`, `officers-lookup`, `web-osint-scanner`,
-     `social-browser-scan`, `checkpoint-manager`, `front-matter-writer`,
-     `source-auditor`, `chart-data-analyst`, `assembler`, `mechanical-validator`,
-     `judgment-reviewer`.
-   - **Optional (1):** `diagram-design` — nicer SVG diagrams; without it the 4 diagram
-     blocks fall back to plain HTML `.tl` markup (still passes the validator).
+4. **Sub-skills.** The sub-skills the pipeline calls by name are listed in
+   **`dependencies.json`** next to this file (`requires` and `optional`; today 11
+   required plus `diagram-design`). Look in the skills directory that holds this skill
+   (its parent folder) for each of them:
+   - **Required:** the `requires` list.
+   - **Optional:** the `optional` list — `diagram-design` gives nicer SVG diagrams;
+     without it the 4 diagram blocks fall back to plain HTML `.tl` markup (still
+     passes the validator).
+
+   `mcp-skill-lib` reads that same file, so a skill installed with it already brings
+   these along; this check is for installs that did not (a plain folder copy, an older
+   `mcp-skill-lib`).
 
    If any is missing, tell the user in **one** message which ones, and offer to install
    them — never install silently:

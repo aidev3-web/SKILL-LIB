@@ -1,0 +1,18 @@
+{
+  "requires": [
+    "company-verifier",
+    "officers-lookup",
+    "web-osint-scanner",
+    "social-browser-scan",
+    "checkpoint-manager",
+    "front-matter-writer",
+    "source-auditor",
+    "chart-data-analyst",
+    "assembler",
+    "mechanical-validator",
+    "judgment-reviewer"
+  ],
+  "optional": [
+    "diagram-design"
+  ]
+}
