@@ -13,6 +13,7 @@
     "judgment-reviewer"
   ],
   "optional": [
-    "diagram-design"
+    "diagram-design",
+    "technext-meeting-to-proposal"
   ]
 }

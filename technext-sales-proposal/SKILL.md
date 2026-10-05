@@ -117,12 +117,16 @@ where the host does not look. Check and self-heal before anything else:
    checkpoint.
 4. **Sub-skills.** The sub-skills the pipeline calls by name are listed in
    **`dependencies.json`** next to this file (`requires` and `optional`; today 11
-   required plus `diagram-design`). Look in the skills directory that holds this skill
+   required plus `diagram-design` and `technext-meeting-to-proposal`). Look in the skills directory that holds this skill
    (its parent folder) for each of them:
    - **Required:** the `requires` list.
    - **Optional:** the `optional` list — `diagram-design` gives nicer SVG diagrams;
      without it the 4 diagram blocks fall back to plain HTML `.tl` markup (still
      passes the validator).
+     `technext-meeting-to-proposal` is also optional: it sends a meeting recording to
+     TechNext's Minutes Studio and writes the minutes into a finished proposal. The
+     pipeline never calls it; it is installed alongside so users have it when a
+     meeting happens.
 
    `mcp-skill-lib` reads that same file, so a skill installed with it already brings
    these along; this check is for installs that did not (a plain folder copy, an older
