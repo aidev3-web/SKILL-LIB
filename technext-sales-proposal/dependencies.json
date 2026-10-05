@@ -10,10 +10,9 @@
     "chart-data-analyst",
     "assembler",
     "mechanical-validator",
-    "judgment-reviewer"
-  ],
-  "optional": [
+    "judgment-reviewer",
     "diagram-design",
     "technext-meeting-to-proposal"
-  ]
+  ],
+  "optional": []
 }

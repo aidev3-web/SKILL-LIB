@@ -115,18 +115,17 @@ where the host does not look. Check and self-heal before anything else:
 3. **Other hosts** (Codex, Gemini CLI…): skip step 1; use step 2 with whatever
    sub-agent mechanism the host has, or run the groups in sequence and say so in the
    checkpoint.
-4. **Sub-skills.** The sub-skills the pipeline calls by name are listed in
-   **`dependencies.json`** next to this file (`requires` and `optional`; today 11
-   required plus `diagram-design` and `technext-meeting-to-proposal`). Look in the skills directory that holds this skill
+4. **Sub-skills.** The sub-skills this skill installs with are listed in
+   **`dependencies.json`** next to this file (`requires` and `optional`; today 13
+   required, none optional). Look in the skills directory that holds this skill
    (its parent folder) for each of them:
-   - **Required:** the `requires` list.
-   - **Optional:** the `optional` list — `diagram-design` gives nicer SVG diagrams;
-     without it the 4 diagram blocks fall back to plain HTML `.tl` markup (still
-     passes the validator).
-     `technext-meeting-to-proposal` is also optional: it sends a meeting recording to
-     TechNext's Minutes Studio and writes the minutes into a finished proposal. The
-     pipeline never calls it; it is installed alongside so users have it when a
-     meeting happens.
+   - **Required:** the `requires` list. Two of them are not steps of the pipeline but
+     always come along: `diagram-design` (nicer SVG diagrams; without it the 4 diagram
+     blocks fall back to plain HTML `.tl` markup, which still passes the validator) and
+     `technext-meeting-to-proposal` (sends a meeting recording to TechNext's Minutes
+     Studio and writes the minutes into a finished proposal; the pipeline never calls
+     it).
+   - **Optional:** the `optional` list (empty today).
 
    `mcp-skill-lib` reads that same file, so a skill installed with it already brings
    these along; this check is for installs that did not (a plain folder copy, an older
@@ -135,8 +134,8 @@ where the host does not look. Check and self-heal before anything else:
    If any is missing, tell the user in **one** message which ones, and offer to install
    them — never install silently:
    > *"Thiếu skill con: <danh sách>. Mình cài giúp từ SKILL-LIB (aidev3-web/SKILL-LIB)
-   > nhé? (có / không)"* — add *"diagram-design không bắt buộc, thiếu thì sơ đồ vẽ bằng
-   > HTML thường"* when only that one is missing.
+   > nhé? (có / không)"* — add *"diagram-design thiếu thì sơ đồ vẽ bằng
+   > HTML thường; technext-meeting-to-proposal thiếu thì chỉ không gửi được ghi âm cuộc họp"* when only those are missing.
 
    On **yes**: if the `mcp-skill-lib` tools are available, run `pull_skill` then
    `deploy_skill` for each missing one from `aidev3-web/SKILL-LIB`; otherwise give the
