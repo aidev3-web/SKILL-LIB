@@ -96,7 +96,7 @@ subagent as `<sales-proposal skill folder>`; sibling sub-skills are in its paren
 
 Phase 1 dispatches 5 agents by name: `research-due-diligence-agent`,
 `research-ops-tech-agent`, `research-delivery-growth-agent`, `tools-documents-agent`,
-`competitor-research-worker`. Some install routes (e.g. SKILL-LIB via mcp-skill-lib)
+`competitor-research-worker`. Some install routes (e.g. SKILL-LIB via technext-mcp-skill-lib)
 copy only skill folders, leaving the agent files in this skill's own `agents/` folder
 where the host does not look. Check and self-heal before anything else:
 
@@ -127,9 +127,9 @@ where the host does not look. Check and self-heal before anything else:
      it).
    - **Optional:** the `optional` list (empty today).
 
-   `mcp-skill-lib` reads that same file, so a skill installed with it already brings
+   `technext-mcp-skill-lib` reads that same file, so a skill installed with it already brings
    these along; this check is for installs that did not (a plain folder copy, an older
-   `mcp-skill-lib`).
+   `technext-mcp-skill-lib`).
 
    If any is missing, tell the user in **one** message which ones, and offer to install
    them — never install silently:
@@ -137,7 +137,7 @@ where the host does not look. Check and self-heal before anything else:
    > nhé? (có / không)"* — add *"diagram-design thiếu thì sơ đồ vẽ bằng
    > HTML thường; technext-meeting-to-proposal thiếu thì chỉ không gửi được ghi âm cuộc họp"* when only those are missing.
 
-   On **yes**: if the `mcp-skill-lib` tools are available, run `pull_skill` then
+   On **yes**: if the `technext-mcp-skill-lib` tools are available, run `pull_skill` then
    `deploy_skill` for each missing one from `aidev3-web/SKILL-LIB`; otherwise give the
    user the GitHub installer command (`install.ps1` / `install.sh`). Remind them to
    restart the host so the new skills are picked up. On **no** (or install fails):
