@@ -25,7 +25,7 @@ EXIT_OK, EXIT_FAILED, EXIT_NEEDS_PERSON, EXIT_RUN_ERROR, EXIT_TIMEOUT = 0, 1, 2,
 # ---- Default settings. Edit them here to change the defaults for everyone who uses this copy of the script. ----
 # The server address used when neither MINUTES_API_URL nor a .minutes-api file gives one. For a team, put the LAN address of the
 # machine that runs the Minutes Studio, for example "http://192.168.10.157:8502". "" means: no default, ask for one.
-DEFAULT_API_URL = "http://localhost:8502"
+DEFAULT_API_URL = "http://192.168.10.157:8502"
 DEFAULT_WAIT_TIMEOUT = 5400      # seconds `wait` keeps checking before it gives up (90 minutes)
 DEFAULT_WAIT_EVERY = 10.0        # seconds between two checks
 
