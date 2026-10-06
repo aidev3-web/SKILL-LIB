@@ -155,3 +155,52 @@ instead). `excerpt` must match what's actually inside that citation's
 `.cite-tip-excerpt` span in your HTML — `source-auditor`'s `bind_check.py` checks that
 excerpt against the real source page, so it has to be the same text, not a
 paraphrase-of-the-paraphrase.
+
+## Five-step flow — `.g5-flow` (a business flow in five cards)
+
+For a short end-to-end flow (request -> work order -> sign -> invoice ...). The CSS is already in
+the template; do not add a `<style>` block.
+
+```html
+<div class="grid g5-flow">
+  <div class="card flow-step">
+    <div class="flow-ico">📞</div>
+    <b>1. <span class="t-vi">Yêu cầu dịch vụ</span><span class="t-en">Service request</span></b>
+    <p><span class="t-vi">Mô tả một câu.</span><span class="t-en">One-sentence description.</span></p>
+    <span class="pill">Odoo module · Phase</span>
+  </div>
+  <!-- ... up to five .flow-step cards; the grid wraps on narrow screens ... -->
+</div>
+```
+Icons here are emoji (the only place the template allows them besides section titles); keep the
+numbered `<b>` title bilingual, as everything else.
+
+## Change log — the "What's updated" panel
+
+The floating popup at the end of the page normally shows "Read before the meeting". Once a proposal
+has been updated from a meeting, it switches to a change log: a list of updates, newest first, each
+linking to the sections that changed, with a red dot on the button until the reader has opened it.
+The data is one JSON block that starts empty:
+
+```html
+<script type="application/json" id="changelog-data">
+[]
+</script>
+```
+An entry is added at the start of the list each time a proposal is updated (for example by the
+`technext-meeting-to-proposal` skill, one entry per meeting):
+
+```json
+{
+  "date": "2026-10-02",
+  "title": { "vi": "Cập nhật theo biên bản họp 02/10/2026", "en": "Updated with the 2 Oct 2026 meeting minutes" },
+  "items": [
+    { "section": "meeting-minutes", "kind": "new",     "vi": "Biên bản thật: 3 quyết định, 3 việc cần làm.", "en": "Real minutes: 3 decisions, 3 action items." },
+    { "section": "company-profile", "kind": "changed", "vi": "25 nhân sự, hai kho.",                          "en": "25 staff, two warehouses." }
+  ]
+}
+```
+- `date` is `YYYY-MM-DD`. `section` is the `id` of a `<section>` that exists in the file.
+- `kind` is `new` (a section that was empty or did not exist), `changed` (rewritten) or `removed`.
+- One short line per section, in both `vi` and `en`; list only sections that really changed.
+- Never edit or reorder older entries. `validate-proposal.py` check 16 reads this block.

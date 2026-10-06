@@ -68,7 +68,7 @@ The phase numbers are labels kept for continuity; this order is what to run.
 `proposal-template.html` (~250KB/~65-70k tokens each, ×4 groups = ~260k tokens before
 any actual research happened, for output that's just a handful of `<section>`
 fragments) — they read `assets/section-shell.md` (~5KB) instead, and return raw
-fragments rather than a full-page copy. `checkpoint-manager` stitches those fragments
+fragments rather than a full-page copy. `assets/section-shell.md` also documents the `.g5-flow` five-step flow and the "What's updated" change log (`#changelog-data`) that the template now carries, so do not hand-roll either. `checkpoint-manager` stitches those fragments
 into a real previewable `<client-slug>-p1-group{A,B,C,D}.html` mechanically (a
 find/replace against the template, not something needing an agent's own context) —
 see `checkpoint-manager`'s "Stitch Phase 1 fragments" section.
