@@ -427,6 +427,48 @@ def main():
     else:
         ok("chart labels follow the VI/EN toggle")
 
+    print(f"\n=== 16. Change log (#changelog-data) is valid ===")
+    cl = re.search(r'<script type="application/json" id="changelog-data">(.*?)</script>', html, re.S)
+    if not cl:
+        ok("no #changelog-data block (a proposal built from an older template): skipped")
+    else:
+        try:
+            entries = json.loads(cl.group(1).strip() or "[]")
+        except ValueError as err:
+            entries = None
+            passed = fail(f"#changelog-data is not valid JSON ({err})") and passed
+        if entries is not None:
+            section_ids = set(re.findall(r'<section[^>]*\bid="([^"]+)"', html))
+            problems = []
+            if not isinstance(entries, list):
+                problems.append("the change log must be a JSON list")
+                entries = []
+            for n, entry in enumerate(entries, 1):
+                where = f"entry {n}"
+                if not isinstance(entry, dict) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(entry.get("date", ""))):
+                    problems.append(f"{where}: 'date' must be YYYY-MM-DD")
+                    continue
+                title = entry.get("title") or {}
+                if not (title.get("vi") and title.get("en")):
+                    problems.append(f"{where}: 'title' needs both vi and en")
+                items = entry.get("items")
+                if not isinstance(items, list) or not items:
+                    problems.append(f"{where}: 'items' must be a non-empty list")
+                    continue
+                for m, item in enumerate(items, 1):
+                    tag = f"{where} item {m}"
+                    if item.get("section") not in section_ids:
+                        problems.append(f"{tag}: section {item.get('section')!r} is not a section id in this file")
+                    if item.get("kind") not in ("new", "changed", "removed"):
+                        problems.append(f"{tag}: 'kind' must be new, changed or removed")
+                    if not (item.get("vi") and item.get("en")):
+                        problems.append(f"{tag}: needs both vi and en text")
+            if problems:
+                passed = fail("change log problems: " + "; ".join(problems[:6]) + (f" (+{len(problems) - 6} more)" if len(problems) > 6 else "")) and passed
+            else:
+                ok(f"{len(entries)} change log entr{'y' if len(entries) == 1 else 'ies'} valid" if entries
+                   else "change log is empty (fine until the first update)")
+
     print()
     if passed:
         print("ALL MECHANICAL CHECKS PASSED. Still do the judgment-based Phase 4 checks by hand:")

@@ -176,6 +176,11 @@ re-run the whole group:
    every other section stays untouched, byte for byte.
 4. The group's checkpoint status stays whatever it already was (this is an in-place
    patch, not a new phase) — no new checkpoint field needed.
+5. **If the proposal was already assembled and delivered** (`<client-slug>-proposal.html` exists and this touch-up is
+   applied to that final file), add one entry to its change log, the `#changelog-data` block (entry format in
+   `<skill-root>/assets/section-shell.md`, "Change log"): newest first, `date` = today, one item per section touched
+   with `kind` `changed`, and one short line in `vi` and `en`. Before delivery there is nothing to record, and the first
+   build leaves the block empty on purpose.
 
 If the user doesn't know which group owns a section, they don't need to — just name
 the section (as it appears in the sidebar) and resolve the mapping yourself.
