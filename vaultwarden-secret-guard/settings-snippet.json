@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      { "matcher": "Bash|PowerShell", "hooks": [{ "type": "command", "command": "node", "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/guard-env.js"] }] },
+      { "matcher": "Bash", "hooks": [{ "type": "command", "command": "node", "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/resolve.js"], "timeout": 60 }] },
+      { "matcher": "mcp__claude-in-chrome__form_input", "hooks": [{ "type": "command", "command": "node", "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/resolve.js"], "timeout": 60 }] }
+    ],
+    "PostToolUse": [
+      { "matcher": "mcp__bitwarden__list", "hooks": [{ "type": "command", "command": "node", "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/redact-list.js"], "timeout": 60 }] },
+      { "matcher": "Bash", "hooks": [{ "type": "command", "command": "node", "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/scrub-output.js"], "timeout": 60 }] },
+      { "matcher": "mcp__claude-in-chrome__.*", "hooks": [{ "type": "command", "command": "node", "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/scrub-output.js"], "timeout": 60 }] }
+    ]
+  }
+}
