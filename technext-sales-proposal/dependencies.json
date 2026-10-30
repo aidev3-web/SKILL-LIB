@@ -12,7 +12,8 @@
     "mechanical-validator",
     "judgment-reviewer",
     "diagram-design",
-    "technext-meeting-to-proposal"
+    "technext-meeting-to-proposal",
+    "proposal-library-publish"
   ],
   "optional": []
 }

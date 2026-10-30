@@ -26,12 +26,19 @@ except ImportError:
 
 REQUIRED_ASSESS_SECTIONS = ["recommendations"]
 
+# Sections that older proposals do not have: listed in menu-structure.md, but a file without them only gets a warning.
+OPTIONAL_SLUGS = {"follow-ups"}
+
 MENU_STRUCTURE_PATH = Path(__file__).parent / "menu-structure.md"
 
 
 def fail(msg):
     print(f"  FAIL  {msg}")
     return False
+
+
+def warn(msg):
+    print(f"  WARN  {msg}")
 
 
 def ok(msg):
@@ -122,9 +129,11 @@ def main():
         ok("every Sources & Citation entry is actually cited")
 
     print(f"\n=== 5. Required sections present (from menu-structure.md) ===")
-    required = load_required_slugs()
+    required = load_required_slugs() - OPTIONAL_SLUGS
     present = extract_section_ids(html)
     missing = required - present
+    for slug in sorted(OPTIONAL_SLUGS - present):
+        warn(f"optional section '{slug}' is not in this file (older proposals do not have it; add it from the template)")
     if missing:
         passed = fail(f"{len(missing)} required section(s) missing: {sorted(missing)}") and passed
     else:
@@ -209,6 +218,18 @@ def main():
         passed = fail(f"only {diagram_count} diagram-block(s) found (manifest requires 4: 1 Group A + 3 Group B, static HTML, no Mermaid)") and passed
     else:
         ok(f"{diagram_count} diagram-block(s) found")
+    # diagram-design is mandatory: every diagram-block must hold an inline <svg>, not hand-built .tl markup
+    starts = [m.start() for m in re.finditer(r'class="diagram-block"', html)]
+    no_svg = 0
+    for i, s in enumerate(starts):
+        end = starts[i + 1] if i + 1 < len(starts) else html.find("</section>", s)
+        chunk = html[s:end if end > s else s + 20000]
+        if "<svg" not in chunk:
+            no_svg += 1
+    if no_svg:
+        passed = fail(f"{no_svg} diagram-block(s) have no inline <svg> - diagram-design is mandatory (draw the diagrams as SVG, not .tl markup)") and passed
+    elif starts:
+        ok("every diagram-block is an inline SVG (diagram-design)")
     nums = re.findall(r'class="diagram-block"[^>]*data-diagram="(\d+)"', html)
     missing = sorted({"1", "2", "3", "4"} - set(nums))
     dup = sorted({n for n in nums if nums.count(n) > 1})
@@ -468,6 +489,41 @@ def main():
             else:
                 ok(f"{len(entries)} change log entr{'y' if len(entries) == 1 else 'ies'} valid" if entries
                    else "change log is empty (fine until the first update)")
+
+    print(f"\n=== 17. Follow-ups section (optional: checked only when present) ===")
+    fu = extract_section_body(html, "follow-ups")
+    if fu is None:
+        warn("no follow-ups section in this file: skipped")
+    else:
+        problems = []
+        for tab_id, d_label in (("d0", "D0"), ("d1", "D+1"), ("d3", "D+3"), ("d7", "D+7")):
+            btn = re.search(r'<button[^>]*role="tab"[^>]*data-tab="' + tab_id + r'"[^>]*>(.*?)</button>', fu, re.DOTALL)
+            if not btn:
+                problems.append(f"tab {d_label} ({tab_id}) is missing")
+                continue
+            inner = btn.group(1)
+            if d_label not in inner:
+                problems.append(f"tab {d_label}: label '{d_label}' not found")
+            if not re.search(r'class="t-vi">[^<]+<', inner) or not re.search(r'class="t-en">[^<]+<', inner):
+                problems.append(f"tab {d_label}: needs a non-empty t-vi and t-en label")
+            if not re.search(r'role="tabpanel"[^>]*data-tab="' + tab_id + '"', fu):
+                problems.append(f"tab {d_label}: no tabpanel")
+        if 'role="tablist"' not in fu:
+            problems.append("no role=\"tablist\" container")
+        for ch in ("wa", "viber", "email"):
+            if not re.search(r'name="fu-channel"\s+value="' + ch + '"', fu):
+                problems.append(f"channel chooser lacks '{ch}'")
+        md = re.search(r'<section\s+id="follow-ups"[^>]*?data-meeting-date="([^"]*)"', html)
+        if md and md.group(1) and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", md.group(1)):
+            problems.append(f"data-meeting-date {md.group(1)!r} is not YYYY-MM-DD")
+        if problems:
+            passed = fail("follow-ups problems: " + "; ".join(problems[:6])) and passed
+        else:
+            ok("4 tabs (D0, D+1, D+3, D+7) with VI+EN labels, 3 channels")
+        if "[PLACEHOLDER" in fu:
+            warn("follow-ups drafts still contain [PLACEHOLDER ...] text: fill them from the minutes before sending")
+        if md and not md.group(1):
+            warn("follow-ups has no data-meeting-date yet: dates show 'set after the meeting'")
 
     print()
     if passed:

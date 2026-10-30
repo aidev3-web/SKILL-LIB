@@ -80,6 +80,7 @@ across clients.
 - `sales-playbook` — 🎯 Sales Playbook ★ (30-second + 2-minute pitch, objections, 15-minute demo script, what to close)
 - `tool-discovery-questions` — 📋 Câu hỏi khám phá / Discovery Questions
 - `meeting-minutes` — 🗒 Biên bản họp / Meeting Minutes
+- `follow-ups` — 🔁 Theo dõi sau họp / Follow-ups (owned by `tools-documents-agent`; 4 tabs D0 Thank you / D+1 Summary / D+3 Nudge / D+7 Check-in, channel WhatsApp / Viber / Email, `data-meeting-date` on the section; **optional**: `validate-proposal.py` only warns when an older proposal lacks it)
 
 ## Removed sections — boss feedback 2026-09-23
 

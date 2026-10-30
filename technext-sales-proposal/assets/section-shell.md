@@ -204,3 +204,14 @@ An entry is added at the start of the list each time a proposal is updated (for 
 - `kind` is `new` (a section that was empty or did not exist), `changed` (rewritten) or `removed`.
 - One short line per section, in both `vi` and `en`; list only sections that really changed.
 - Never edit or reorder older entries. `validate-proposal.py` check 16 reads this block.
+
+## Follow-ups section — `follow-ups`
+
+Owned by `tools-documents-agent`, directly after `meeting-minutes`. Copy the section from
+`assets/proposal-template.html` as it is (4 tabs D0 / D+1 / D+3 / D+7, channel chooser, Copy, Sent
+checkbox, its own `<style>` and `<script>`) and replace only the `[PLACEHOLDER ...]` draft texts and the
+email subject lines, written in the client's language. Never invent a commitment. The
+`data-meeting-date="YYYY-MM-DD"` attribute on the `<section>` tag is set by `technext-meeting-to-proposal`
+(not by the section writer); dates are meeting date + 0/1/3/7 days, Saturday/Sunday moved to Monday, and the
+page shows "set after the meeting" while it is empty. `validate-proposal.py` check 17 requires the 4 tabs with
+VI+EN labels when the section exists, and only warns when an older proposal lacks it.

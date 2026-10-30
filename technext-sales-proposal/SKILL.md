@@ -58,6 +58,7 @@ citation. Full rules: `assets/research-rules.md` in this skill's folder.
 | 3 — Assembly | Extract sections from Phase 1 previews, drop into the template in fixed order | Skill: `assembler` |
 | 4a — Mechanical validation | Run `validate-proposal.py`'s 13 hard checks (incl. no-CDN gate) | Skill: `mechanical-validator` |
 | 4b — Judgment review | Content/citation spot-check, devil's-advocate pass, then a per-task `ccusage` cost report | Skill: `judgment-reviewer` |
+| 5 — Library (automatic) | After Phase 4 passes: publish the proposal as a private claude.ai artifact and add or update its card in the TechNext Proposal Library with the sibling skill `proposal-library-publish` (the card is sent over HTTPS to the library: no git, no GitHub account, no key) | "Phase 5" below |
 
 **Execution order after Phase 1:** 2.5 source audit → 2 front matter (reads
 `audited-findings.json`) → re-run `bind_check.py` on the front matter's own findings
@@ -116,12 +117,12 @@ where the host does not look. Check and self-heal before anything else:
    sub-agent mechanism the host has, or run the groups in sequence and say so in the
    checkpoint.
 4. **Sub-skills.** The sub-skills this skill installs with are listed in
-   **`dependencies.json`** next to this file (`requires` and `optional`; today 13
+   **`dependencies.json`** next to this file (`requires` and `optional`; today 14
    required, none optional). Look in the skills directory that holds this skill
    (its parent folder) for each of them:
    - **Required:** the `requires` list. Two of them are not steps of the pipeline but
-     always come along: `diagram-design` (nicer SVG diagrams; without it the 4 diagram
-     blocks fall back to plain HTML `.tl` markup, which still passes the validator) and
+     always come along: `diagram-design` (MANDATORY: all 4 diagram blocks must be drawn with it as inline
+     SVG; plain `.tl` markup is no longer accepted and the validator fails it) and
      `technext-meeting-to-proposal` (sends a meeting recording to TechNext's Minutes
      Studio and writes the minutes into a finished proposal; the pipeline never calls
      it).
@@ -134,15 +135,16 @@ where the host does not look. Check and self-heal before anything else:
    If any is missing, tell the user in **one** message which ones, and offer to install
    them — never install silently:
    > *"Thiếu skill con: <danh sách>. Mình cài giúp từ SKILL-LIB (aidev3-web/SKILL-LIB)
-   > nhé? (có / không)"* — add *"diagram-design thiếu thì sơ đồ vẽ bằng
-   > HTML thường; technext-meeting-to-proposal thiếu thì chỉ không gửi được ghi âm cuộc họp"* when only those are missing.
+   > nhé? (có / không)"* — add *"diagram-design là BẮT BUỘC: thiếu thì không vẽ được 4 sơ đồ và
+   > proposal không qua kiểm tra; technext-meeting-to-proposal thiếu thì chỉ không gửi được ghi âm cuộc họp"* when only those are missing.
+   Do not start Phase 1 until `diagram-design` is installed.
 
    On **yes**: if the `technext-mcp-skill-lib` tools are available, run `pull_skill` then
    `deploy_skill` for each missing one from `aidev3-web/SKILL-LIB`; otherwise give the
    user the GitHub installer command (`install.ps1` / `install.sh`). Remind them to
    restart the host so the new skills are picked up. On **no** (or install fails):
-   continue — a missing **optional** skill just uses the fallback; a missing
-   **required** one means doing that step's work directly from its description in the
+   continue — a missing **optional** skill just uses the fallback, but a missing
+   `diagram-design` blocks the run (the 4 diagrams cannot be drawn without it); any other missing **required** one means doing that step's work directly from its description in the
    reference map above, and saying so in the checkpoint.
 
 Get the client identifier: company name, plus any URL/socials the user already gives.
@@ -179,7 +181,7 @@ skips a question, use the default below and move on — never ask the same thing
 |---|---|
 | Not contacted yet | Every pain is `Assumed — to verify in the first meeting`, never `Confirmed`. `pre-meeting` is written as a first-meeting brief; `tool-discovery-questions` leads with questions that validate the assumed pains. |
 | Called / met, no notes | Pains the user says the **client** raised are `Reported by TechNext sales, <date>` (between Confirmed and web-sourced). Pains that were TechNext's guess stay `Assumed`. |
-| Notes / transcript pasted | Facts from it are `Confirmed — <meeting type>, <date>`, the highest trust grade, above anything web-researched; quote them in `meeting-minutes`. |
+| Notes / transcript pasted | Facts from it are `Confirmed — <meeting type>, <date>`, the highest trust grade, above anything web-researched; quote them in `meeting-minutes`. The `follow-ups` section (after `meeting-minutes`, optional for older proposals) holds the 4 drafted follow-up messages; its dates come from the meeting date. |
 | Problem clarified with detail/number | Use the user's detail verbatim as the starting point for that pain's charts/ROI defaults, labelled with its source. |
 | Colour | Set `data-palette-default="<key>"` on `<html>` (`teal`, `orange`, `blue`, `purple`, `green`, `wine`, `charcoal`, `amber`); for a custom hex keep `teal` and add `data-palette-custom="#rrggbb"`. No answer → `teal`. Viewers can still change it with the 🎨 button. |
 
@@ -211,6 +213,72 @@ alongside the HTML at a real static path, not when the HTML is opened alone via
 `file://` (see `assets/reference-files.md`). Note in your summary which research areas
 came back thin or unverifiable, and include `judgment-reviewer`'s `ccusage` cost
 report for this run.
+
+## Phase 5 — Publish the artifact and add the card to the Proposal Library (automatic)
+
+Runs by itself **after Phase 4 has passed** (both `mechanical-validator` and `judgment-reviewer`). If Phase 4 did not pass, skip
+Phase 5 and say so. It is the same step on a first run and on every re-run or update (for example after
+`technext-meeting-to-proposal`): the card is keyed by the client slug, so it is updated, never duplicated.
+
+The script, its settings and its own instructions live in the sibling skill `proposal-library-publish` (in the same skills folder as this one); read its `SKILL.md` before running it.
+
+**What it does, in order**
+1. **Publish the artifact** (only when the `Artifact` tool exists in this session; under another agent skip to "No artifact tool").
+   First make the page's `<title>` a short name, `<Client short name> Proposal` (two to four words, in the file itself, not the long
+   template title). Publish `<client-slug>-proposal.html` with `Artifact` (icon `proposal`, one-sentence `description`). On a re-run
+   pass the saved address as `url` (checkpoint field `library.artifact_url`) so the link stays the same. It is private by default.
+2. **Write the card text** (never the proposal's contact details, prices or CRM fields):
+   - `--summary`: one honest sentence, at most 240 characters, from the Executive Summary. If the proposal is unfinished or has open
+     items, say so in it (for example "company identity and prices not confirmed yet").
+   - `--industry`: a short phrase. `--country`: if the intake has it. `--status`: only when the person said so (new cards default to
+     `ready`; after a meeting update ask whether it should become `followup`).
+3. **Run the script** (from anywhere):
+   `python <proposal-library-publish skill folder>/library_publish.py <proposal folder> --artifact-url <url> --summary "<sentence>" --industry "<phrase>" --by "<the person's name>"`
+   After a meeting, also pass `--meeting-date YYYY-MM-DD` (the meeting date) and `--next-followup YYYY-MM-DD` (the planned date of the next follow-up not yet sent, from the proposal's `follow-ups` section; Saturday/Sunday move to Monday). Both are optional, validated, and sent to the library as `meeting_date` / `next_followup`; leave them out when there is no meeting yet.
+   **Meeting minutes and follow-up drafts on the card (when the proposal has had a meeting).** If the `meeting-minutes` section is filled and
+   the `follow-ups` section has `data-meeting-date` set, build the card's meeting data first and pass it:
+   `python <proposal-library-publish skill folder>/library_publish.py extract-meeting <proposal folder> [--confirmed]` writes
+   `<proposal folder>/captures/library-meeting.json` (`{minutes, followups}`); then add `--meeting-file <proposal folder>/captures/library-meeting.json`
+   to the command above. Where the data comes from: the meeting date, the input table (channel, signer, language, source) and the draft texts
+   (WhatsApp, Viber, email subject and body; English text; any draft still containing `[PLACEHOLDER` is skipped, nothing is invented) are read from the
+   proposal HTML; the summary, decisions and next steps come from `captures/meeting-<date>/minutes.json` (Minutes Studio), because the minutes prose
+   in the HTML is free-form. Pass `--confirmed` only if the person has said they read the minutes and confirm them. The file is validated with
+   the library's limits and refused (exit 2, nothing sent) when invalid; `check-meeting <file>` validates alone, `--dry-run` shows the record without sending.
+   **Tell the person, in the step where they approve the publish** (in `ask` mode, when you show the record; in `auto` mode, in the line before you
+   run it): the library shows these minutes and the drafted messages to **all staff signed in to the library** (internal, password-gated, but not
+   limited to the proposal's owner). If they do not want that, run without `--meeting-file`; a card published earlier keeps the minutes it already has.
+   It sends the card to the library over HTTPS, to the address in the `library-endpoint.json` of the `proposal-library-publish` skill (made by the library owner and shipped
+   with the skill; `PROPOSAL_LIBRARY_URL` or the settings file work too). Nothing to install and no key to enter: no git, no GitHub
+   account. With no key the card goes into the library's suggestion box: in the owner's usual setting it appears in the library **at
+   once with an Auto-added badge** (no review step); in the queue setting it waits for the owner to accept it. Running Phase 5 again
+   refreshes the same card (the checkpoint remembers what was sent, so a re-run keeps the summary, industry and status unless you
+   pass new ones). (If the owner shipped an optional team key in the same file, the card is written straight into the library with
+   the same badge.) The script records `library: {artifact_url, transport, action, pending}` in
+   `<client-slug>-checkpoint.json`.
+   Only when a git clone is named (`--repo`, `PROPOSAL_LIBRARY_REPO` or `"repo"` in the settings file) does it use git instead: it edits
+   that clone's `registry.json`, rebuilds `site/`, runs the library's Python tests, commits and pushes `main` with the person's own git
+   login (add `--trailer "<the Co-Authored-By line from the session's attribution reminder>"` in that case).
+   **Meeting links.** Staff can add links (a Google Docs meeting-notes link, quotation docs, other docs) to a client's card in the library. `technext-meeting-to-proposal` (path B, "Links from the library") picks them up: it lists them with `library_publish.py links <slug>` (only the unused ones; `--all` for every link), reads them after the person says yes, updates the proposal, and then marks each folded-in link with `library_publish.py mark-link-used <slug> <id>`. Both commands need the team key and the client's card to exist already (so run this skill first for a new client).
+4. **Report** in the person's language: that the card is in the library (marked Auto-added, because nobody has checked it) or, if the
+   script said it waits in a queue, that the owner has to accept it first; the artifact link, and these reminders: the artifact is private until they press **Share** and choose TechNext (the tool cannot
+   change sharing; say exactly where to click), and what the proposal still has unverified.
+
+**Settings** (`~/.claude/proposal-library.json`, optional): `{"endpoint": "<https address>", "key": "<team key>", "repo": "<clone path>", "mode": "auto" | "ask" | "off", "name": "<who is updating>"}`.
+- `auto` (the default when the file is missing): publish as soon as the checks pass, without asking.
+- `ask`: the script stops with exit code 3 and prints the record; show it to the person, and only if they say yes run it again with `--yes`.
+- `off`: do nothing and say that library publishing is switched off.
+
+**Rules**
+- A failure here never fails the proposal run. If the script exits 2 it has pushed nothing: show its one-line reason, keep the
+  proposal as delivered, and tell the person to run Phase 5 again once fixed. Typical reasons: `library-endpoint.json` missing, the owner has closed the suggestion box (it answers that it is not taking
+  cards without a key), the library is unreachable, a rejected card field, the queue is full; in git mode also no GitHub login that can read `aidev3-web/proposal-library` or uncommitted
+  changes in the clone.
+- It never forces a push, never touches another repo, never asks the person for a token or password (there is none: at most an optional team key
+  in a file shipped with the skill, never printed, never written into a proposal), and never sends the proposal HTML anywhere (only the card text and the section
+  list reach the library).
+- **No artifact tool** (another agent, or publishing refused): do not invent an address. Say the card was not created, give the
+  one command to run once the person has an artifact link, and finish normally.
+- The script needs Python 3 (standard library only). Git is needed only in git mode. Node is not needed.
 
 ## Clean up after yourself — don't leave a pile of scratch files behind
 
