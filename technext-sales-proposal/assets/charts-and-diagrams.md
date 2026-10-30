@@ -98,9 +98,9 @@ That's **12 charts for Group A, 1 for Group C (`cOwner`), 2 for Phase 2's `exec-
 expected — it's chart-config generation from research Group A already did, not new
 research, so it doesn't need extra research time.
 
-**Full diagram manifest — 4, no Mermaid.** Every diagram slot below is built as
-**static HTML using the template's own component classes**, never
-`<div class="mermaid">`/Mermaid syntax.
+**Full diagram manifest — 4, no Mermaid.** Every diagram slot below is drawn as a **static
+inline SVG with the `diagram-design` skill** (mandatory), never `<div class="mermaid">`/Mermaid
+syntax and never hand-built `.tl` markup.
 
 | # | Static shape | Owner | Shows |
 |---|---|---|---|
@@ -118,11 +118,13 @@ one specific inner markup shape.
 
 ### Drawing diagrams with the bundled `diagram-design` skill
 
-`diagram-design` ships with this skill (`skills/diagram-design/`, MIT) and is installed
-alongside it. Use it to draw each diagram-block instead of hand-built `.tl` markup
-whenever it produces a clearer, better-looking result — pick the type that fits the
-content, e.g. **org chart / tree** (#1), **funnel / pyramid** (#2), **swimlane** (#3),
-**sequence** (#4). Hand-built `.tl` remains a valid fallback.
+`diagram-design` ships with this skill (`skills/diagram-design/`, MIT), is a **required**
+sub-skill (see `dependencies.json`), and is **mandatory** for all 4 diagram blocks. Load it and
+draw each diagram-block as an inline `<svg>` of the right type: **org chart / tree** (#1),
+**funnel / pyramid** (#2), **swimlane** (#3), **sequence** (#4). Hand-built `.tl` markup
+is no longer accepted: `validate-proposal.py` check 9 fails any `diagram-block` that has no
+`<svg>`. The `.tl` / `.grid.g3` shapes in the table above only describe the *content* of each
+diagram, not an allowed way to draw it.
 
 **Numbering and ids (a real run broke on both):**
 - Use the manifest number above for `data-diagram="N"`, exactly - Group A's org chart is

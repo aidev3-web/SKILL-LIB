@@ -136,6 +136,11 @@ something to silently skip.
   3's `<client-slug>-proposal.html` to exist — it can be re-run alone any time (e.g.
   right after a manual fix) without touching Phases 1–3.
 
+- **Phase 5 (library, automatic)** needs Phase 4 to have passed. It publishes the artifact and runs
+  the `proposal-library-publish` skill's `library_publish.py`, which writes a `library` block into `<client-slug>-checkpoint.json`
+  (`artifact_url`, `commit`, `pushed`, `action`, `at`). On a re-run or an update, read `library.artifact_url` first so the same
+  artifact and the same card are updated. Do not delete or rewrite that block. See `<skill-root>/SKILL.md`, "Phase 5".
+
 ## Clean up superseded intermediate files — after Phase 4 passes
 
 Once `judgment-reviewer` reports the proposal passed and is ready to hand over, delete
