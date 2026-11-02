@@ -234,21 +234,48 @@ PINNED = ('<style>#pmBox{position:fixed;bottom:calc(20px + env(safe-area-inset-b
  '.mr-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;margin:10px 0 4px}'
  '.mr-list a{display:grid;grid-template-columns:22px 1fr;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;color:inherit;text-decoration:none}'
  '.mr-list a:hover,.mr-list a:focus-visible{border-color:#f5c542;outline:none}.mr-list .star{color:#f5c542}</style>'
- '<aside id="pmBox" aria-label="Pre-meeting"><button type="button" class="pm-x" onclick="pmShow(false)" aria-label="Đóng / Close">✕</button>'
- f'<h3>{bi("Trước khi họp cần đọc những điều này", "Read these before the meeting")}</h3><div class="pm-list">'
- + ''.join(f'<a class="pm-item" href="#{a}"><b>{n}</b><strong>{bi(v, e)}</strong></a>' for n, (a, v, e) in enumerate([
-     ('pm-company', 'Thông tin về công ty', 'The company'), ('pm-person', 'Người bạn sẽ nói chuyện trong buổi họp', 'Who you’ll meet'),
-     ('pm-issues', 'Những vấn đề hiện tại (AS-IS · đối thủ · TO-BE)', 'Current issues (AS-IS · competitors · TO-BE)'),
-     ('pm-unknowns', 'Những điều AI chưa thu thập được: cần hỏi đối tác', 'What AI couldn’t collect: ask the partner')], 1))
- + '</div></aside>'
- f'<button type="button" id="pmOpen" hidden onclick="pmShow(true)">{bi("📋 Trước khi họp", "📋 Before the meeting")}</button>'
- '<script>function pmShow(v){document.getElementById("pmBox").hidden=!v;document.getElementById("pmOpen").hidden=v;}'
+ '<script>'
  '(function(){var box=document.getElementById("mustRead");if(!box)return;var h="";'
  'document.querySelectorAll("main > section[data-star]").forEach(function(s){if(s.id==="pre-meeting")return;'
  'h+="<a href=\\"#"+s.id+"\\"><span class=\\"star\\">★</span><span><span class=\\"t-vi\\">"+s.dataset.navVi+"</span><span class=\\"t-en\\">"+s.dataset.navEn+"</span></span></a>";});'
  'box.innerHTML=h;})();</script>')
 
+# The floating pre-meeting box and the change log it turned into were removed on request (2026-11-02). Strips them from any file.
+_POPUP = re.compile(r'#pmBox|#pmOpen|pmGlow|pmShine|\.cl-mode')
+def _css_drop(block):
+    out, i = [], 0
+    while i < len(block):
+        j = block.find('{', i)
+        if j < 0:
+            out.append(block[i:]); break
+        sel, depth, k = block[i:j], 1, j + 1
+        while depth and k < len(block):
+            depth += {'{': 1, '}': -1}.get(block[k], 0); k += 1
+        inner = block[j + 1:k - 1]
+        if sel.strip().startswith('@media') or sel.strip().startswith('@supports'):
+            kept = _css_drop(inner)
+            if kept.strip():
+                out.append(sel + '{' + kept + '}')
+        elif not _POPUP.search(sel):
+            out.append(block[i:k])
+        i = k
+    return ''.join(out)
+def strip_popup(s):
+    s = re.sub(r'<aside id="pmBox".*?</aside>', '', s, flags=re.S)
+    s = re.sub(r'<button type="button" id="pmOpen".*?</button>', '', s, flags=re.S)
+    s = re.sub(r'<script type="application/json" id="changelog-data">.*?</script>\n?', '', s, flags=re.S)
+    s = s.replace('function pmShow(v){document.getElementById("pmBox").hidden=!v;document.getElementById("pmOpen").hidden=v;}', '')
+    s = re.sub(r'<script>\s*/\* Change log.*?</script>\n?', '', s, flags=re.S)
+    # older variants: any inline script that still drives the box or reads the change log
+    s = re.sub(r'<script>(?:(?!</script>).)*?(?:changelog-data|getElementById\([\'"]pm(?:Box|Open)[\'"]\))(?:(?!</script>).)*</script>\n?', '', s, flags=re.S)
+    s = re.sub(r'(<style>)(.*?)(</style>)', lambda m: m.group(1) + _css_drop(m.group(2)) + m.group(3) if _POPUP.search(m.group(2)) else m.group(0), s, flags=re.S)
+    return s
+
 def upgrade_template(s):
+    # the pre-meeting box starts hidden (removed on request 2026-11-02); it still shows as the change log when there is one
+    s = s.replace('<aside id="pmBox" aria-label="Pre-meeting">', '<aside id="pmBox" aria-label="Pre-meeting" hidden>', 1)
+    if "box.hidden=false;" not in s:
+        s = s.replace("  document.body.classList.add('cl-mode');", "  document.body.classList.add('cl-mode');\n  box.hidden=false;", 1)
     # chart i18n
     if 'function trChartStr' not in s:
         s = s.replace('function mkChart(id, cfg){', CHART_I18N_JS + 'function mkChart(id, cfg){', 1)
@@ -277,14 +304,14 @@ def upgrade_template(s):
         m = re.search(r'(<section id="tool-profit-estimator".*?)(</div>\s*</section>)', s, re.S)
         s = s[:m.start(2)] + roi_block() + s[m.start(2):]
     # pinned panel
-    if 'id="pmBox"' not in s:
+    if 'getElementById("mustRead")' not in s:
         j = s.rindex('</body>')
         s = s[:j] + PINNED + '\n' + s[j:]
-    return inject_palette(s)
+    return strip_popup(inject_palette(s))
 
 if __name__ == '__main__':
     mode, path = sys.argv[1], sys.argv[2]
     s = open(path, encoding='utf-8').read()
-    s = upgrade_template(s) if mode == 'template' else inject_palette(s)
+    s = upgrade_template(s) if mode == 'template' else strip_popup(inject_palette(s))
     open(path, 'w', encoding='utf-8').write(s)
     print('upgraded', path, len(s))
