@@ -175,35 +175,11 @@ the template; do not add a `<style>` block.
 Icons here are emoji (the only place the template allows them besides section titles); keep the
 numbered `<b>` title bilingual, as everything else.
 
-## Change log — the "What's updated" panel
+## No popup, no change log
 
-The floating popup at the end of the page normally shows "Read before the meeting". Once a proposal
-has been updated from a meeting, it switches to a change log: a list of updates, newest first, each
-linking to the sections that changed, with a red dot on the button until the reader has opened it.
-The data is one JSON block that starts empty:
-
-```html
-<script type="application/json" id="changelog-data">
-[]
-</script>
-```
-An entry is added at the start of the list each time a proposal is updated (for example by the
-`technext-meeting-to-proposal` skill, one entry per meeting):
-
-```json
-{
-  "date": "2026-10-02",
-  "title": { "vi": "Cập nhật theo biên bản họp 02/10/2026", "en": "Updated with the 2 Oct 2026 meeting minutes" },
-  "items": [
-    { "section": "meeting-minutes", "kind": "new",     "vi": "Biên bản thật: 3 quyết định, 3 việc cần làm.", "en": "Real minutes: 3 decisions, 3 action items." },
-    { "section": "company-profile", "kind": "changed", "vi": "25 nhân sự, hai kho.",                          "en": "25 staff, two warehouses." }
-  ]
-}
-```
-- `date` is `YYYY-MM-DD`. `section` is the `id` of a `<section>` that exists in the file.
-- `kind` is `new` (a section that was empty or did not exist), `changed` (rewritten) or `removed`.
-- One short line per section, in both `vi` and `en`; list only sections that really changed.
-- Never edit or reorder older entries. `validate-proposal.py` check 16 reads this block.
+The proposal has no floating popup: the "Read before the meeting" box and the "What's updated" change log
+it turned into were removed on request (2026-11-02). Do not add a `#pmBox`, `#pmOpen` or `#changelog-data`
+block; `template_upgrade.py` strips them from older files.
 
 ## Follow-ups section — `follow-ups`
 

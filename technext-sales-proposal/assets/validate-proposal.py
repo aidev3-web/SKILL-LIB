@@ -448,11 +448,14 @@ def main():
     else:
         ok("chart labels follow the VI/EN toggle")
 
-    print(f"\n=== 16. Change log (#changelog-data) is valid ===")
+    print(f"\n=== 16. No leftover popup or change log ===")
     cl = re.search(r'<script type="application/json" id="changelog-data">(.*?)</script>', html, re.S)
     if not cl:
-        ok("no #changelog-data block (a proposal built from an older template): skipped")
+        ok("no #changelog-data block")
+        if re.search(r'id="pmBox"|id="pmOpen"', html):
+            passed = fail("the floating popup (#pmBox / #pmOpen) was removed: run template_upgrade.py to strip it") and passed
     else:
+        passed = fail("#changelog-data is still in the file: the change log was removed, run template_upgrade.py to strip it") and passed
         try:
             entries = json.loads(cl.group(1).strip() or "[]")
         except ValueError as err:
