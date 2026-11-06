@@ -1,0 +1,52 @@
+{
+  "slug": "fixture-lead",
+  "version": 1,
+  "playbook_version": 1,
+  "lead": {
+    "company": "Acme Food Distribution Inc.",
+    "short": "Acme",
+    "website": "https://acme.example",
+    "source": "referral",
+    "owner": "Maria",
+    "sa": "Neil",
+    "framework": "c",
+    "style": "jeric",
+    "deck": ""
+  },
+  "profile": {
+    "industry": {"v": "Food distributor", "s": "assumed", "src": "https://acme.example/about", "at": "2026-11-05"},
+    "location": {"v": "Cebu", "s": "assumed", "src": "brief · verify", "at": "2026-11-05"}
+  },
+  "vars": {
+    "tool": "Xero",
+    "phase1": "inventory and invoicing",
+    "project": "inventory project",
+    "segment": "a distributor",
+    "profile": "a food distributor",
+    "rule": "VAT",
+    "team": "a mid-size team",
+    "later": "warehouse automation",
+    "area": "inventory"
+  },
+  "kit": {
+    "kyc": [
+      {"t": "Food distributor based in Cebu.", "s": "assumed", "src": "https://acme.example/about", "label": "public"},
+      {"t": "Stock counts are done by hand every week.", "s": "assumed", "src": "brief · verify", "label": "brief · verify"}
+    ],
+    "ask": ["How many warehouses do you run?", "Which tool do you use for invoices?"],
+    "research_url": "",
+    "qa": [
+      {"role": "ops", "label": "operations", "q": ["How do orders arrive today?", "Where is stock tracked?"]},
+      {"role": "finance", "label": "finance", "q": ["How long does month-end closing take?"]}
+    ],
+    "objections": [
+      {"if": "We are fine with Xero.", "then": "Ask where it breaks today."},
+      {"if": "Not this year.", "then": "Ask what would need to change first."},
+      {"if": "Too complex for us.", "then": "Offer a phased start."}
+    ],
+    "close_checks": ["Asked for a stock report sample"],
+    "videos": [{"id": "vIntro", "label": "Company intro"}]
+  },
+  "versions": [{"ver": 1, "at": "2026-11-05", "by": "Claude", "reason": "Fixture cho test golden"}],
+  "runs": []
+}

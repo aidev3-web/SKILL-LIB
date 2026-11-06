@@ -1,0 +1,1064 @@
+<title>@@TITLE@@</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap">
+<style>
+/* Layout: one lead's journey through Neil's 19 steps. Stage bar on top, one stage on screen; the meeting stage runs its own timer. Light only, by choice. */
+:root {
+  --paper: #ffffff;
+  --ink: #1c2430;
+  --muted: #5a6472;
+  --rule: #dde2e8;
+  --soft: #f4f6f8;
+  --accent: #1f5a85;
+  --accent-soft: #e6eff7;
+  --done: #24603c;
+  --done-soft: #e6f2ea;
+  --over: #8a4b06;
+  --over-soft: #fbf0dc;
+  --must: #9a2f1f;
+  --mark: #fff3c4;
+  --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  color-scheme: light;
+}
+body { background: var(--paper); color: var(--ink); font: 15px/1.55 var(--sans); }
+.wrap { max-width: 940px; margin: 0 auto; padding-block: 24px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 20px; }
+h1, h2 { font-family: var(--serif); font-weight: 600; line-height: 1.25; margin: 0; text-wrap: balance; }
+h1 { font-size: 1.35rem; }
+h2 { font-size: 1.45rem; }
+h3 { margin: 0; font: 600 15px var(--sans); }
+p { margin: 0; }
+button, input, textarea, select { font: inherit; }
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.top { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--ink); padding-bottom: 14px; }
+.top small { display: block; font: 500 11px/1.5 var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--accent); }
+.topbtns { display: flex; flex-wrap: wrap; gap: 8px; }
+.demo-note { font-size: 13px; background: var(--over-soft); color: var(--over); padding: 8px 12px; border-radius: 6px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--rule); background: var(--paper); color: var(--accent); border-radius: 5px; padding: 6px 12px; font-size: 14px; font-weight: 500; text-decoration: none; cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.primary:hover { background: #174a6e; }
+.btn:disabled, .btn[aria-disabled="true"] { color: var(--muted); border-style: dashed; cursor: default; background: var(--paper); }
+.btn.small { font-size: 12.5px; padding: 3px 9px; }
+.stages { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+.stages button { display: grid; gap: 1px; text-align: left; padding: 9px 12px; border: 0; border-right: 1px solid var(--rule); background: var(--paper); color: var(--ink); cursor: pointer; min-width: 0; }
+.stages button:last-child { border-right: 0; }
+.stages em { font: 11px var(--mono); font-style: normal; color: var(--muted); }
+.stages span { font-weight: 600; font-size: 14px; }
+.stages i { font: 500 11px var(--mono); font-style: normal; color: var(--done); }
+.stages button.cur { background: var(--accent-soft); box-shadow: inset 0 -3px 0 var(--accent); }
+.stage { display: grid; gap: 18px; }
+.stage[hidden], .kpanel[hidden] { display: none !important; }
+.shead { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; }
+.src { font: 11px var(--mono); color: var(--muted); }
+.box { font: 500 12.5px var(--mono); background: var(--soft); padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+.task { display: grid; gap: 12px; border: 1px solid var(--rule); border-radius: 8px; padding: 14px 16px; }
+.task-head { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; }
+.task-head label { display: flex; gap: 10px; align-items: center; font-weight: 600; cursor: pointer; }
+.task-head input { width: 18px; height: 18px; accent-color: var(--done); }
+.task:has(.task-head input:checked) { background: var(--done-soft); border-color: #bcd9c6; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 12px 20px; }
+.grid2 > * { min-width: 0; }
+.field { display: grid; gap: 4px; font-size: 13px; }
+.field input, .field select, .field textarea { border: 1px solid var(--rule); border-radius: 5px; padding: 6px 9px; min-width: 0; background: var(--paper); color: var(--ink); }
+textarea { width: 100%; min-height: 70px; resize: vertical; box-sizing: border-box; }
+.label { font: 500 11px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.tpl { display: grid; gap: 8px; background: var(--soft); border-radius: 6px; padding: 12px 14px; }
+.tpl-top { display: flex; justify-content: space-between; gap: 8px; align-items: center; flex-wrap: wrap; }
+.tpl pre { margin: 0; white-space: pre-wrap; font: 15px/1.55 var(--serif); }
+mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 2px; }
+.fw { font: 500 11px var(--mono); color: var(--accent); background: var(--accent-soft); padding: 1px 7px; border-radius: 3px; }
+.rule { font-size: 13.5px; padding: 8px 12px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); }
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.checks label { display: flex; gap: 10px; align-items: baseline; cursor: pointer; }
+.checks input { width: 17px; height: 17px; accent-color: var(--accent); flex: none; transform: translateY(3px); }
+.checks label:has(input:checked) { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--rule); }
+.must { font: 500 10.5px var(--mono); color: var(--must); letter-spacing: .05em; text-transform: uppercase; }
+.err { color: var(--must); font-size: 13px; min-height: 1.2em; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+td, th { text-align: left; vertical-align: top; padding: 7px 8px; border-bottom: 1px solid var(--rule); }
+th { font: 500 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.scroll { overflow-x: auto; }
+.links { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+/* meeting kit */
+.timeline { display: grid; grid-template-columns: 4fr 2fr 9fr 15fr 10fr; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+.timeline button { display: grid; gap: 1px; text-align: left; padding: 7px 10px; border: 0; border-right: 1px solid var(--rule); background: var(--paper); color: var(--ink); cursor: pointer; min-width: 0; }
+.timeline button:last-child { border-right: 0; }
+.timeline span { font-size: 12.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.timeline em { font: 11px var(--mono); font-style: normal; color: var(--muted); white-space: nowrap; overflow: hidden; }
+.timeline i { font: 500 11px var(--mono); font-style: normal; color: var(--done); min-height: 1.4em; }
+.timeline button.cur { background: var(--accent-soft); box-shadow: inset 0 -3px 0 var(--accent); }
+.timeline button.over { background: var(--over-soft); }
+.timeline button.over i { color: var(--over); }
+.kbar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.kbar b { font: 500 1.35rem/1 var(--mono); font-variant-numeric: tabular-nums; }
+.kpanel { display: grid; gap: 18px; }
+.say { display: grid; gap: 8px; border-left: 3px solid var(--accent); padding: 2px 0 2px 16px; }
+.say p { font-family: var(--serif); font-size: 1.15rem; line-height: 1.5; max-width: 62ch; }
+.say .alt { justify-self: start; font-size: 13px; color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips label { border: 1px solid var(--rule); border-radius: 999px; padding: 3px 12px; font-size: 13px; cursor: pointer; }
+.chips input { position: absolute; opacity: 0; pointer-events: none; }
+.chips label:has(input:checked) { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.chips label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.nav { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--rule); padding-top: 14px; }
+details { border-top: 1px solid var(--rule); padding-top: 10px; }
+summary { cursor: pointer; font-weight: 500; color: var(--accent); }
+/* follow-up */
+.sched td { vertical-align: middle; }
+.st { font: 500 11px var(--mono); padding: 2px 7px; border-radius: 3px; white-space: nowrap; }
+.st-plan { background: var(--soft); color: var(--muted); }
+.st-due { background: var(--over-soft); color: var(--over); }
+.st-sent { background: var(--done-soft); color: var(--done); }
+.st-stop { background: var(--soft); color: var(--muted); text-decoration: line-through; }
+.replies { display: flex; flex-wrap: wrap; gap: 8px; }
+.replies button[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: var(--accent); }
+.branch { display: grid; gap: 12px; border: 1px solid var(--accent); border-radius: 8px; padding: 14px 16px; }
+.total { font: 500 1.2rem var(--mono); }
+.fwcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 12px; }
+.fwcard { display: grid; gap: 4px; align-content: start; border: 1px solid var(--rule); border-radius: 8px; padding: 12px 14px; cursor: pointer; font-size: 14px; }
+.fwcard input { position: absolute; opacity: 0; pointer-events: none; }
+.fwcard:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+.fwcard:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sig { font: 500 10.5px var(--mono); color: #fff; background: var(--accent); padding: 1px 6px; border-radius: 3px; }
+.status { font: 500 12px var(--mono); padding: 3px 9px; border-radius: 999px; vertical-align: middle; background: var(--soft); color: var(--muted); }
+.status.go { background: var(--accent-soft); color: var(--accent); }
+.status.wait { background: var(--over-soft); color: var(--over); }
+.status.won { background: var(--done-soft); color: var(--done); }
+.status.lost { background: #fbe9e6; color: var(--must); }
+.aimoments { display: grid; gap: 6px; }
+.aichips { display: flex; flex-wrap: wrap; gap: 6px; }
+.aichips button { font: 500 12px var(--sans); border: 1px dashed var(--rule); background: var(--paper); color: var(--muted); border-radius: 999px; padding: 3px 10px; cursor: pointer; }
+.aichips button.on { border: 1px solid var(--accent); background: var(--accent-soft); color: var(--accent); }
+.outcomes { display: flex; flex-wrap: wrap; gap: 6px; }
+.task.locked > :not(.lockbar) { opacity: .45; pointer-events: none; }
+.lockbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; background: var(--soft); border-radius: 6px; padding: 8px 10px; }
+.lockbar input { flex: 1 1 200px; min-width: 0; border: 1px solid var(--rule); border-radius: 5px; padding: 5px 8px; }
+[hidden] { display: none !important; }
+.stack { display: grid; gap: 8px; }
+.activity { font-size: 13px; }
+.journey { display: grid; gap: 8px; }
+.journey td { font-size: 13px; }
+.activity ol { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 3px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+@media (max-width: 680px) {
+  .stages, .timeline { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .stages button, .timeline button { border-bottom: 1px solid var(--rule); }
+}
+</style>
+
+<div class="wrap">
+<!-- shortcut: tên Neil (SA) và Rico (video) viết cứng trong trang và trong playbook; đổi sang LD.lead.sa khi có lead do SA khác phụ trách -->
+
+<div class="top">
+  <div><small>Sales journey · demo</small><h1><span id="leadName"></span> <span class="status" id="leadStatus"></span></h1><p class="src" id="statusNote">Status comes from what happened. With the backend it also changes on a timer, e.g. 2 working days with no reply → unreachable.</p></div>
+  <div class="topbtns">
+    <button class="btn" type="button" id="demoBtn">Load demo answers</button>
+    <button class="btn" type="button" id="resetBtn">Clear all</button>
+  </div>
+</div>
+<p class="demo-note" id="demoNote" hidden>Demo answers loaded. The contact name, quotes and times are invented to show the flow. Replace them with real ones.</p>
+
+<nav class="stages" aria-label="Sales journey">
+  <button type="button" data-stage="0"><span>Qualify</span><i data-count="0"></i></button>
+  <button type="button" data-stage="1"><span>Prepare</span><i data-count="1"></i></button>
+  <button type="button" data-stage="2"><span>Meeting</span><i data-count="2"></i></button>
+  <button type="button" data-stage="3"><span>Proposal</span><i data-count="3"></i></button>
+  <button type="button" data-stage="4"><span>Follow-up</span><i data-count="4"></i></button>
+</nav>
+<div class="aimoments"><span class="label">AI moments</span><div class="aichips" id="aiChips"></div><p class="src" id="aiDesc">Tap a moment to see what the AI does there and who approves it.</p></div>
+
+<!-- STAGE 0 QUALIFY -->
+<section class="stage" data-s="0" aria-labelledby="sh0">
+  <div class="shead"><h2 id="sh0">Qualify the lead</h2><span class="src">Lead from an online appointment or a referral</span></div>
+
+  <div class="task" data-task="call">
+    <div class="task-head"><label><input type="checkbox" id="t_call" class="tk"> Call the contact</label><span class="box">5–10 min</span><span class="src">up to 3 tries</span></div>
+    <div class="tpl"><div class="tpl-top"><span class="label">Say</span><button class="btn small copy" type="button">Copy</button></div><pre data-tpl="call"></pre></div>
+    <div class="grid2">
+      <div class="field"><label for="name">Contact person</label><input id="name" placeholder="Mr./Ms. surname"></div>
+      <div class="field"><label for="email">Email</label><input id="email" type="email" placeholder="name@company.ph"></div>
+      <div class="field"><label for="phone">Mobile (for WhatsApp)</label><input id="phone" type="tel" placeholder="0917 123 4567"></div>
+      <div class="field"><label for="system">How do they run accounting today?</label>
+        <select id="system"><option value="">Choose…</option><option value="manual">Manual (Excel, paper)</option><option value="acct">QuickBooks or other accounting software</option><option value="erp">Another ERP (SAP, NetSuite…)</option></select></div>
+      <div class="field"><label for="users">Number of users</label><input id="users" type="number" min="1" placeholder="e.g. 8"></div>
+      <div class="field"><label for="size">Company size</label><input id="size" placeholder="employees, branches"></div>
+      <div class="field"><label for="slot">Meeting booked for</label><input id="slot" type="datetime-local"></div>
+    </div>
+    <p class="rule" id="pkgRule"></p>
+    <div class="links"><span class="label">Result of this call</span><div class="outcomes" id="outcomes">
+      <button class="btn small" type="button" data-oc="booked">Reached, booked</button>
+      <button class="btn small" type="button" data-oc="later">Reached, call later</button>
+      <button class="btn small" type="button" data-oc="no_answer">No answer</button>
+      <button class="btn small" type="button" data-oc="wrong_number">Wrong number</button>
+      <button class="btn small" type="button" data-oc="not_interested">Not interested</button>
+    </div><span class="src" id="triesShow"></span></div>
+    <div class="links" id="saveBox" hidden><button class="btn primary small" type="button" id="saveCall">Save call result</button><span class="src">Fill in what you learned on the call, then save. This writes the qualify.call row.</span></div>
+    <p class="rule" id="unreachBox" hidden>Three tries with no answer. Mark the lead as unreachable? <button class="btn small" type="button" id="unreachBtn">Mark unreachable</button></p>
+  </div>
+
+  <div class="task" data-task="sms">
+    <div class="lockbar" hidden><span>Locked until the step above has a result.</span><input class="skipwhy" aria-label="Reason to skip the step above" placeholder="Reason to skip the step above"><button class="btn small skipbtn" type="button">Skip it</button><span class="err"></span></div>
+    <div class="task-head"><label><input type="checkbox" id="t_sms" class="tk"> No answer: send a message</label><span class="box">2–5 min</span><span class="src">SMS, Viber or WhatsApp</span></div>
+    <div class="tpl"><div class="tpl-top"><span class="label">Message</span><button class="btn small copy" type="button">Copy</button></div><pre data-tpl="sms"></pre></div>
+    <div class="links" id="waBox"></div>
+  </div>
+
+  <div class="task" data-task="mail">
+    <div class="lockbar" hidden><span>Locked until the step above has a result.</span><input class="skipwhy" aria-label="Reason to skip the step above" placeholder="Reason to skip the step above"><button class="btn small skipbtn" type="button">Skip it</button><span class="err"></span></div>
+    <div class="task-head"><label><input type="checkbox" id="t_mail" class="tk"> Confirm by email</label><span class="box">5–10 min</span><span class="src">after the call, or if the phone fails</span></div>
+    <div class="field"><label for="meet">Google Meet link</label><input id="meet" type="url" placeholder="https://meet.google.com/…"></div>
+    <div class="tpl"><div class="tpl-top"><span class="label">Email</span><button class="btn small copy" type="button">Copy</button></div><pre data-tpl="email"></pre></div>
+  </div>
+
+  <div class="task" data-task="kyc">
+    <div class="lockbar" hidden><span>Locked until the step above has a result.</span><input class="skipwhy" aria-label="Reason to skip the step above" placeholder="Reason to skip the step above"><button class="btn small skipbtn" type="button">Skip it</button><span class="err"></span></div>
+    <div class="task-head"><label><input type="checkbox" id="t_kyc" class="tk"> Know your customer</label><span class="box">5–10 min</span></div>
+    <ul class="checks" id="kycList"></ul>
+    <div class="links" id="researchLink"></div>
+  </div>
+  <div class="nav"><span></span><button class="btn primary" type="button" data-go="1">Next: Prepare ▶</button></div>
+</section>
+
+<!-- STAGE 1 PREPARE -->
+<section class="stage" data-s="1" aria-labelledby="sh1" hidden>
+  <div class="shead"><h2 id="sh1">Prepare for the meeting</h2><span class="src" id="slotShow"></span></div>
+
+  <div class="task">
+    <div class="task-head"><label><input type="checkbox" id="t_deck" class="tk"> Presentation for their industry</label><span class="box">10–15 min</span></div>
+    <div class="links"><span class="label">Do you have a presentation for this client?</span><div class="chips"><label><input type="radio" name="hasDeck" value="yes"> Yes</label><label><input type="radio" name="hasDeck" value="no"> No</label></div></div>
+    <div id="deckYes" class="stack" hidden><div class="field"><label for="deckLink">Presentation link</label><input id="deckLink" type="url" placeholder="https://technextsg.github.io/technext-presentations/…"></div><div class="links" id="deckOpen"></div></div>
+    <div id="deckNo" class="stack" hidden><div class="tpl"><div class="tpl-top"><span class="label">Prompt for Claude · technext-presentations template</span><button class="btn small copy" type="button">Create with AI (copy prompt)</button></div><pre data-tpl="deckPrompt"></pre></div><p class="src">Later: this button runs the agent on the server and puts the link here by itself.</p></div>
+  </div>
+
+  <div class="task">
+    <div class="task-head"><label><input type="checkbox" id="t_est" class="tk"> Draft estimate, in case they ask</label><span class="box">10–15 min</span><span class="src">from Neil's price matrix</span></div>
+    <p class="rule" id="pkgRule2"></p>
+    <!-- shortcut: bảng giá cố định Accounting CAS; đổi khi một lead cần module khác -->
+    <div class="scroll"><table>
+      <thead><tr><th>Accounting CAS</th><th>Implementation</th><th>Days</th><th>Users incl.</th></tr></thead>
+      <tbody>
+        <tr><td>Quick Start (standard)</td><td class="num">₱250,000</td><td class="num">10</td><td class="num">3</td></tr>
+        <tr><td>Enterprise Core</td><td class="num">₱500,000</td><td class="num">20</td><td class="num">3</td></tr>
+        <tr><td>Add-on: customisation, training, migration (88 h)</td><td class="num">₱275,000</td><td class="num">+11</td><td></td></tr>
+      </tbody>
+    </table></div>
+    <p class="src">Odoo licence is billed by Odoo, separately. Don't say a number in the meeting unless Neil allows it.</p>
+    <div class="links"><button class="btn" type="button" id="toEstimator">Open the estimator ▶</button><span id="costingOpen"></span></div>
+    <div class="field"><label for="costingLink">Trung's Costing Matrix link, once live</label><input id="costingLink" type="url" placeholder="https://…"></div>
+  </div>
+
+  <div class="task">
+    <div class="task-head"><label><input type="checkbox" id="t_vid" class="tk"> Send the video before the meeting</label><span class="box">2 min</span><span class="src">Call 31/10 · lets a poor fit cancel early</span></div>
+    <div class="grid2" id="videoInputs"></div>
+    <p class="err" id="vErr"></p>
+    <p class="src">No video yet? Owner: Rico. Use the deck instead.</p>
+    <div class="tpl"><div class="tpl-top"><span class="label">Message</span><button class="btn small copy" type="button">Copy</button></div><pre data-tpl="video"></pre></div>
+  </div>
+
+  <div class="task">
+    <div class="task-head"><label><input type="checkbox" id="t_rec" class="tk"> Google Meet recording on</label><span class="src">Call 31/10 · no recording, no baseline</span></div>
+    <p class="src">Later: one button creates the Google Calendar invite with a Meet link.</p>
+  </div>
+  <div class="nav"><button class="btn" type="button" data-go="0">◀ Qualify</button><button class="btn primary" type="button" data-go="2">Next: Meeting ▶</button></div>
+</section>
+
+<!-- STAGE 2 MEETING KIT -->
+<section class="stage" data-s="2" aria-labelledby="sh2" hidden>
+  <div class="shead"><h2 id="sh2">Meeting kit</h2><span class="src">plan 23–40 min</span></div>
+  <div class="kbar"><b id="clock">00:00</b><button class="btn primary" type="button" id="kStart">Start meeting</button><span class="src" id="kState">Timer starts when you press Start. Next logs the time of each step.</span></div>
+  <!-- shortcut: time box viết cứng ở timeline, ở các .box và trong BOX (JS), trùng journey.steps; đổi khi playbook đổi thời lượng -->
+  <nav class="timeline" aria-label="Meeting timeline">
+    <button type="button" data-k="1"><em>0–4′ · 2–4</em><span>Greet</span><i></i></button>
+    <button type="button" data-k="2"><em>4–6′ · 1–2</em><span>Expectations</span><i></i></button>
+    <button type="button" data-k="3"><em>6–15′ · 5–9</em><span>Video</span><i></i></button>
+    <button type="button" data-k="4"><em>15–30′ · 10–15</em><span>Q&amp;A</span><i></i></button>
+    <button type="button" data-k="5"><em>30–40′ · 5–10</em><span>Close</span><i></i></button>
+  </nav>
+
+  <div class="kpanel" data-kp="1">
+    <div class="shead"><h3>1 · Greet and introduce</h3><span class="box">2–4 min</span></div>
+    <div class="say"><p data-ms="greet"></p><button class="alt" type="button">Other version</button></div>
+    <div class="grid2">
+      <ul class="checks"><li><label><input type="checkbox" id="g1"> Asked permission to record</label></li><li><label><input type="checkbox" id="g2"> Wrote down each person's name and role</label></li></ul>
+      <div><p class="label">Who is in the room</p><div class="chips"><label><input type="checkbox" id="d1"> IT</label><label><input type="checkbox" id="d2"> Finance</label><label><input type="checkbox" id="d3"> Owner</label><label><input type="checkbox" id="d4"> Production</label><label><input type="checkbox" id="d5"> Sales</label></div></div>
+    </div>
+    <div class="nav"><span></span><button class="btn primary" type="button" data-kn>Next: Expectations ▶</button></div>
+  </div>
+
+  <div class="kpanel" data-kp="2" hidden>
+    <div class="shead"><h3>2 · Set expectations</h3><span class="box">1–2 min</span></div>
+    <div class="say"><p data-ms="expect"></p><button class="alt" type="button">Other version</button></div>
+    <ul class="checks"><li><label><input type="checkbox" id="e1"> Agenda agreed</label></li><li><label><input type="checkbox" id="e2"> End time confirmed</label></li><li><label><input type="checkbox" id="e3"> Asked: "Who else is part of this decision?"</label></li></ul>
+    <div class="field"><label for="n_exp" class="label">Anything else they want to cover?</label><textarea id="n_exp"></textarea></div>
+    <div class="nav"><button class="btn" type="button" data-kb>◀ Back</button><button class="btn primary" type="button" data-kn>Next: Video ▶</button></div>
+  </div>
+
+  <div class="kpanel" data-kp="3" hidden>
+    <div class="shead"><h3>3 · Video</h3><span class="box">5–9 min</span><span class="src">stay quiet while it plays</span></div>
+    <div class="say"><p class="label">Say before</p><p data-ms="video_before"></p></div>
+    <div class="links" id="videoLinks"></div>
+    <div class="say"><p class="label">Say after</p><p data-ms="video_after"></p></div>
+    <ul class="checks"><li><label><input type="checkbox" id="v1"> Video plays with sound on the shared screen</label></li><li><label><input type="checkbox" id="v2"> Noted their questions for Q&amp;A</label></li></ul>
+    <div class="field"><label for="n_vid" class="label">Their reaction, in their words</label><textarea id="n_vid"></textarea></div>
+    <div class="nav"><button class="btn" type="button" data-kb>◀ Back</button><button class="btn primary" type="button" data-kn>Next: Q&amp;A ▶</button></div>
+  </div>
+
+  <div class="kpanel" data-kp="4" hidden>
+    <div class="shead"><h3>4 · Q&amp;A and discovery</h3><span class="box">10–15 min</span><span class="src">Neil answers technical questions</span></div>
+    <div class="say"><p data-ms="qa_intro"></p></div>
+    <div class="links"><a class="btn" id="deckSlide" target="_blank" rel="noopener">Deck slide 10: open questions ↗</a></div>
+    <div class="grid2" id="qaGroups"></div>
+    <div class="field"><label for="words" class="label">Their main problem, in their words</label><textarea id="words" placeholder="Write it word for word. The follow-up messages quote it."></textarea></div>
+    <details><summary>If they say…</summary><div class="scroll"><table><tbody id="objRows"></tbody></table></div></details>
+    <div class="nav"><button class="btn" type="button" data-kb>◀ Back</button><button class="btn primary" type="button" data-kn>Next: Close ▶</button></div>
+  </div>
+
+  <div class="kpanel" data-kp="5" hidden>
+    <div class="shead"><h3>5 · Close</h3><span class="box">5–10 min</span><span class="src">a deal was lost once for missing contact details</span></div>
+    <div class="say"><p data-ms="close"></p><button class="alt" type="button">Other version</button></div>
+    <div class="grid2">
+      <ul class="checks" id="closeChecks">
+        <li><label><input type="checkbox" id="k1"> Phone number <span class="must">required</span></label></li>
+        <li><label><input type="checkbox" id="k2"> Email <span class="must">required</span></label></li>
+      </ul>
+      <div style="display:grid;gap:10px">
+        <div class="field"><label for="next">Next step agreed</label><input id="next" placeholder="e.g. a call with the country manager next week"></div>
+        <div class="field"><label for="owner">Who else decides or should see it</label><input id="owner" placeholder="e.g. your country manager"></div>
+      </div>
+    </div>
+    <div class="field"><label for="n_close" class="label">Notes</label><textarea id="n_close"></textarea></div>
+    <div class="nav"><button class="btn" type="button" data-kb>◀ Back</button><div style="display:grid;gap:4px;justify-items:end"><button class="btn primary" type="button" id="endBtn">End meeting</button><p class="err" id="endErr"></p></div></div>
+  </div>
+
+  <div class="kpanel" data-kp="6" hidden>
+    <div class="shead"><h3>Meeting done</h3><span class="box" id="sumTotal"></span></div>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>Time box</th><th>Actual</th><th>Start–End</th></tr></thead><tbody id="sumRows"></tbody></table></div>
+    <p class="rule" id="t1Due"></p>
+    <div class="nav"><span></span><button class="btn primary" type="button" data-go="3">Next: Proposal ▶</button></div>
+  </div>
+</section>
+
+<!-- STAGE 3 PROPOSAL -->
+<section class="stage" data-s="3" aria-labelledby="sh3" hidden>
+  <div class="shead"><h2 id="sh3">Proposal</h2></div>
+
+  <div class="task">
+    <div class="task-head"><label><input type="checkbox" id="t_sa" class="tk"> Neil picks modules and services</label><span class="box">5–10 min</span><span class="src">solution architect</span></div>
+    <div class="grid2">
+      <div style="display:grid;gap:8px">
+        <p class="label">Package</p>
+        <div class="chips"><label><input type="radio" name="pkg" id="pkgO" value="ootb"> Quick Start (standard)</label><label><input type="radio" name="pkg" id="pkgE" value="ec"> Enterprise Core</label></div>
+        <p class="label">Modules</p>
+        <ul class="checks" id="modList"></ul>
+        <ul class="checks"><li><label><input type="checkbox" id="addon"> Add-on services: customisation, training, migration</label></li></ul>
+      </div>
+      <div style="display:grid;gap:8px;align-content:start">
+        <p class="label">Three kinds of price</p>
+        <div class="scroll"><table><tbody>
+          <tr><td>TechNext implementation</td><td class="num" id="impl"></td></tr>
+          <tr><td>Odoo licence and hosting</td><td>Billed by Odoo to <span id="billTo"></span>, per user<span id="usersShow"></span></td></tr>
+          <tr><td>Retainer</td><td>Not set yet · ask Neil</td></tr>
+        </tbody></table></div>
+        <p class="src">From Neil's price matrix, daily rate ₱25,000. Days add up per module; Neil adjusts. The Costing Matrix Trung is building replaces this box.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-head"><label><input type="checkbox" id="t_fin" class="tk"> Proposal finalized and approved</label><span class="box">5–10 min</span><span class="src">built from the matrix</span></div>
+    <ul class="checks"><li><label><input type="checkbox" id="approved"> Neil approved the scope and price <span class="must">required to send</span></label></li></ul>
+    <div class="field"><label for="plink">Proposal link</label><input id="plink" type="url" placeholder="https://…"></div>
+  </div>
+
+  <div class="task">
+    <div class="task-head"><label><input type="checkbox" id="t_send" class="tk"> Send the proposal</label><span class="box">5–10 min</span></div>
+    <div class="tpl"><div class="tpl-top"><span class="label">Email</span><button class="btn small copy" type="button">Copy</button></div><pre data-tpl="proposal"></pre></div>
+    <div class="links"><button class="btn primary" type="button" id="sentBtn">Mark proposal as sent</button><span class="src" id="sentShow"></span></div>
+    <p class="err" id="sentErr"></p>
+  </div>
+  <div class="nav"><button class="btn" type="button" data-go="2">◀ Meeting</button><button class="btn primary" type="button" data-go="4">Next: Follow-up ▶</button></div>
+</section>
+
+<!-- STAGE 4 FOLLOW-UP -->
+<section class="stage" data-s="4" aria-labelledby="sh4" hidden>
+  <div class="shead"><h2 id="sh4">Follow-up</h2><span class="src">pick one style before T1 · the whole 3 weeks are planned at once · stops as soon as they reply</span></div>
+  <p class="rule">AI drafts T1 when the meeting ends, the full plan when Neil approves the proposal, and redrafts unsent messages when new information arrives. A redrafted message shows "Updated" and needs a fresh look before it goes out.</p>
+  <div class="fwcards" role="radiogroup" aria-label="Follow-up framework">
+    <label class="fwcard"><input type="radio" name="fw" value="a"><span class="label" data-fw="a"></span><b>Value-add</b><span class="src">Jill Konrath, <i>SNAP Selling</i></span><span>Every message gives one useful thing.</span><span class="src">Best when the contact must sell it inside the company. Needs 2–3 items Neil approves.</span></label>
+    <label class="fwcard"><input type="radio" name="fw" value="b"><span class="label" data-fw="b"></span><b>The Follow-Up Formula</b><span class="src">Steli Efti, Close</span><span>Short messages with two call times, until a clear yes or no.</span><span class="src">Best when interest is clear and only a slot is needed.</span></label>
+    <label class="fwcard"><input type="radio" name="fw" value="c"><span class="label" data-fw="c"></span><b>No-oriented</b><span class="src">Chris Voss, <i>Never Split the Difference</i></span><span>Name the worry; ask questions that are easy to answer "no".</span><span class="src">Best when the client goes quiet or keeps saying "maybe".</span></label>
+  </div>
+  <div class="links"><span class="label">Weekends and holidays</span><div class="chips">
+    <label><input type="radio" name="style" value="jeric"> Jeric's style: weekdays only, no holidays</label>
+    <label><input type="radio" name="style" value="sky"> Sky's style: Saturdays OK, Christmas and New Year greetings</label>
+  </div></div>
+  <p class="rule">One ask per message. Never promise a price, date or duration. Send between 8 am and 6 pm; a message due later goes out the next working morning.</p>
+  <div class="scroll"><table class="sched">
+    <thead><tr><th>When</th><th>Message</th><th>The one ask</th><th>Status</th><th></th></tr></thead>
+    <tbody id="schedRows"></tbody>
+  </table></div>
+  <div class="tpl" id="msgBox" hidden><div class="tpl-top"><span class="label" id="msgTitle"></span><span><button class="btn small copy" type="button">Copy</button> <button class="btn small" type="button" id="approveDraft" hidden>Approve draft</button> <button class="btn small" type="button" id="markSent">Mark sent</button></span></div><pre id="msgText"></pre></div>
+
+  <div class="task">
+    <h3>Did they reply?</h3>
+    <div class="replies" id="replies">
+      <button class="btn" type="button" data-r="go">Wants the next step</button>
+      <button class="btn" type="button" data-r="q">Has a question</button>
+      <button class="btn" type="button" data-r="obj">Objects: price or timing</button>
+      <button class="btn" type="button" data-r="int">Must check with others</button>
+      <button class="btn" type="button" data-r="later">Not now</button>
+      <button class="btn" type="button" data-r="no">Not interested</button>
+    </div>
+    <p class="src" id="replyNote"></p>
+    <div class="branch" id="branch" hidden>
+      <p id="brAction"></p>
+      <div class="tpl"><div class="tpl-top"><span class="label">Reply</span><button class="btn small copy" type="button">Copy</button></div><pre id="brText"></pre></div>
+      <div class="links" id="brBtns"></div>
+    </div>
+  </div>
+  <div class="nav"><button class="btn" type="button" data-go="3">◀ Proposal</button><span></span></div>
+</section>
+
+<section class="journey" aria-labelledby="jh"><div class="shead"><h2 id="jh">Sales Journey log</h2><span class="src" id="journeyCount"></span><span class="src">one row per finished step · this becomes the journey_steps table</span></div>
+<div class="scroll"><table><thead><tr><th>Finished</th><th>Step</th><th>Try</th><th>Status</th><th>Outcome</th><th>Time</th><th>Captured · notes</th></tr></thead><tbody id="journeyRows"></tbody></table></div>
+<div class="links"><button class="btn small" type="button" id="copyJourney">Copy rows as JSON</button><span class="err" id="journeyErr"></span></div></section>
+<details class="activity" id="activity"><summary>Activity in this stage</summary><ol id="actList"></ol></details>
+
+</div>
+
+<!--@PB@-->
+<!--@LD@-->
+<script>
+var PB = JSON.parse(document.getElementById('pb').textContent);
+var LD = JSON.parse(document.getElementById('ld').textContent);
+function P(key) {
+  for (var i = 0; i < PB.items.length; i++) if (PB.items[i].key === key) return PB.items[i].body;
+  throw new Error('playbook thiếu mục ' + key);
+}
+var K = 'journey-' + LD.slug + '-v2';
+var S = {};
+try { S = JSON.parse(localStorage.getItem(K)) || {}; } catch (e) { S = {}; }
+function save() { try { localStorage.setItem(K, JSON.stringify(S)); } catch (e) {} }
+var $ = function (id) { return document.getElementById(id); };
+
+var DECK = LD.lead.deck ? LD.lead.deck + '#1' : '';
+var MATRIX = P('package.matrix');
+
+function fmtDT(d) { return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) + ', ' + d.toTimeString().slice(0, 5); }
+function fmtD(d) { return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }); }
+function hm(d) { return d.toTimeString().slice(0, 5); }
+function weekday(d) { var r = new Date(d); while (r.getDay() === 0 || r.getDay() === 6) r.setDate(r.getDate() + 1); return r; }
+function plusDays(d, n, h) { var r = new Date(d); r.setDate(r.getDate() + n); r.setHours(h == null ? 9 : h, 0, 0, 0); return weekday(r); }
+function peso(n) { return '₱' + n.toLocaleString('en-US'); }
+
+var TPL = P('msg.templates');
+/* follow-up plans: base D = meeting end, P = proposal sent; h = hour window, d = days after P0 */
+var PLANS = P('followup.plans');
+var GREET = P('followup.greet');
+var NURTURE = P('followup.nurture');
+/* PH holidays in the plan window (Proclamation 1006, 2026); 1 Jan 2027 assumed until proclaimed */
+var HOLIDAYS = P('calendar.holidays');
+var REPLY = P('followup.reply');
+var REPLY_NOTE = P('followup.reply_note');
+
+/* ---------- lead: fill the slots from LD; must run before inputs are bound ---------- */
+function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+function checkItem(id, text) {
+  var li = el('li'), lab = el('label'), cb = el('input');
+  cb.type = 'checkbox'; cb.id = id; lab.appendChild(cb); lab.appendChild(document.createTextNode(' ' + text)); li.appendChild(lab); return li;
+}
+function isVid(id) { return LD.kit.videos.some(function (v) { return v.id === id; }); }
+/* append(' ', x): keep the whitespace the hand-written HTML had between items */
+function renderLead() {
+  var L = LD.lead, KT = LD.kit, MS = P('meeting.scripts'), short = L.short || L.company;
+  $('leadName').textContent = L.company;
+  $('billTo').textContent = short;
+  $('demoBtn').hidden = !LD.demo;
+  var kyc = $('kycList');
+  KT.kyc.forEach(function (f) { var li = el('li', null, f.t + ' '); li.appendChild(el('span', 'src', f.label)); kyc.append(' ', li); });
+  KT.ask.forEach(function (q) { var li = el('li', null, q + ' '); li.appendChild(el('span', 'src', 'ask the client')); kyc.append(' ', li); });
+  if (KT.research_url) {
+    var a = el('a', 'btn', 'Full research: ' + short + ' proposal ↗'); a.href = KT.research_url; a.target = '_blank'; a.rel = 'noopener';
+    $('researchLink').appendChild(a);
+  }
+  KT.videos.forEach(function (v) {
+    var f = el('div', 'field'), lab = el('label', null, 'Company video, ' + v.label), inp = el('input');
+    lab.htmlFor = v.id; inp.id = v.id; inp.type = 'url'; inp.placeholder = 'Paste link from Rico';
+    f.appendChild(lab); f.appendChild(inp); $('videoInputs').append(' ', f);
+  });
+  /* refresh() fills the variables into every .say p[data-a] */
+  document.querySelectorAll('[data-ms]').forEach(function (p) {
+    var s = MS[p.dataset.ms];
+    if (typeof s === 'string') p.dataset.a = s; else { p.dataset.a = s.a; p.dataset.b = s.b; }
+  });
+  if (L.deck) $('deckSlide').href = L.deck + '#10'; else $('deckSlide').hidden = true;
+  var n = 0;
+  KT.qa.forEach(function (g) {
+    var d = el('div'); d.appendChild(el('p', 'label', 'Ask ' + g.label));
+    var ul = el('ul', 'checks'); g.q.forEach(function (q) { n++; ul.appendChild(checkItem('q' + n, q)); });
+    d.appendChild(ul); $('qaGroups').append(' ', d);
+  });
+  KT.objections.forEach(function (o) {
+    var tr = el('tr'); tr.appendChild(el('td', null, '"' + o.if + '"')); tr.appendChild(el('td', null, o.then)); $('objRows').append(' ', tr);
+  });
+  KT.close_checks.forEach(function (t, i) { $('closeChecks').appendChild(checkItem('k' + (i + 3), t)); });
+  document.querySelectorAll('[data-fw]').forEach(function (s) {
+    var f = s.dataset.fw; s.textContent = f.toUpperCase() + (f === L.framework ? ' · suggested for ' + short : '');
+  });
+}
+renderLead();
+
+function val(k, ph) { var v = (S[k] == null ? '' : String(S[k])).trim(); return v ? { t: v } : { t: '[' + ph + ']', ph: true }; }
+function vars() {
+  var slot = S.slot ? { t: fmtDT(new Date(S.slot)) } : { t: '[meeting date and time]', ph: true };
+  var v = {
+    name: val('name', 'name'), slot: slot, meet: val('meet', 'Google Meet link'),
+    video: val(LD.kit.videos.length ? LD.kit.videos[0].id : 'vCas', 'video link'), plink: val('plink', 'proposal link'),
+    words: val('words', 'their problem, in their words'), next: val('next', 'the next step you agreed'),
+    owner: val('owner', 'the decision maker'),
+    system: S.system ? { t: { manual: 'manual books (Excel, paper)', acct: 'QuickBooks or other accounting software', erp: 'another ERP' }[S.system] } : { t: '[current system]', ph: true }
+  };
+  v.company_full = { t: LD.lead.company };
+  v.company = { t: LD.lead.short || LD.lead.company };
+  v.rep = { t: LD.lead.owner };
+  Object.keys(LD.vars).forEach(function (k) { v[k] = { t: LD.vars[k] }; });
+  return v;
+}
+function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function fillHTML(t) {
+  var v = vars();
+  return esc(t).replace(/\[([^\]]+)\]/g, '<mark>[$1]</mark>').replace(/\{(\w+)\}/g, function (m, k) { var x = v[k]; if (!x) return esc(m); return x.ph ? '<mark>' + esc(x.t) + '</mark>' : esc(x.t); });
+}
+
+/* ---------- Part A: events, qualify gating, lead status, AI moments ---------- */
+var STAGES = ['qualify', 'prepare', 'meeting', 'proposal', 'followup'];
+function logEvent(stage, step, type, value) {
+  S.events = S.events || [];
+  S.events.push({ at: Date.now(), stage: stage, step: step, type: type, value: value });
+  save();
+}
+function stageOf(el) { var st = el.closest('.stage'); return st ? STAGES[Number(st.dataset.s)] : 'lead'; }
+function fillText(t) { var v = vars(); return t.replace(/\{(\w+)\}/g, function (m, k) { return v[k] ? v[k].t : m; }); }
+function callOutcomes() { return (S.events || []).filter(function (e) { return e.type === 'call_outcome'; }); }
+function noAnswerCount() { return callOutcomes().filter(function (e) { return e.value === 'no_answer'; }).length; }
+function waLink() {
+  var digits = (S.phone || '').replace(/\D/g, '');
+  if (digits.startsWith('0')) digits = '63' + digits.slice(1); /* PH local → +63 */
+  return digits ? 'https://wa.me/' + digits + '?text=' + encodeURIComponent(fillText(TPL.sms)) : '';
+}
+var QTASKS = ['call', 'sms', 'mail', 'kyc'];
+function taskDone(t) {
+  if ((S.skips || {})[t]) return true;
+  if (t === 'call') return callOutcomes().length > 0 || !!S.t_call;
+  /* the message step is only needed while the client has not been reached */
+  if (t === 'sms') return !!S.t_sms || callOutcomes().some(function (e) { return e.value === 'booked' || e.value === 'later'; }) || (callOutcomes().length > 0 && noAnswerCount() === 0);
+  return !!S['t_' + t];
+}
+function deriveStatus() {
+  var ev = S.events || [], last = function (t) { return ev.filter(function (e) { return e.type === t; }).pop(); };
+  var st = last('status');
+  if (st && (st.value === 'won' || st.value === 'lost')) return st.value;
+  if (S.reply === 'later') return 'nurture';
+  if (S.reply === 'no') return 'lost';
+  if (S.proposalSent) return Object.keys(S.sent || {}).length > 0 ? 'follow_up' : 'proposal_sent';
+  if (S.meetingEnd) return 'meeting_done';
+  var co = last('call_outcome');
+  if (co && co.value === 'booked') return 'qualified';
+  if (co && co.value === 'not_interested') return 'lost';
+  if (st && st.value === 'unreachable') return 'unreachable';
+  return co ? 'contacting' : 'new';
+}
+function isUpdated(r) {
+  if (r.extra || (S.sent || {})[r.id] || S.planVer == null || S.reply) return false;
+  var dv = (S.draftVer || {})[r.id];
+  return (dv == null ? S.planVer : dv) < (S.inputsVer || 0);
+}
+function stepClock(n) {
+  var ev = (S.events || []).filter(function (e) { return e.stage === 'meeting' && e.step === 'k' + n; });
+  var a = ev.filter(function (e) { return e.type === 'step_start'; })[0], b = ev.filter(function (e) { return e.type === 'step_end'; }).pop();
+  return a ? hm(new Date(a.at)) + '–' + (b ? hm(new Date(b.at)) : '…') : '–';
+}
+function kgo(i) {
+  if (running && i !== kcur && kcur >= 1 && kcur <= 5) {
+    endMeetingStep(kcur);
+    if (i >= 1 && i <= 5) logEvent('meeting', 'k' + i, 'step_start', null);
+  }
+  kshow(i);
+}
+function demoEvents(m, end, sent) {
+  var ev = [], at = function (t, h) { var x = new Date(t); x.setHours(h, 0, 0, 0); return +x; };
+  var c1 = new Date(+m - 3 * 86400000), c2 = new Date(+m - 2 * 86400000);
+  ev.push({ at: at(c1, 10), stage: 'qualify', step: 'call', type: 'call_outcome', value: 'no_answer' });
+  ev.push({ at: at(c1, 10) + 600000, stage: 'qualify', step: 't_sms', type: 'tick', value: true });
+  ev.push({ at: at(c2, 14), stage: 'qualify', step: 'call', type: 'call_outcome', value: 'booked' });
+  var t = +m, sp = [0, 190000, 95000, 420000, 840000, 400000];
+  for (var n = 1; n <= 5; n++) {
+    ev.push({ at: t, stage: 'meeting', step: 'k' + n, type: 'step_start', value: null });
+    t += sp[n];
+    ev.push({ at: t, stage: 'meeting', step: 'k' + n, type: 'step_end', value: null });
+  }
+  ev.push({ at: +sent, stage: 'proposal', step: 'send', type: 'message_sent', value: 'proposal' });
+  return ev;
+}
+var AIM = [
+  ['Research', 'New lead → research the company, suggest a package, draft the discovery questions. {rep} reads it.', function () { return true; }],
+  ['Personalise', 'Qualify form saved → put the name and meeting time into the SMS and email, pick the deck and videos. {rep} sends.', function () { return !!(S.name || S.slot); }],
+  ['Kit', "Before the meeting → build this client's Meeting Kit: names in the scripts, Q&A by department, likely objections. Neil approves the script templates once.", function () { return !!S.slot; }],
+  ['Live checklist', 'Later, with STT → mark the information still missing during the meeting. No running suggestions.', function () { return false; }],
+  ['Extract notes', 'Meeting ends and the Gemini notes are added → pull their words, answers, next step and decision maker into the lead, draft T1, suggest modules. {rep} approves T1.', function () { return !!S.meetingEnd; }],
+  ['Price text', 'Neil picks modules → the script prices them from the matrix; AI writes the price explanation. Neil approves.', function () { return !!(S.t_sa || S.approved); }],
+  ['Final proposal + plan', 'Neil approves → the skill rebuilds the proposal with confirmed facts, and AI drafts the full 3-week follow-up plan. Neil approves.', function () { return !!S.approved; }],
+  ['Redraft', 'A reply or new information → classify the reply, draft the answer, redraft unsent messages. {rep} approves.', function () { return !!S.reply || (S.planVer != null && (S.inputsVer || 0) > S.planVer); }],
+  ['Summary', 'Won or lost → write the summary and the baseline numbers.', function () { var st = deriveStatus(); return st === 'won' || st === 'lost'; }]
+];
+var ST_CLASS = { 'new': '', contacting: 'go', qualified: 'go', meeting_done: 'go', proposal_sent: 'go', follow_up: 'go', unreachable: 'wait', nurture: 'wait', won: 'won', lost: 'lost' };
+var OC_LABEL = { booked: 'reached, booked', later: 'reached, call later', no_answer: 'no answer', wrong_number: 'wrong number', not_interested: 'not interested' };
+function renderPartA() {
+  var st = deriveStatus();
+  $('leadStatus').className = 'status ' + ST_CLASS[st]; $('leadStatus').textContent = st.replace('_', ' ');
+  $('aiChips').innerHTML = AIM.map(function (a, i) { return '<button type="button" data-ai="' + i + '" class="' + (a[2]() ? 'on' : '') + '">' + (i + 1) + ' · ' + esc(a[0]) + (i === 3 ? ' (later)' : '') + '</button>'; }).join('');
+  QTASKS.forEach(function (t, i) {
+    var el = document.querySelector('[data-task="' + t + '"]'), locked = i > 0 && !taskDone(QTASKS[i - 1]);
+    el.classList.toggle('locked', locked);
+    var bar = el.querySelector('.lockbar'); if (bar) bar.hidden = !locked;
+  });
+  var co = callOutcomes(), lastOc = co.length ? co[co.length - 1].value : null;
+  document.querySelectorAll('#outcomes [data-oc]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.oc === lastOc)); });
+  $('triesShow').textContent = co.length ? 'Tries with no answer: ' + noAnswerCount() + '/3 · last: ' + OC_LABEL[lastOc] + (S.pendingOutcome ? ' (not saved yet)' : '') : '';
+  $('saveBox').hidden = !S.pendingOutcome;
+  $('unreachBox').hidden = !(noAnswerCount() >= 3 && st === 'contacting');
+  var wb = $('waBox'); wb.innerHTML = '';
+  if (noAnswerCount() > 0) {
+    var link = waLink(), a = document.createElement('a');
+    a.className = link ? 'btn primary' : 'btn';
+    a.textContent = link ? 'Send on WhatsApp ↗' : 'Send on WhatsApp: add the phone number first';
+    if (link) { a.href = link; a.target = '_blank'; a.rel = 'noopener'; } else a.setAttribute('aria-disabled', 'true');
+    wb.appendChild(a);
+  }
+  $('deckYes').hidden = S.hasDeck !== 'yes'; $('deckNo').hidden = S.hasDeck !== 'no';
+  $('deckOpen').innerHTML = S.deckLink ? '<a class="btn" target="_blank" rel="noopener" href="' + esc(S.deckLink) + '">Open deck ↗</a>' : '';
+  $('costingOpen').innerHTML = S.costingLink ? '<a class="btn" target="_blank" rel="noopener" href="' + esc(S.costingLink) + '">Open Costing Matrix ↗</a>' : '';
+  var stage = STAGES[S.stage || 0];
+  var evs = (S.events || []).filter(function (e) { return e.stage === stage; }).slice(-10).reverse();
+  $('actList').innerHTML = evs.length ? evs.map(function (e) {
+    var v = e.value == null ? '' : String(e.value); if (v.length > 40) v = v.slice(0, 40) + '…';
+    return '<li>' + fmtDT(new Date(e.at)) + ' · ' + esc(e.step) + ' · ' + esc(e.type) + (v ? ': ' + esc(v) : '') + '</li>';
+  }).join('') : '<li>Nothing yet in this stage.</li>';
+  renderJourney();
+}
+document.addEventListener('change', function (e) {
+  var el = e.target; if (!el.matches('input, select, textarea')) return;
+  var k = el.type === 'radio' ? el.name : el.id; if (!k) return;
+  if (k === 't_call' && el.checked) {
+    if (S.pendingOutcome) { saveCall(); return; }
+    if (!callOutcomes().length) { el.checked = false; S.t_call = false; save(); $('triesShow').textContent = 'Pick the result of the call first.'; return; }
+  }
+  if (['words', 'next', 'owner'].indexOf(k) >= 0) S.inputsVer = (S.inputsVer || 0) + 1;
+  logEvent(stageOf(el), k, el.type === 'checkbox' ? 'tick' : 'note', el.type === 'checkbox' ? el.checked : el.value);
+  stepFromTick(el, k);
+  refresh();
+});
+document.querySelectorAll('#outcomes [data-oc]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var oc = b.dataset.oc; logEvent('qualify', 'call', 'call_outcome', oc);
+    if (oc === 'booked' || oc === 'later') S.pendingOutcome = oc; /* reached: wait until the form is filled */
+    else { S.pendingOutcome = null; addStep('qualify.call', { outcome: oc, captured: callCaptured() }); if (oc !== 'no_answer') markCallDone(); }
+    save(); refresh();
+  });
+});
+function callCaptured() { return { current_system: S.system || null, users: S.users || null, size: S.size || null, meeting_slot: S.slot || null }; }
+function markCallDone() { S.t_call = true; $('t_call').checked = true; }
+function saveCall() {
+  if (!S.pendingOutcome) return;
+  addStep('qualify.call', { outcome: S.pendingOutcome, captured: callCaptured() });
+  S.pendingOutcome = null; markCallDone(); logEvent('qualify', 't_call', 'tick', true); save(); refresh();
+}
+$('saveCall').addEventListener('click', saveCall);
+$('unreachBtn').addEventListener('click', function () { logEvent('qualify', 'lead', 'status', 'unreachable'); refresh(); });
+document.querySelectorAll('.lockbar').forEach(function (bar) {
+  bar.querySelector('.skipbtn').addEventListener('click', function () {
+    var why = bar.querySelector('.skipwhy').value.trim(), err = bar.querySelector('.err');
+    if (!why) { err.textContent = 'Write the reason first.'; return; }
+    err.textContent = '';
+    var t = bar.closest('.task').dataset.task, prev = QTASKS[QTASKS.indexOf(t) - 1];
+    S.skips = S.skips || {}; S.skips[prev] = why; logEvent('qualify', prev, 'skip', why); addStep(SKIP_STEP[prev], { status: 'skipped', outcome: null, notes: why }); refresh();
+  });
+});
+$('aiChips').addEventListener('click', function (e) { var b = e.target.closest('[data-ai]'); if (b) $('aiDesc').textContent = (Number(b.dataset.ai) + 1) + ' · ' + fillText(AIM[b.dataset.ai][1]); });
+$('toEstimator').addEventListener('click', function () { showStage(3); $('impl').scrollIntoView({ block: 'center' }); });
+
+/* ---------- Sales Journey: one row per finished step (journey_steps) ---------- */
+var STEP_META = P('journey.steps');
+var TICK_STEP = { t_sms: 'qualify.sms', t_mail: 'qualify.email', t_kyc: 'qualify.kyc', t_deck: 'prepare.deck', t_est: 'prepare.estimate', t_vid: 'prepare.video', t_rec: 'prepare.meet', t_sa: 'proposal.sa', approved: 'proposal.approve' };
+var SKIP_STEP = { call: 'qualify.call', sms: 'qualify.sms', mail: 'qualify.email', kyc: 'qualify.kyc' };
+var KSTEP = ['', 'meeting.greet', 'meeting.expectations', 'meeting.video', 'meeting.qa', 'meeting.close'];
+var DEPTS = ['IT', 'Finance', 'Owner', 'Production', 'Sales']; /* labels of d1–d5 */
+function neilStepOf(code) {
+  if (STEP_META[code]) return STEP_META[code][0];
+  var id = code.split('.')[1], m = (PLANS.a.concat(PLANS.b, PLANS.c)).filter(function (x) { return x.id === id; })[0];
+  return !m || m.base === 'D' ? null : m.h ? 18 : 19; /* T1 is not in Neil's sheet; T2 = step 18 */
+}
+function makeStep(list, code, row) {
+  var meta = STEP_META[code] || [null, null], now = Date.now();
+  var r = Object.assign({ lead_id: LD.slug, step_code: code, neil_step: neilStepOf(code), attempt: list.filter(function (x) { return x.step_code === code; }).length + 1,
+    status: 'done', outcome: 'done', started_at: now, ended_at: now, duration_s: null, time_box: meta[1], over_time: false,
+    captured: {}, checklist: {}, notes: '', ai: null, profile_ver_before: S.inputsVer || 0, profile_ver_after: S.inputsVer || 0, by_user: LD.lead.owner, source: 'ui' }, row);
+  if (r.duration_s == null && r.ended_at > r.started_at) r.duration_s = Math.round((r.ended_at - r.started_at) / 1000);
+  if (r.time_box && r.duration_s != null) r.over_time = r.duration_s > r.time_box[1] * 60;
+  return r;
+}
+function addStep(code, row) { S.journey = S.journey || []; S.journey.push(makeStep(S.journey, code, row)); save(); }
+function journeyMeeting(n) {
+  var st = (S.events || []).filter(function (e) { return e.stage === 'meeting' && e.step === 'k' + n && e.type === 'step_start'; }).pop();
+  var panel = document.querySelector('[data-kp="' + n + '"]'), checks = {}, notes = [], cap = {};
+  panel.querySelectorAll('.checks input[type=checkbox]').forEach(function (c) { checks[c.id] = c.checked; });
+  panel.querySelectorAll('textarea').forEach(function (t) { if (t.id !== 'words' && t.value.trim()) notes.push(t.value.trim()); });
+  if (n === 1) cap.departments = DEPTS.filter(function (x, i) { return S['d' + (i + 1)]; });
+  if (n === 4 && S.words) cap.client_words = S.words;
+  if (n === 5) { if (S.next) cap.next_step = S.next; if (S.owner) cap.decision_maker = S.owner; }
+  addStep(KSTEP[n], { started_at: st ? st.at : Date.now(), ended_at: Date.now(), checklist: checks, notes: notes.join(' | '), captured: cap });
+}
+function endMeetingStep(n) { logEvent('meeting', 'k' + n, 'step_end', null); journeyMeeting(n); }
+function stepFromTick(el, k) {
+  if (el.type !== 'checkbox' || !el.checked || !TICK_STEP[k]) return;
+  var row = { checklist: {} }; row.checklist[k] = true;
+  if (k === 't_sa') row.captured = { package: S.pkg || 'ootb', modules: MATRIX.filter(function (m, i) { return S['mod' + i]; }).map(function (m) { return m[0]; }), addon: !!S.addon };
+  if (k === 'approved') { row.ai = { moment: 7, approved_by: 'Neil' }; row.by_user = 'Neil'; }
+  addStep(TICK_STEP[k], row);
+}
+function demoJourney(m, end, sent) {
+  var L = [], push = function (code, at, row) { row = row || {}; row.started_at = row.started_at || at; row.ended_at = at; L.push(makeStep(L, code, row)); };
+  var day = function (base, dd, h, mi) { var x = new Date(+base + dd * 86400000); x.setHours(h, mi || 0, 0, 0); return +x; };
+  push('qualify.call', day(m, -3, 10, 4), { started_at: day(m, -3, 10), outcome: 'no_answer' });
+  push('qualify.sms', day(m, -3, 10, 10), { checklist: { t_sms: true } });
+  push('qualify.call', day(m, -2, 14, 8), { started_at: day(m, -2, 14), outcome: 'booked', captured: { current_system: LD.demo.system, users: LD.demo.users, meeting_slot: S.slot } });
+  push('qualify.email', day(m, -2, 14, 20), { checklist: { t_mail: true } });
+  push('qualify.kyc', day(m, -2, 14, 30), { checklist: { t_kyc: true } });
+  push('prepare.deck', day(m, -1, 9, 15), { started_at: day(m, -1, 9), checklist: { t_deck: true } });
+  push('prepare.estimate', day(m, -1, 9, 30), { started_at: day(m, -1, 9, 18), checklist: { t_est: true } });
+  push('prepare.meet', day(m, -1, 9, 35), { checklist: { t_rec: true } });
+  var t = +m, sp = [0, 190000, 95000, 420000, 840000, 400000];
+  var cap = [null, { departments: LD.demo.departments }, {}, {}, { client_words: S.words }, { next_step: S.next, decision_maker: S.owner }];
+  for (var n = 1; n <= 5; n++) { push(KSTEP[n], t + sp[n], { started_at: t, captured: cap[n] }); t += sp[n]; }
+  push('proposal.sa', +end + 2 * 3600000, { started_at: +end + 1.9 * 3600000, captured: { package: S.pkg, modules: LD.demo.modules, addon: true }, by_user: 'Neil' });
+  push('proposal.approve', +sent - 3600000, { ai: { moment: 7, approved_by: 'Neil' }, by_user: 'Neil' });
+  push('proposal.send', +sent, { outcome: 'sent', captured: { proposal_link: S.plink } });
+  var plan = PLANS[S.fw]; /* the demo button set S.fw from LD.lead.framework */
+  push('followup.' + plan[0].id, +end + 4.2 * 3600000, { outcome: 'sent', captured: { framework: S.fw }, ai: { moment: 5, approved_by: LD.lead.owner } });
+  push('followup.' + plan[1].id, +sent + 3.3 * 3600000, { outcome: 'sent', captured: { framework: S.fw }, ai: { moment: 7, approved_by: LD.lead.owner } });
+  return L;
+}
+function renderJourney() {
+  var rows = (S.journey || []).slice().reverse();
+  var summ = function (r) { var c = JSON.stringify(r.captured || {}); c = c === '{}' ? '' : c; var s = [c, r.notes].filter(Boolean).join(' · '); return s.length > 90 ? s.slice(0, 90) + '…' : s; };
+  $('journeyRows').innerHTML = rows.length ? rows.map(function (r) {
+    return '<tr><td class="num">' + fmtDT(new Date(r.ended_at)) + '</td><td>' + esc(r.step_code) + (r.neil_step ? ' <span class="src">#' + r.neil_step + '</span>' : '') + '</td><td class="num">' + r.attempt + '</td><td>' + esc(r.status) + '</td><td>' + esc(r.outcome || '') + '</td><td class="num">' + (r.duration_s != null ? mmss(r.duration_s * 1000) : '–') + (r.over_time ? ' <span class="must">over</span>' : '') + '</td><td>' + esc(summ(r)) + '</td></tr>';
+  }).join('') : '<tr><td colspan="7">No step finished yet. Each finished step adds one row here.</td></tr>';
+  $('journeyCount').textContent = (S.journey || []).length + ' rows';
+}
+$('copyJourney').addEventListener('click', function () {
+  var b = $('copyJourney'), txt = JSON.stringify(S.journey || [], null, 2);
+  try { navigator.clipboard.writeText(txt).then(function () { b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Copy rows as JSON'; }, 1500); }, function () { $('journeyErr').textContent = 'Copy is blocked here.'; }); } catch (e) { $('journeyErr').textContent = 'Copy is blocked here.'; }
+});
+
+/* bind every input to S */
+function syncInputs() {
+  document.querySelectorAll('input, select, textarea').forEach(function (el) {
+    var k = el.type === 'radio' ? el.name : el.id;
+    if (!k) return;
+    if (el.type === 'checkbox') el.checked = !!S[k]; else if (el.type === 'radio') el.checked = S[k] === el.value; else el.value = S[k] == null ? '' : S[k];
+  });
+}
+document.querySelectorAll('input, select, textarea').forEach(function (el) {
+  var k = el.type === 'radio' ? el.name : el.id;
+  if (!k) return;
+  el.addEventListener(el.type === 'checkbox' || el.type === 'radio' || el.tagName === 'SELECT' ? 'change' : 'input', function () {
+    if (el.type === 'url' && el.value.trim() && !/^https:\/\//.test(el.value.trim())) { if ($('vErr') && isVid(el.id)) $('vErr').textContent = 'Paste a full link that starts with https://'; return; }
+    if (isVid(el.id)) $('vErr').textContent = '';
+    S[k] = el.type === 'checkbox' ? el.checked : el.value;
+    if (k === 'system' && !S.pkgTouched) { S.pkg = el.value === 'erp' ? 'ec' : 'ootb'; $('pkgO').checked = S.pkg === 'ootb'; $('pkgE').checked = S.pkg === 'ec'; }
+    if (k === 'pkg') S.pkgTouched = true;
+    save(); refresh();
+  });
+});
+
+/* stages */
+var stageBtns = document.querySelectorAll('.stages button');
+function showStage(i) {
+  S.stage = i; save();
+  document.querySelectorAll('.stage').forEach(function (s) { s.hidden = Number(s.dataset.s) !== i; });
+  stageBtns.forEach(function (b) { b.classList.toggle('cur', Number(b.dataset.stage) === i); });
+  window.scrollTo({ top: 0 });
+}
+stageBtns.forEach(function (b) { b.addEventListener('click', function () { showStage(Number(b.dataset.stage)); }); });
+document.querySelectorAll('[data-go]').forEach(function (b) { b.addEventListener('click', function () { showStage(Number(b.dataset.go)); }); });
+
+/* copy */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest('.copy'); if (!b) return;
+  var pre = b.closest('.tpl').querySelector('pre');
+  var orig = b.dataset.label || (b.dataset.label = b.textContent);
+  var done = function (l) { b.textContent = l; setTimeout(function () { b.textContent = orig; }, 1500); };
+  var select = function () { var r = document.createRange(); r.selectNodeContents(pre); var s = getSelection(); s.removeAllRanges(); s.addRange(r); done('Selected'); };
+  try { navigator.clipboard.writeText(pre.textContent).then(function () { done('Copied'); }, select); } catch (err) { select(); }
+});
+
+/* modules */
+$('modList').innerHTML = MATRIX.map(function (m, i) { return '<li><label><input type="checkbox" id="mod' + i + '"> ' + esc(fillText(m[0])) + '</label></li>'; }).join('');
+if (S.mod0 == null) S.mod0 = true;
+MATRIX.forEach(function (m, i) {
+  var el = $('mod' + i);
+  el.addEventListener('change', function () { S['mod' + i] = el.checked; save(); refresh(); });
+});
+
+/* meeting kit */
+var BOX = [null, [2, 4], [1, 2], [5, 9], [10, 15], [5, 10]];
+var KN = ['', 'Greet and introduce', 'Set expectations', 'Video', 'Q&A and discovery', 'Close'];
+var kcur = 1, running = false, last = 0;
+S.spent = S.spent || [0, 0, 0, 0, 0, 0];
+var kcells = document.querySelectorAll('.timeline button');
+function mmss(ms) { var s = Math.floor(ms / 1000); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
+function ktotal() { return S.spent.reduce(function (a, b) { return a + b; }, 0); }
+function kshow(i) {
+  kcur = i;
+  document.querySelectorAll('.kpanel').forEach(function (p) { p.hidden = Number(p.dataset.kp) !== i; });
+  kcells.forEach(function (c) { c.classList.toggle('cur', Number(c.dataset.k) === i); });
+}
+function ktick() {
+  if (running) { var now = Date.now(); S.spent[kcur] += now - last; last = now; }
+  $('clock').textContent = mmss(ktotal());
+  kcells.forEach(function (c) { var n = Number(c.dataset.k); c.querySelector('i').textContent = S.spent[n] ? mmss(S.spent[n]) : ''; c.classList.toggle('over', S.spent[n] > BOX[n][1] * 60000); });
+}
+$('kStart').addEventListener('click', function () { if (running) return; running = true; last = Date.now(); $('kStart').textContent = 'Running'; $('kStart').disabled = true; $('kState').textContent = 'Press Next at the end of each step.'; kshow(1); logEvent('meeting', 'k1', 'step_start', null); refresh(); });
+kcells.forEach(function (c) { c.addEventListener('click', function () { ktick(); kgo(Number(c.dataset.k)); }); });
+document.querySelectorAll('[data-kn]').forEach(function (b) { b.addEventListener('click', function () { ktick(); kgo(kcur + 1); save(); }); });
+document.querySelectorAll('[data-kb]').forEach(function (b) { b.addEventListener('click', function () { ktick(); kgo(kcur - 1); }); });
+document.querySelectorAll('.say p[data-a]').forEach(function (p) {
+  var alt = p.parentElement.querySelector('.alt'); if (!alt) return; /* one-version script: no switch button */
+  p.dataset.which = 'a';
+  alt.addEventListener('click', function () { p.dataset.which = p.dataset.which === 'a' ? 'b' : 'a'; alt.textContent = p.dataset.which === 'b' ? 'First version' : 'Other version'; refresh(); });
+});
+['k1', 'k2'].forEach(function (id) { $(id).addEventListener('change', function () { $('endErr').textContent = ''; }); });
+$('endBtn').addEventListener('click', function () {
+  if (!$('k1').checked || !$('k2').checked) { $('endErr').textContent = 'Get their phone number and email first.'; return; }
+  ktick(); if (running) endMeetingStep(kcur); running = false; $('kStart').textContent = 'Ended';
+  S.meetingEnd = Date.now(); S.reply = null; S.sent = {}; S.planVer = S.inputsVer || 0; S.draftVer = {}; save(); refresh(); kshow(6);
+});
+function renderSummary() {
+  if (!S.meetingEnd) return;
+  var rows = '';
+  for (var n = 1; n <= 5; n++) { var over = S.spent[n] > BOX[n][1] * 60000; rows += '<tr><td>' + esc(KN[n]) + '</td><td class="num">' + BOX[n][0] + '–' + BOX[n][1] + ' min</td><td class="num"' + (over ? ' style="color:var(--over)"' : '') + '>' + mmss(S.spent[n]) + (over ? ' over' : '') + '</td><td class="num">' + stepClock(n) + '</td></tr>'; }
+  $('sumRows').innerHTML = rows; $('sumTotal').textContent = 'Total ' + mmss(ktotal());
+  var M = new Date(S.meetingEnd);
+  $('t1Due').textContent = 'First follow-up due ' + fmtD(M) + ', ' + hm(new Date(+M + 4 * 3600000)) + '–' + hm(new Date(+M + 5 * 3600000)) + '. It is ready in Follow-up.';
+}
+
+/* proposal */
+$('sentBtn').addEventListener('click', function () {
+  if (!$('approved').checked) { $('sentErr').textContent = 'Neil must approve the scope and price before it goes out.'; return; }
+  $('sentErr').textContent = ''; S.proposalSent = Date.now(); S.t_send = true; $('t_send').checked = true; S.planVer = S.inputsVer || 0; S.draftVer = {}; logEvent('proposal', 'send', 'message_sent', 'proposal'); addStep('proposal.send', { outcome: 'sent', captured: { proposal_link: S.plink || null, package: S.pkg || 'ootb', addon: !!S.addon } }); save(); refresh();
+});
+
+/* follow-up schedule */
+var openMsg = null;
+function fw() { return S.fw || 'a'; }
+function iso(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function sendable(d) {
+  if (HOLIDAYS.indexOf(iso(d)) >= 0) return false;
+  if (d.getDay() === 0) return false;
+  if (d.getDay() === 6) return S.style === 'sky';
+  return true;
+}
+function nextSendable(d) { var r = new Date(d); while (!sendable(r)) { r.setDate(r.getDate() + 1); r.setHours(8, 0, 0, 0); } return r; }
+function onDay(base, n) { var r = new Date(base); r.setDate(r.getDate() + n); r.setHours(9, 0, 0, 0); return nextSendable(r); }
+function inHours(base, h) {
+  var a = new Date(+base + h[0] * 3600000), b = new Date(+base + h[1] * 3600000);
+  if (a.getHours() >= 18 || !sendable(a)) {
+    a = new Date(a); if (a.getHours() >= 18) a.setDate(a.getDate() + 1); a.setHours(8, 0, 0, 0); a = nextSendable(a); b = new Date(+a + 3600000);
+  }
+  return [a, b];
+}
+function code(m) { return m.base === 'D' ? 'D0 +' + m.h[0] + '–' + m.h[1] + ' h' : m.h ? 'P0 +' + m.h[0] + '–' + m.h[1] + ' h' : 'P+' + m.d; }
+function schedule() {
+  var rows = [], plan = PLANS[fw()];
+  S.sent = S.sent || {};
+  var M = S.meetingEnd ? new Date(S.meetingEnd) : null, P = S.proposalSent ? new Date(S.proposalSent) : null, shift = 0;
+  if (S.restart && P) {
+    /* after an answered question, the next unsent step lands 2 days later; the rest keep their spacing */
+    var first = plan.filter(function (m) { return m.d != null && !S.sent[m.id]; })[0];
+    if (first) { var want = new Date(S.restart); want.setDate(want.getDate() + 2); var orig = new Date(P); orig.setDate(orig.getDate() + first.d); shift = Math.max(0, Math.round((want - orig) / 86400000)); }
+  }
+  plan.forEach(function (m) {
+    var r = { id: m.id, m: m, code: code(m) };
+    if (m.base === 'D') { if (M) { var w = inHours(M, m.h); r.at = w[0]; r.until = w[1]; } else r.wait = 'after the meeting'; }
+    else if (!P) r.wait = 'after the proposal is sent';
+    else if (m.h) { var w2 = inHours(P, m.h); r.at = w2[0]; r.until = w2[1]; }
+    else r.at = onDay(P, m.d + (S.sent[m.id] ? 0 : shift));
+    rows.push(r);
+  });
+  var xmas = new Date(2026, 11, 24, 9, 0, 0, 0);
+  if (S.style === 'sky' && M && M < xmas && S.reply !== 'no') rows.push({ id: 'G', m: GREET, code: '24 Dec', at: xmas, extra: true });
+  if (S.reply === 'later') rows.push({ id: 'N', m: { ch: 'WhatsApp', name: NURTURE[fw()].name, tag: 'After the sequence', ask: NURTURE[fw()].ask, t: NURTURE[fw()].t }, code: '+4 weeks', at: onDay(new Date(S.replyAt || Date.now()), 28), extra: true });
+  rows.sort(function (a, b) { return (a.at ? +a.at : Infinity) - (b.at ? +b.at : Infinity); });
+  return rows;
+}
+function status(r) {
+  if (S.sent[r.id]) return ['Sent', 'st-sent'];
+  if (!r.extra && S.reply === 'later') return ['Stopped: not now', 'st-stop'];
+  if (!r.extra && S.reply) return ['Stopped: they replied', 'st-stop'];
+  if (isUpdated(r)) return ['Updated · re-check', 'st-due'];
+  if (r.wait) return ['Waits ' + r.wait, 'st-plan'];
+  return r.at <= Date.now() ? ['Due', 'st-due'] : ['Planned', 'st-plan'];
+}
+function renderSchedule() {
+  var rows = schedule(), tb = $('schedRows');
+  tb.innerHTML = rows.map(function (r) {
+    var st = status(r), m = r.m;
+    var when = r.wait ? '—' : r.until ? fmtD(r.at) + ', ' + hm(r.at) + '–' + hm(r.until) : fmtD(r.at);
+    return '<tr><td class="num">' + when + '<br><span class="src">' + esc(r.code) + '</span></td>'
+      + '<td><b>' + esc((r.extra ? '' : r.id + ' · ') + fillText(m.name)) + '</b> · ' + esc(fillText(m.ch)) + (m.sig ? ' <span class="sig">signature</span>' : '') + '<br><span class="fw">' + esc(fillText(m.tag)) + '</span></td>'
+      + '<td>' + esc(fillText(m.ask)) + '</td>'
+      + '<td><span class="st ' + st[1] + '">' + esc(st[0]) + '</span></td>'
+      + '<td><button class="btn small" type="button" data-open="' + r.id + '">Open</button></td></tr>';
+  }).join('');
+}
+$('schedRows').addEventListener('click', function (e) {
+  var b = e.target.closest('[data-open]'); if (!b) return;
+  openMsg = b.dataset.open; renderMsg(); $('msgBox').scrollIntoView({ block: 'nearest' });
+});
+function renderMsg() {
+  var r = openMsg && schedule().filter(function (x) { return x.id === openMsg; })[0];
+  if (!r) { $('msgBox').hidden = true; return; }
+  $('msgBox').hidden = false;
+  $('msgTitle').textContent = (r.extra ? '' : r.id + ' · ') + fillText(r.m.name) + ' · ' + fillText(r.m.ch);
+  var frozen = S.sent[openMsg] ? (S.sentText || {})[openMsg] : null; /* a sent message keeps the words it went out with */
+  if (frozen != null) $('msgText').textContent = frozen; else $('msgText').innerHTML = fillHTML(r.m.t);
+  $('markSent').textContent = S.sent[openMsg] ? 'Sent' : 'Mark sent';
+  $('approveDraft').hidden = !isUpdated(r);
+}
+$('markSent').addEventListener('click', function () { if (!openMsg) return; S.sent = S.sent || {}; S.sent[openMsg] = Date.now(); S.sentText = S.sentText || {}; S.sentText[openMsg] = $('msgText').textContent; logEvent('followup', openMsg, 'message_sent', fw()); addStep('followup.' + openMsg, { outcome: 'sent', captured: { framework: fw() }, ai: { moment: (S.inputsVer || 0) > (S.planVer || 0) ? 8 : 7, draft_ver: ((S.draftVer || {})[openMsg] != null ? S.draftVer[openMsg] : S.planVer), approved_by: LD.lead.owner } }); save(); refresh(); });
+$('approveDraft').addEventListener('click', function () { if (!openMsg) return; S.draftVer = S.draftVer || {}; S.draftVer[openMsg] = S.inputsVer || 0; logEvent('followup', openMsg, 'approval', 'draft v' + (S.inputsVer || 0)); save(); refresh(); });
+
+document.querySelectorAll('#replies button').forEach(function (b) {
+  b.addEventListener('click', function () { S.reply = b.dataset.r; S.replyAt = Date.now(); logEvent('followup', 'reply', 'reply', b.dataset.r); addStep('followup.reply', { outcome: b.dataset.r, captured: { framework: fw() } }); save(); refresh(); });
+});
+function renderBranch() {
+  document.querySelectorAll('#replies button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.r === S.reply)); });
+  $('replyNote').textContent = fillText(REPLY_NOTE[fw()]);
+  if (!S.reply) { $('branch').hidden = true; return; }
+  var br = REPLY[fw()][S.reply];
+  $('branch').hidden = false;
+  $('brAction').textContent = fillText(br[0]);
+  $('brText').innerHTML = fillHTML(br[1]);
+  var box = $('brBtns'); box.innerHTML = '';
+  var add = function (label, cls, fn) { var b = document.createElement('button'); b.className = cls; b.type = 'button'; b.textContent = label; b.addEventListener('click', fn); box.appendChild(b); };
+  if (S.reply === 'q') add('Answered: restart the plan', 'btn primary', function () { S.restart = Date.now(); S.reply = null; S.replyAt = null; save(); refresh(); });
+  if (S.reply === 'go' && !S.proposalSent) add('Go to Proposal', 'btn primary', function () { showStage(3); });
+  add('No reply after all', 'btn', function () { S.reply = null; S.replyAt = null; save(); refresh(); });
+}
+
+/* refresh everything that depends on S */
+function refresh() {
+  document.querySelectorAll('pre[data-tpl]').forEach(function (p) { p.innerHTML = fillHTML(TPL[p.dataset.tpl]); });
+  document.querySelectorAll('.say p[data-a]').forEach(function (p) { var t = p.dataset[p.dataset.which || 'a']; var v = vars(); p.textContent = t.replace(/\{(\w+)\}/g, function (m, k) { return v[k] ? v[k].t : m; }); });
+  var rule = fillText(P('package.rules')[S.system || '']);
+  $('pkgRule').textContent = rule; $('pkgRule2').textContent = rule;
+  $('slotShow').textContent = S.slot ? 'Meeting: ' + fmtDT(new Date(S.slot)) : '';
+  /* videos */
+  var vb = $('videoLinks'); vb.innerHTML = '';
+  LD.kit.videos.map(function (v) { return [v.id, v.label]; }).forEach(function (v) {
+    var url = (S[v[0]] || '').trim(), a = document.createElement('a');
+    a.className = url ? 'btn primary' : 'btn';
+    a.textContent = url ? 'Play video: ' + v[1] + ' ↗' : 'Video ' + v[1] + ': not ready (Rico)';
+    if (url) { a.href = url; a.target = '_blank'; a.rel = 'noopener'; } else a.setAttribute('aria-disabled', 'true');
+    vb.appendChild(a);
+  });
+  var dl = S.deckLink || DECK, d = document.createElement('a'); d.className = 'btn'; d.textContent = 'No video? Present the ' + (LD.lead.short || LD.lead.company) + ' deck ↗';
+  if (dl) { d.href = dl; d.target = '_blank'; d.rel = 'noopener'; } else d.setAttribute('aria-disabled', 'true');
+  vb.appendChild(d);
+  /* price */
+  var ec = (S.pkg || 'ootb') === 'ec', sum = 0, days = 0, any = false;
+  $('pkgO').checked = !ec; $('pkgE').checked = ec;
+  MATRIX.forEach(function (m, i) { if (!S['mod' + i]) return; any = true; sum += ec ? m[3] : m[1]; days += ec ? m[4] : m[2]; if (S.addon) { sum += m[5]; days += m[6]; } });
+  $('impl').textContent = any ? peso(sum) + ' · ' + days + ' days' : 'Pick a module';
+  $('usersShow').textContent = S.users ? ' (' + S.users + ' users)' : '';
+  $('sentShow').textContent = S.proposalSent ? 'Sent ' + fmtDT(new Date(S.proposalSent)) + '. "Did it arrive?" is due 3–4 h later.' : '';
+  $('sentBtn').disabled = !!S.proposalSent;
+  /* counts */
+  document.querySelectorAll('.stage').forEach(function (s) {
+    var lab = document.querySelector('[data-count="' + s.dataset.s + '"]');
+    if (s.dataset.s === '4') { var r = schedule(), n = r.filter(function (x) { return S.sent && S.sent[x.id]; }).length; lab.textContent = r.length ? n + '/' + r.length + ' sent' : ''; return; }
+    var all = s.querySelectorAll('input.tk, .kpanel .checks input[type=checkbox]');
+    var on = Array.prototype.filter.call(all, function (x) { return x.checked; }).length;
+    lab.textContent = all.length ? on + '/' + all.length + ' done' : '';
+  });
+  renderSummary(); renderSchedule(); renderMsg(); renderBranch();
+  renderPartA();
+}
+
+/* demo */
+$('demoBtn').addEventListener('click', function () {
+  /* demo meeting 4 days ago on a weekday, so some messages are sent and one is due today */
+  var m = new Date(); m.setDate(m.getDate() - 4); while (m.getDay() === 0 || m.getDay() === 6) m.setDate(m.getDate() - 1); m.setHours(10, 0, 0, 0);
+  var end = new Date(+m + 36 * 60000), sent = plusDays(m, 1, 15);
+  /* the first two messages of the lead's framework are already sent: T1 after the meeting, T2 after the proposal */
+  var fw0 = LD.lead.framework || 'a', plan = PLANS[fw0], pre = {};
+  pre[plan[0].id] = +end + 4.2 * 3600000; pre[plan[1].id] = +sent + 3.3 * 3600000;
+  /* shortcut: email, phone, Meet link, timings, add-on and Neil's approval are invented demo values shared by every lead; move them into LD.demo when a lead needs its own */
+  Object.assign(S, {
+    demo: true, stage: 0, name: LD.demo.name, email: 'demo@example.com', system: LD.demo.system, users: LD.demo.users, size: LD.demo.size,
+    slot: new Date(+m - m.getTimezoneOffset() * 60000).toISOString().slice(0, 16), meet: 'https://meet.google.com/abc-defg-hij',
+    words: LD.demo.words,
+    next: LD.demo.next, owner: LD.demo.owner,
+    t_call: true, t_mail: true, t_kyc: true, t_deck: true, t_est: true, t_rec: true, k1: true, k2: true,
+    spent: [0, 190000, 95000, 420000, 840000, 400000], meetingEnd: +end, pkg: LD.demo.system === 'erp' ? 'ec' : 'ootb', addon: true,
+    approved: true, t_sa: true, t_fin: true, plink: LD.demo.plink, proposalSent: +sent, t_send: true,
+    fw: fw0, style: LD.lead.style || 'jeric', sent: pre, reply: null, restart: null,
+    t_sms: true, phone: '0917 123 4567', hasDeck: DECK ? 'yes' : 'no', deckLink: DECK, inputsVer: 0, planVer: 0, draftVer: {}, skips: {}, events: demoEvents(m, end, sent), journey: []
+  });
+  MATRIX.forEach(function (x, i) { S['mod' + i] = LD.demo.modules.indexOf(x[0]) >= 0; });
+  LD.kit.close_checks.forEach(function (t, i) { S['k' + (i + 3)] = true; });
+  S.journey = demoJourney(m, end, sent);
+  S.sentText = {}; [plan[0], plan[1]].forEach(function (x) { S.sentText[x.id] = fillText(x.t); });
+  boot();
+});
+$('resetBtn').addEventListener('click', function () { S = { mod0: true, spent: [0, 0, 0, 0, 0, 0], events: [], journey: [] }; running = false; $('kStart').textContent = 'Start meeting'; $('kStart').disabled = false; openMsg = null; boot(); });
+
+/* a message marked sent by an older page (S.sent but no S.sentText) keeps the words it shows now, frozen once */
+function freezeSent() {
+  if (!S.sent) return;
+  S.sentText = S.sentText || {};
+  schedule().forEach(function (r) { if (S.sent[r.id] && S.sentText[r.id] == null) S.sentText[r.id] = fillText(r.m.t); });
+}
+/* lead profile fills only fields never set; a field the rep cleared ("") stays cleared. Not a user edit, so S.inputsVer stays */
+function prefill() {
+  var PF = LD.profile, unset = function (k) { return S[k] == null; };
+  [['client_words', 'words'], ['next_step', 'next'], ['decision_maker', 'owner'], ['users', 'users']].forEach(function (p) {
+    if (PF[p[0]] && unset(p[1])) S[p[1]] = String(PF[p[0]].v);
+  });
+  var sys = PF.current_system && PF.current_system.v;
+  if (['manual', 'acct', 'erp'].indexOf(sys) >= 0 && unset('system')) { S.system = sys; if (!S.pkgTouched) S.pkg = sys === 'erp' ? 'ec' : 'ootb'; }
+  var d = PF.departments && PF.departments.v, low = DEPTS.map(function (x) { return x.toLowerCase(); });
+  if (d) (Array.isArray(d) ? d : String(d).split(',')).forEach(function (x) {
+    var i = low.indexOf(String(x).trim().toLowerCase());
+    if (i >= 0 && S['d' + (i + 1)] == null) S['d' + (i + 1)] = true;
+  });
+}
+function boot() {
+  if (!S.fw) S.fw = LD.lead.framework || 'a';
+  if (!S.style) S.style = LD.lead.style || 'jeric';
+  freezeSent();
+  prefill();
+  save(); syncInputs();
+  $('demoNote').hidden = !S.demo;
+  kshow(S.meetingEnd ? 6 : 1);
+  showStage(S.stage || 0);
+  refresh(); ktick();
+}
+setInterval(ktick, 1000);
+boot();
+</script>
