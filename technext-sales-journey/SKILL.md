@@ -1,6 +1,6 @@
 ---
 name: technext-sales-journey
-description: Builds a TechNext Sales Journey page for one lead (the 12-step sales playbook, a meeting kit with questions, objections and close checks, and follow-up messages) from the shared playbook. Claude researches the company and writes only JSON; bundled scripts check it and render the HTML page. Use when the user says "create a sales journey for <company>", "make a meeting kit for <company>", "update journey <slug>: <notes>", or in Vietnamese "tạo journey cho <công ty>", "cập nhật journey <slug>".
+description: 'Builds a TechNext Sales Journey page for one lead (the 12-step sales playbook, a meeting kit with questions, objections and close checks, and follow-up messages) from the shared playbook. Claude researches the company and writes only JSON; bundled scripts check it and render the HTML page. Use when the user says "create a sales journey for <company>", "make a meeting kit for <company>", "update journey <slug>: <notes>", or in Vietnamese "tạo journey cho <công ty>", "cập nhật journey <slug>".'
 ---
 # TechNext Sales Journey for one lead
 
