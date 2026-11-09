@@ -31,6 +31,23 @@ This is the **PREVIEW** address. It shares its data with production, and it will
 5. **Test** in Claude Code: ask for `list_leads` or `get_price_matrix`. A `401` means the token is wrong or expired; `403 token_scope` names the missing scope. Do not retry until it is fixed.
 6. The portal's **Open Claude Code** button needs Claude Code installed and run once on that machine (it registers the `claude-cli://` link). If nothing opens, use **Copy command** and paste it into Claude Code.
 
+## Model: Claude Sonnet 5.5 only (check first)
+Before claiming any job, check which model you are running as (it is stated in your system prompt).
+- Allowed: **Claude Sonnet 5.5** (model id `claude-sonnet-5-5`), and only that.
+- Anything else (Opus, Haiku, Fable, an older Sonnet, or an unknown model): do NOT claim the job. Tell the person in one line: "This skill runs only on Sonnet 5.5. Type `/model sonnet`, check it says Sonnet 5.5, then run the same command again." Then stop. Nothing has been claimed, so the job stays open for the next run.
+- Every subagent or Agent call this run starts (for example the research agents of `technext-sales-proposal`) is started with `model: "sonnet"` too. Never pass `opus`, `haiku` or `fable`.
+- Put the model in the end-of-run summary ("Model: Sonnet 5.5").
+
+## Progress updates: at least every 3 minutes
+A run takes about 30 minutes and the research alone can take 20. Never go quiet. People read silence as "it is stuck".
+- **At least once every 3 minutes of work**, and at the end of every step, write ONE short line in the chat:
+  `[mm:ss] <step k/6> <what just finished> · <what was saved on the portal, with version> · next: <what comes now>`
+  e.g. `[06:10] 1/6 research: 3 of 4 research groups done · nothing saved yet · next: group D, then facts`
+  e.g. `[19:40] 2/6 facts saved (version 4, 11 facts) · next: modules`
+- Count the time from the claim. During a long step (research, KYC build), write a line when each sub-part finishes (each research group, each section batch) even if it is under 3 minutes, and a "still working on <what>" line if 3 minutes pass with nothing new.
+- Say what changed on the portal in each line: facts added (version), output saved (kind + version), KYC uploaded, rejected (400) and fixed. A rejected save is reported, not hidden.
+- Keep it to one line each: no tables, no repeats of earlier lines. The full summary comes once, at the end.
+
 ## Every write (LEAD-V1-CONTRACT.md)
 - Every write carries a `command_id` (`^[A-Za-z0-9_-]{8,64}$`; a UUID works). Make one per logical write and keep it: on a timeout or network error, retry with the **same** `command_id` (the server returns the first result and writes nothing twice). A new attempt at a different change gets a new id. For `upload_kyc` it is the `command_id` argument (the server sends it as the `Command-Id` header).
 - A reply with `suggested: [paths]` is **normal**: those fields were edited by a person on the portal and are locked, so your values became suggestions for them to accept or reject. Never retry, never work around it; mention it in the summary.
@@ -47,6 +64,7 @@ This is the **PREVIEW** address. It shares its data with production, and it will
 
 ## Flow
 
+0. **Model check** (section above). Not Sonnet 5.5: stop before claiming. Then write the first progress line: `[00:00] 0/6 starting job for <slug>`.
 1. **Claim.** `list_jobs {status: "open"}` → pick the job for `<slug>` (or let the person choose) → `claim_job {id}`.
    `409 job_taken`: someone else has it, stop. `409 runner_mismatch`: say who the runner is, stop.
 2. **Load.** `get_lead {slug}` → keep `record.version` as `V`, `profile`, `stale`, `outputs`.
