@@ -50,6 +50,7 @@ A run takes about 30 minutes and the research alone can take 20. Never go quiet.
 
 ## Every write (LEAD-V1-CONTRACT.md)
 - Every write carries a `command_id` (`^[A-Za-z0-9_-]{8,64}$`; a UUID works). Make one per logical write and keep it: on a timeout or network error, retry with the **same** `command_id` (the server returns the first result and writes nothing twice). A new attempt at a different change gets a new id. For `upload_kyc` it is the `command_id` argument (the server sends it as the `Command-Id` header).
+- **Producer (who made this output).** Every `upload_kyc` and every `save_output` sends `producer: {skill, commit, model}`: `skill` = `technext-sales`; `commit` = the first 7 characters of the `commit` field in the `.source.json` file of this skill folder; `model` = the model name you are running as. If there is no `.source.json` file, omit `producer` entirely: never invent a commit or a model. The portal rejects a malformed value with 400 `invalid_producer` (it names the field, never the value); fix the value and retry with the same `command_id`.
 - A reply with `suggested: [paths]` is **normal**: those fields were edited by a person on the portal and are locked, so your values became suggestions for them to accept or reject. Never retry, never work around it; mention it in the summary.
 - `409 conflict` on `patch_journey` means a field changed since you read it: `get_page`/`get_lead` again, rebuild the change from the current value, and send a new `command_id`.
 
