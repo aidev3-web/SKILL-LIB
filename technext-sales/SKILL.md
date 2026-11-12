@@ -16,15 +16,15 @@ The portal's New-lead button opens Claude Code with exactly:
 Without a slug ("chạy việc mới"), list the open jobs and let the person choose.
 
 ## Setup (once per machine, once per person)
-**Portal address (the only place it is written):** `PORTAL = https://proposal-portal-preview.vercel.app`, MCP endpoint `PORTAL/api/v1/mcp`.
-This is the **PREVIEW** address. It shares its data with production, and it will change to the production address after Trung merges `preview` into `main`; update this line only.
+**Portal address (the only place it is written):** `PORTAL = https://proposal-library-blue.vercel.app`, MCP endpoint `PORTAL/api/v1/mcp`.
+This is the **production** address.
 
 1. **Install this skill**: copy `skills/technext-sales/` to `~/.claude/skills/technext-sales/` (Windows: `%USERPROFILE%\.claude\skills\`), or `pull_skill` it from the TechNext skill library. The research and proposal steps also need `technext-sales-proposal` (with its sub-skills) and `technext-meeting-to-proposal` installed.
 2. **Make your own token** on the portal: My tokens → scopes `read`, `facts.write`, `draft.write`, `jobs`. It is shown once. Never share it, never paste it in chat, a file in git, or a prompt.
 3. **Store it in an environment variable** on your own machine, e.g. `TECHNEXT_PORTAL_TOKEN` (Windows: `setx TECHNEXT_PORTAL_TOKEN "<token>"` in a new terminal, then reopen Claude Code).
 4. **Add the portal MCP server** so that Claude Code reads the token from that variable at run time; never write the token itself into a config file. Put this in `.mcp.json` (project) or the `mcpServers` of `~/.claude.json`:
    ```json
-   {"mcpServers": {"technext-portal": {"type": "http", "url": "https://proposal-portal-preview.vercel.app/api/v1/mcp  (= PORTAL/api/v1/mcp above)",
+   {"mcpServers": {"technext-portal": {"type": "http", "url": "https://proposal-library-blue.vercel.app/api/v1/mcp",
      "headers": {"Authorization": "Bearer ${TECHNEXT_PORTAL_TOKEN}"}}}}
    ```
    (Claude Code expands `${...}` itself. Do not use `claude mcp add --header "...$TECHNEXT_PORTAL_TOKEN"` in a shell: the shell would expand it and store the real token in the config.)
