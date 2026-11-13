@@ -1,0 +1,19 @@
+{
+  "portal_commit": "01e1a9f",
+  "entries": [
+    "tools/findings-to-facts.mjs",
+    "lib/lead/notes.mjs",
+    "lib/journey/journey.mjs"
+  ],
+  "files": [
+    "data/playbook.json",
+    "docs/findings-picks-prompt.md",
+    "domain/rules/contacts.mjs",
+    "lib/adapters/findings.mjs",
+    "lib/journey/journey-rules.mjs",
+    "lib/journey/journey.mjs",
+    "lib/lead/lead.mjs",
+    "lib/lead/notes.mjs",
+    "tools/findings-to-facts.mjs"
+  ]
+}

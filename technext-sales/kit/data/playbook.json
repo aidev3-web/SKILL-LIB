@@ -1,0 +1,612 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "key": "package.matrix",
+      "kind": "rule",
+      "version": 1,
+      "status": "draft",
+      "body": [
+        [
+          "Accounting CAS",
+          250000,
+          10,
+          500000,
+          20,
+          275000,
+          11
+        ],
+        [
+          "Accounting (FICO)",
+          375000,
+          15,
+          750000,
+          30,
+          500000,
+          20
+        ],
+        [
+          "Manufacturing",
+          750000,
+          30,
+          1500000,
+          60,
+          1125000,
+          45
+        ],
+        [
+          "Retail & Distribution",
+          250000,
+          10,
+          500000,
+          20,
+          750000,
+          30
+        ]
+      ],
+      "note": "Tách từ bản T&S 05/11; chờ Neil duyệt"
+    },
+    {
+      "key": "package.rules",
+      "kind": "rule",
+      "version": 1,
+      "status": "draft",
+      "body": {
+        "": "Choose how they run accounting today: it decides the package.",
+        "manual": "Manual books: Quick Start (standard) package.",
+        "acct": "QuickBooks or similar is accounting software, not an ERP. Neil decides: Quick Start or Enterprise Core.",
+        "erp": "They already run an ERP: Enterprise Core. Neil's rule from the 31 Oct call; this is the 250k mistake to avoid."
+      },
+      "note": "Tách từ bản T&S 05/11; chờ Neil duyệt"
+    },
+    {
+      "key": "msg.templates",
+      "kind": "script",
+      "version": 1,
+      "status": "draft",
+      "body": {
+        "call": "Hi, this is {rep} from TechNext. You asked us about Odoo, so I'm calling to confirm a few details before we meet. Is now a good time for two minutes?",
+        "sms": "Hi {name}, this is {rep} from TechNext. I tried to call about your Odoo enquiry. When is a good time for a 5-minute call? You can also reply here.",
+        "email": "Subject: TechNext and {company}: meeting confirmation\n\nHi {name},\n\nThank you for your time on the phone. As agreed, we'll meet on {slot} by Google Meet: {meet}\n\nIn the meeting we'd like to understand how invoices, books and {rule} filings work at {company} today, and agree on a next step together.\n\nBest regards,\n{rep}",
+        "video": "Hi {name}, looking forward to our meeting on {slot}. Here is a 5-minute video about TechNext, so you know who we are before we meet: {video}\n\nIf anything changes on your side, just let me know.",
+        "deckPrompt": "Use the technext-sales-proposal skill to build a TechNext presentation (technext-presentations template) for {company_full}, {profile}. Current system: {system}. Main problem in their words: \"{words}\". Contact: {name}. Return the published link.",
+        "proposal": "Subject: TechNext proposal for {company_full}\n\nHi {name},\n\nThank you again for the meeting. Here is our proposal: {plink}\n\nPhase 1 is built around what you told us: \"{words}\"\n\nThe {phase1} part is for finance, and the {tool} migration part is for IT, so feel free to forward each part.\n\nTwo things would help us finalise it: a {tool} export sample, and your accountant's confirmation of your {rule} scope.\n\nBest regards,\n{rep}"
+      },
+      "note": "Tách từ bản T&S 05/11; chờ Neil duyệt"
+    },
+    {
+      "key": "followup.plans",
+      "kind": "framework",
+      "version": 1,
+      "status": "draft",
+      "body": {
+        "a": [
+          {
+            "id": "A1",
+            "base": "D",
+            "h": [
+              4,
+              5
+            ],
+            "ch": "WhatsApp",
+            "name": "Thank you",
+            "tag": "Their problem, in their words",
+            "ask": "Anything more you need before the next step?",
+            "t": "{name}, thank you for your time today with Neil and me. You mentioned: \"{words}\" We will keep that at the centre of our proposal. Is there anything more you need from us before {next}? – {rep}, TechNext"
+          },
+          {
+            "id": "A2",
+            "base": "P",
+            "h": [
+              3,
+              4
+            ],
+            "ch": "WhatsApp",
+            "name": "Point to the section",
+            "tag": "Where the proposal answers their concern",
+            "ask": "Is that section clear?",
+            "t": "Hi {name}, I have sent our proposal to your email. Since you raised [the {tool} problem], section [x] explains how we would approach it. Is anything in that section unclear? – {rep}"
+          },
+          {
+            "id": "A3",
+            "base": "P",
+            "d": 2,
+            "ch": "Email",
+            "name": "Priorities recap",
+            "tag": "Value: business impact",
+            "ask": "Did I get your priorities right?",
+            "t": "Subject: {company} – your priorities and where the proposal covers them\n\nDear {name},\n\nHere is a short summary of what you told us, so it is easy to share with your team:\n1. \"{words}\" – section [x]: moving your {area} to Odoo.\n2. [{rule} compliance, only if they raised it] – section [y].\n3. [Production, if raised] – noted for a later phase, not in Phase 1.\n\nDid I get your priorities right?\n\nRegards,\n{rep}"
+          },
+          {
+            "id": "A4",
+            "base": "P",
+            "d": 6,
+            "ch": "WhatsApp",
+            "name": "One useful item",
+            "tag": "Value: an idea",
+            "ask": "Is this useful for your team?",
+            "sig": true,
+            "t": "Hi {name}, a short read you may find useful: [approved item, e.g. how a company moved its records from {tool} to Odoo, link]. It covers [one point from the item]. Would something like this be useful for your team? – {rep}"
+          },
+          {
+            "id": "A5",
+            "base": "P",
+            "d": 12,
+            "ch": "Email",
+            "name": "One-pager offer",
+            "tag": "Value: education",
+            "ask": "Would a version for the decision maker help?",
+            "t": "Subject: A one-page summary for {owner}\n\nDear {name},\n\nYou mentioned that {owner} will also review this. I can prepare a one-page summary in plain terms: the problems you described, what Phase 1 covers, and what is left for later. It would use only what is already in the proposal.\n\nWould a one-page version for {owner} help?\n\nRegards,\n{rep}"
+          },
+          {
+            "id": "A6",
+            "base": "P",
+            "d": 20,
+            "ch": "WhatsApp",
+            "name": "Keep the file open?",
+            "tag": "Close the file politely",
+            "ask": "Keep it open, or close it for now?",
+            "t": "Hi {name}, I don't want to fill your inbox while your team is busy. Should I keep the {company} file open, or close it for now? Either answer is fine, and you can message me anytime. – {rep}"
+          }
+        ],
+        "b": [
+          {
+            "id": "B1",
+            "base": "D",
+            "h": [
+              4,
+              5
+            ],
+            "ch": "WhatsApp",
+            "name": "Thank you",
+            "tag": "Neil's question",
+            "ask": "Anything more you need before the next step?",
+            "t": "{name}, thank you for meeting Neil and me today. I hope it was useful for the {company} team. Is there anything more you need from us before {next}? – {rep}, TechNext"
+          },
+          {
+            "id": "B2",
+            "base": "P",
+            "h": [
+              3,
+              4
+            ],
+            "ch": "WhatsApp",
+            "name": "Offer a walk-through",
+            "tag": "Proposal sent, two call times",
+            "ask": "[Day A] or [Day B] for a short call?",
+            "t": "Hi {name}, our proposal is now in your email. Would a short call on [Day A] or [Day B] help, so we can go through it together, with {owner} too if useful? – {rep}"
+          },
+          {
+            "id": "B3",
+            "base": "P",
+            "d": 2,
+            "ch": "Email",
+            "name": "One point + two times",
+            "tag": "One line of news",
+            "ask": "[Day A] or [Day B]?",
+            "t": "Subject: {company} proposal – one point\n\nDear {name},\n\nOne point worth knowing: the proposal keeps Phase 1 to {phase1} and leaves {later} for later, so [the {tool} problem] comes first.\n\nWould [Day A] or [Day B] suit you for a short call?\n\nRegards,\n{rep}"
+          },
+          {
+            "id": "B4",
+            "base": "P",
+            "d": 5,
+            "ch": "WhatsApp",
+            "name": "Reply 1, 2 or 3",
+            "tag": "Make replying effortless",
+            "ask": "Reply with a number",
+            "sig": true,
+            "t": "Hi {name}, to save you time, just reply with a number:\n1 – Still reviewing the proposal\n2 – You need something from us\n3 – On hold for now\nAny answer helps me plan. – {rep}"
+          },
+          {
+            "id": "B5",
+            "base": "P",
+            "d": 12,
+            "ch": "Email",
+            "name": "Item + invite the boss",
+            "tag": "One approved item",
+            "ask": "[Day A] or [Day B]?",
+            "t": "Subject: {company} – a short call with {owner}?\n\nDear {name},\n\nIn case it helps the review: [approved item, e.g. a short note on moving data from {tool}, link]. Neil and I can also walk {owner} through the proposal with you.\n\nWould [Day A] or [Day B] work?\n\nRegards,\n{rep}"
+          },
+          {
+            "id": "B6",
+            "base": "P",
+            "d": 21,
+            "ch": "Email",
+            "name": "Closing the loop",
+            "tag": "Pause, leave a way back",
+            "ask": "None",
+            "t": "Subject: Closing the loop on the {company} proposal\n\nDear {name},\n\nI know your team is busy, so I will pause my follow-ups on the Odoo proposal for now. If the {project} comes back on your list, just reply to this email.\n\nThank you again for your time.\n\nRegards,\n{rep}"
+          }
+        ],
+        "c": [
+          {
+            "id": "C1",
+            "base": "D",
+            "h": [
+              4,
+              5
+            ],
+            "ch": "WhatsApp",
+            "name": "Name the worry",
+            "tag": "Label, then a \"what\" question",
+            "ask": "What would you need to see before the next step?",
+            "t": "{name}, thank you for today. It seems like [moving the {area} data out of {tool} safely] is what worries your team most. What would you need to see from us before {next}? – {rep}"
+          },
+          {
+            "id": "C2",
+            "base": "P",
+            "h": [
+              3,
+              4
+            ],
+            "ch": "Email",
+            "name": "Anything off target?",
+            "tag": "Short summary, no-oriented check",
+            "ask": "Is anything off target for {company}?",
+            "t": "Subject: {company} proposal – is anything off target?\n\nDear {name},\n\nThank you again for our meeting. The proposal is attached. In short, Phase 1 covers what you raised with {phase1}, and {later} is left for later, as we discussed.\n\nIs anything in it off target for {company}?\n\nRegards,\n{rep}"
+          },
+          {
+            "id": "C3",
+            "base": "P",
+            "d": 5,
+            "ch": "WhatsApp",
+            "name": "Against a one-pager?",
+            "tag": "No-oriented offer",
+            "ask": "Are you against a one-page summary?",
+            "t": "Hi {name}, you mentioned {owner} will look at this too. Would you be against me preparing a one-page summary you can forward, using only what is already in the proposal? – {rep}"
+          },
+          {
+            "id": "C4",
+            "base": "P",
+            "d": 12,
+            "ch": "WhatsApp",
+            "name": "Soft label, my fault",
+            "tag": "Name the silence, take the blame",
+            "ask": "What would make this easier on your side?",
+            "t": "Hi {name}, it seems like I may not have made something clear in the proposal, or other priorities came up at {company}. Either is understandable. What would make this easier to move forward on your side? – {rep}"
+          },
+          {
+            "id": "C5",
+            "base": "P",
+            "d": 20,
+            "ch": "Email + WhatsApp",
+            "name": "Have you given up?",
+            "tag": "Only after silence",
+            "ask": "Yes or no",
+            "sig": true,
+            "t": "Subject: Have you given up on [fixing the {tool} problem]?\n\nEither answer is fine, {name}. – {rep}\n\n(Softer option if Neil finds it too blunt: \"Have you decided to put the {project} on hold?\")"
+          }
+        ]
+      },
+      "note": "Tách từ bản T&S 05/11; chờ Neil duyệt"
+    },
+    {
+      "key": "followup.greet",
+      "kind": "script",
+      "version": 1,
+      "status": "draft",
+      "body": {
+        "ch": "WhatsApp",
+        "name": "Holiday greeting",
+        "tag": "Sky's style · no ask, no link",
+        "ask": "None",
+        "t": "Merry Christmas and a Happy New Year to you and the {company} team, {name}. Thank you for your time this year. – {rep}"
+      },
+      "note": "Tách từ bản T&S 05/11; chờ Neil duyệt"
+    },
+    {
+      "key": "followup.nurture",
+      "kind": "framework",
+      "version": 1,
+      "status": "draft",
+      "body": {
+        "a": {
+          "name": "Monthly value note",
+          "ask": "Still on your list?",
+          "t": "Hi {name}, one useful note while the project waits: [approved item, link]. Is this still on your list for this year? – {rep}"
+        },
+        "b": {
+          "name": "Monthly check-in",
+          "ask": "Anything changed?",
+          "t": "Hi {name}, a light check-in as agreed. Has anything changed on the {project} at {company}? – {rep}"
+        },
+        "c": {
+          "name": "Check back when they said",
+          "ask": "Bad idea to pick it up again?",
+          "t": "Hi {name}, you said to check back around now. Would it be a bad idea to pick up the {project} again? – {rep}"
+        }
+      },
+      "note": "Tách từ bản T&S 05/11; chờ Neil duyệt"
+    },
+    {
+      "key": "followup.reply",
+      "kind": "framework",
+      "version": 1,
+      "status": "draft",
+      "body": {
+        "a": {
+          "go": [
+            "Thank them and confirm the agreed next step. The sequence stops.",
+            "Thank you, {name}. Let's go ahead with {next}. Would [Day A] or [Day B] work for you and {owner}? – {rep}"
+          ],
+          "q": [
+            "Answer only from the proposal or approved content. If unsure, check with Neil first. Then the plan restarts.",
+            "Thanks for asking, {name}. [Answer from the proposal or approved content.] If it helps, Neil can join a short call. – {rep}"
+          ],
+          "obj": [
+            "Treat it as a need for information: one approved item that speaks to it, plus one question. Don't argue by message. A new price goes to the Approver first.",
+            "Thank you for telling me, {name}. This may help: [approved item that speaks to the concern, link]. Which part matters most to cover first? – {rep}"
+          ],
+          "int": [
+            "Offer the one-pager (A5) now.",
+            "Of course, {name}. Would a one-page summary for {owner} help? It would use only what is already in the proposal. – {rep}"
+          ],
+          "later": [
+            "Ask permission to send one useful note a month.",
+            "Understood, {name}. Would it be all right if I send one useful note a month until the timing is better? – {rep}"
+          ],
+          "no": [
+            "Thank them and mark the lead lost.",
+            "Thank you for letting me know, {name}. I'll close the file on our side. If anything changes, you can message me anytime. – {rep}"
+          ]
+        },
+        "b": {
+          "go": [
+            "Book the call right away. The sequence stops.",
+            "Great, thank you {name}. Would [Day A] at [time] or [Day B] at [time] work for a call with Neil? – {rep}"
+          ],
+          "q": [
+            "Answer briefly, then offer one call slot if a call would help. Then the plan restarts.",
+            "Good question, {name}. [Short answer.] If a call is easier, would [Day A] work? – {rep}"
+          ],
+          "obj": [
+            "Acknowledge it in one line, answer from approved content, offer a call. A price change goes to the Approver first.",
+            "Understood, {name}, thank you for being direct. [One-line answer from approved content.] Would a short call on [Day A] or [Day B] help us look at options? – {rep}"
+          ],
+          "int": [
+            "Ask when to check back and follow that timing. Offer a call with the decision maker.",
+            "Of course, {name}. When would be a good time for me to check back? Neil and I can also walk {owner} through it on a short call. – {rep}"
+          ],
+          "later": [
+            "Ask permission for a light monthly check-in. (B4 reply \"3\" means this too.)",
+            "Understood, {name}. Is it all right if I check in once a month until the timing is better? – {rep}"
+          ],
+          "no": [
+            "Stop and thank them. Efti stops after a no.",
+            "Thank you for letting me know, {name}. I'll pause on our side. If the project comes back, just reply here. – {rep}"
+          ]
+        },
+        "c": {
+          "go": [
+            "Name what you hear, ask how they want to proceed, then book the step.",
+            "It sounds like the timing is right for {company} now, {name}. How would you like to proceed? – {rep}"
+          ],
+          "q": [
+            "Answer, then label until you hear \"That's right\". Then the plan restarts.",
+            "[Answer.] It seems like the main concern is [their concern, in their words]. Is that right? – {rep}"
+          ],
+          "obj": [
+            "Voice the worry they may have, name the obstacle, move to a call. A price change goes to the Approver first.",
+            "You may feel this is a big change for {team}, {name}. It seems like [the obstacle] is what is holding this back. Would you be against a short call with Neil to look at it? – {rep}"
+          ],
+          "int": [
+            "Ask how decisions get made at {company} (NEPQ), then offer the one-pager (C3).",
+            "Of course, {name}. How do decisions like this usually get made at {company}? Would you be against a one-page summary for {owner}? – {rep}"
+          ],
+          "later": [
+            "Let them set the timing, then check back once on that date.",
+            "Would it be a bad idea for me to check back after [the period they name], {name}? – {rep}"
+          ],
+          "no": [
+            "Accept it and part on good terms. In \"No, but…\", the \"but\" is the real obstacle: ask about it.",
+            "Thank you for telling me, {name}. I appreciate the honesty. If anything changes, I'm here. – {rep}"
+          ]
+        }
+      },
+      "note": "Tách từ bản T&S 05/11; chờ Neil duyệt"
+    },
+    {
+      "key": "followup.reply_note",
+      "kind": "framework",
+      "version": 1,
+      "status": "draft",
+      "body": {
+        "a": "",
+        "b": "B4 answers: \"1\" still reviewing → ask when to check back. \"2\" needs something → ask what. \"3\" on hold → Not now.",
+        "c": "Use \"Have you given up…?\" only after silence, and only about their own goal, never \"our proposal\"."
+      },
+      "note": "Tách từ bản T&S 05/11; chờ Neil duyệt"
+    },
+    {
+      "key": "calendar.holidays",
+      "kind": "holiday",
+      "version": 1,
+      "status": "draft",
+      "body": [
+        "2026-11-30",
+        "2026-12-08",
+        "2026-12-24",
+        "2026-12-25",
+        "2026-12-30",
+        "2026-12-31",
+        "2027-01-01"
+      ],
+      "note": "Tách từ bản T&S 05/11; chờ Neil duyệt"
+    },
+    {
+      "key": "journey.steps",
+      "kind": "step",
+      "version": 1,
+      "status": "draft",
+      "body": {
+        "qualify.call": [
+          1,
+          [
+            5,
+            10
+          ]
+        ],
+        "qualify.sms": [
+          2,
+          [
+            2,
+            5
+          ]
+        ],
+        "qualify.email": [
+          3,
+          [
+            5,
+            10
+          ]
+        ],
+        "qualify.kyc": [
+          4,
+          [
+            5,
+            10
+          ]
+        ],
+        "prepare.deck": [
+          5,
+          [
+            10,
+            15
+          ]
+        ],
+        "prepare.estimate": [
+          6,
+          [
+            10,
+            15
+          ]
+        ],
+        "prepare.video": [
+          null,
+          null
+        ],
+        "prepare.meet": [
+          null,
+          null
+        ],
+        "meeting.greet": [
+          7,
+          [
+            2,
+            4
+          ]
+        ],
+        "meeting.expectations": [
+          9,
+          [
+            1,
+            2
+          ]
+        ],
+        "meeting.video": [
+          10,
+          [
+            5,
+            9
+          ]
+        ],
+        "meeting.qa": [
+          13,
+          [
+            10,
+            15
+          ]
+        ],
+        "meeting.close": [
+          14,
+          [
+            5,
+            10
+          ]
+        ],
+        "proposal.sa": [
+          15,
+          [
+            5,
+            10
+          ]
+        ],
+        "proposal.approve": [
+          16,
+          [
+            5,
+            10
+          ]
+        ],
+        "proposal.send": [
+          17,
+          [
+            5,
+            10
+          ]
+        ],
+        "followup.reply": [
+          19,
+          null
+        ]
+      },
+      "note": "Tách từ bản T&S 05/11; chờ Neil duyệt"
+    },
+    {
+      "key": "meeting.scripts",
+      "kind": "script",
+      "version": 1,
+      "status": "draft",
+      "body": {
+        "greet": {
+          "a": "{name}, thank you for confirming today's meeting, and for the chance to speak with you and the {company} team. I'm {rep} from TechNext. With me is Neil, our solution architect, who leads our Odoo projects.",
+          "b": "Hi {name}, thank you for having us and for confirming this slot. A quick round of names first: I'm {rep}, I'll guide today's session, and Neil will take the technical questions. May I ask who is joining from your side, and your role?"
+        },
+        "expect": {
+          "a": "Here is the plan for the next 30 minutes. First a short video about TechNext and Odoo. Then most of the time is yours: we'd like to understand how invoices, books and {rule} filings work at {company} today. At the end we agree on the next step together. Does that work for you?",
+          "b": "We'll keep this to about 30 minutes, in three parts: a five-minute video, your questions and how you work today, and a clear next step. If something more urgent is on your mind, tell us now and we'll start there."
+        },
+        "close": {
+          "a": "Thank you, this was very useful. So I can send you a summary today, may I confirm your email and mobile number? And who else at {company} should receive it?",
+          "b": "Before we end, let's agree the next step. I suggest a 30-minute call next week with your decision maker to go through a draft scope. Would [day] or [day] work?"
+        },
+        "video_before": "Let me share a short video, about five minutes, so you can see who we are and what Odoo looks like for {segment}. After that the floor is yours.",
+        "video_after": "That's the overview. What stood out for you, and what did we not cover that matters to {company}?",
+        "qa_intro": "May I ask a few questions, so we understand how {company} works today?"
+      },
+      "note": "Tách từ bản T&S 05/11; chờ Neil duyệt"
+    },
+    {
+      "key": "qa.bank",
+      "kind": "qa",
+      "version": 1,
+      "status": "draft",
+      "body": {
+        "it": [
+          "What exactly fails in your current system? Which version, and can the data still be exported?",
+          "How many people would use the new system?",
+          "Which other tools or files does it connect to today?",
+          "Who looks after the system now, in-house or an outside provider?"
+        ],
+        "finance": [
+          "Where are invoices and books being produced right now?",
+          "Which tax or e-invoicing rules apply to you, and by when?",
+          "Do you report to a parent company, and in which currency?",
+          "How long does month-end closing take today?"
+        ],
+        "owner": [
+          "Is the budget a floor or a ceiling? Does it include licences?",
+          "Who approves this purchase?",
+          "What would a good result look like in six months?",
+          "What is the ideal timing to go live?"
+        ],
+        "ops": [
+          "How do orders or RFQs arrive today, who quotes, and how long does it take?",
+          "Which machines or sites does the system need to cover?",
+          "Where do jobs get tracked today: paper, spreadsheets or a system?"
+        ]
+      },
+      "note": "Tách từ bản T&S 05/11; chờ Neil duyệt"
+    }
+  ]
+}
