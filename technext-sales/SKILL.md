@@ -15,6 +15,12 @@ The portal's New-lead button opens Claude Code with exactly:
 `Run the open TechNext sales job for lead <slug>: use the technext-sales skill, claim the job, and follow it.`
 Without a slug ("chạy việc mới"), list the open jobs and let the person choose.
 
+The AI worker sends `Run the open TechNext sales job <job id> for lead <slug>: use the technext-sales skill.` plus some of these lines (only then do these rules apply):
+- A job id in the first line: claim only that job (`claim_job {id: <job id>}`), never another one.
+- `This job is already claimed by you: do not claim it again; continue from the checkpoint.`: skip the claim step; go on from the outputs already saved for that job.
+- `Use command_id prefix: P (append facts|research|journey|kyc|quote|note).`: copy `P` exactly as given (e.g. `wghijabcdklmnopef-`: the worker writes the job id without digits, since the portal refuses ids that look like a phone number); every write uses `command_id` = `P` + that suffix (e.g. `P` + `facts` for `add_facts`, `P` + `kyc` for the KYC upload or `save_kyc_brief`, `P` + `note` for the open questions note). Ids are per job: the same id on every resume; a skipped step keeps its number. A second write of the same kind in a job adds `-2`, `-3`, ... (the modules fact in generate_all step 2 is `P` + `facts-2`; a quote saved again after `warnings[]` is `P` + `quote-2`).
+- With a prefix, a write that returns `replayed: true` or `409 command_reused` was already done: treat that step as finished and go on.
+
 ## Setup (once per machine, once per person)
 **Portal address (the only place it is written):** `PORTAL = https://proposal-library-blue.vercel.app`, MCP endpoint `PORTAL/api/v1/mcp`.
 
@@ -31,9 +37,10 @@ This is the **production** address.
 ## Model: Claude Sonnet 5.5 only (check first)
 Before claiming any job, check which model you are running as (it is stated in your system prompt).
 - Allowed: **Claude Sonnet 5.5** (model id `claude-sonnet-5-5`), and only that.
-- Anything else (Opus, Haiku, Fable, an older Sonnet, or an unknown model): do NOT claim the job. Tell the person in one line: "This skill runs only on Sonnet 5.5. Type `/model sonnet`, check it says Sonnet 5.5, then run the same command again." Then stop. Nothing has been claimed, so the job stays open for the next run.
+- Also allowed: any model id listed in env `TECHNEXT_ALLOWED_MODELS` (comma-separated). Read it with `node -e "console.log(process.env.TECHNEXT_ALLOWED_MODELS||'')"` (works in every shell). Compare it with the model id stated in your system prompt; ids that differ only by a bracket suffix like `[1m]` are equal. `producer.model` is always the model you actually run as.
+- Anything else (Opus, Haiku, Fable, an older Sonnet, or an unknown model) not allowed above: do NOT claim the job. Tell the person in one line: "This skill runs only on Sonnet 5.5. Type `/model sonnet`, check it says Sonnet 5.5, then run the same command again." (With a job id in the prompt, nobody can type `/model`: say in one line which model you run as and that it is not allowed.) Then stop. Nothing has been claimed, so the job stays open for the next run.
 - Every subagent or Agent call this run starts (for example the research agents of `technext-sales-proposal`) is started with `model: "sonnet"` too. Never pass `opus`, `haiku` or `fable`.
-- Put the model in the end-of-run summary ("Model: Sonnet 5.5").
+- Put the model you run as in the end-of-run summary (e.g. "Model: Sonnet 5.5").
 
 ## Progress updates: at least every 3 minutes
 A run takes about 30 minutes and the research alone can take 20. Never go quiet. People read silence as "it is stuck".
@@ -44,6 +51,7 @@ A run takes about 30 minutes and the research alone can take 20. Never go quiet.
 - Count the time from the claim. During a long step (research, KYC build), write a line when each sub-part finishes (each research group, each section batch) even if it is under 3 minutes, and a "still working on <what>" line if 3 minutes pass with nothing new.
 - Say what changed on the portal in each line: facts added (version), output saved (kind + version), KYC uploaded, rejected (400) and fixed. A rejected save is reported, not hidden.
 - Keep it to one line each: no tables, no repeats of earlier lines. The full summary comes once, at the end.
+- **Worker mode** (a tool named `save_kyc_brief` is available): `k/6` is the portal's progress bar step, written when that step starts: **1/6 Verify** (company identity: legal name, website, country), **2/6 Research** (web, social, competitors), **3/6 Source check** (source-auditor: every citation is on its source page), **4/6 Facts** (`add_facts`, the research output, modules), **5/6 Drafts** (journey, the `kyc.brief.v1` brief, the quote draft), **6/6 Save** (`save_kyc_brief`, the open questions note, `complete_job`). Never call `report_progress`: the worker reads these lines and reports progress itself. Write the `6/6 Save` line BEFORE `complete_job`: after the job is closed the portal no longer accepts a step.
 
 ## Every write (LEAD-V1-CONTRACT.md)
 - Every write carries a `command_id` (`^[A-Za-z0-9_-]{8,64}$`; a UUID works). Make one per logical write and keep it: on a timeout or network error, retry with the **same** `command_id` (the server returns the first result and writes nothing twice). A new attempt at a different change gets a new id. For `upload_kyc` it is the `command_id` argument (the server sends it as the `Command-Id` header).
@@ -62,8 +70,8 @@ A run takes about 30 minutes and the research alone can take 20. Never go quiet.
 
 ## Flow
 
-0. **Model check** (section above). Not Sonnet 5.5: stop before claiming. Then write the first progress line: `[00:00] 0/6 starting job for <slug>`.
-1. **Claim.** `list_jobs {status: "open"}` → pick the job for `<slug>` (or let the person choose) → `claim_job {id}`.
+0. **Model check** (section above). Not an allowed model: stop before claiming. Then write the first progress line: `[00:00] 0/6 starting job for <slug>`.
+1. **Claim.** `list_jobs {status: "open"}` → pick the job for `<slug>` (or let the person choose) → `claim_job {id}`. With a job id in the prompt, claim that job only; with "already claimed by you", skip this step (see Entry).
    `409 job_taken`: someone else has it, stop. `409 runner_mismatch`: say who the runner is, stop.
 2. **Load.** `get_lead {slug}` → keep `record.version` as `V`, `profile`, `stale`, `outputs`.
 3. **Run by job kind** (below).
@@ -77,12 +85,24 @@ The order matters (LEAD-V1-CONTRACT.md): **modules go before journey and KYC**, 
 2. **Modules.** Suggest the Odoo modules as ONE `add_facts` fact `{key: "modules", value: [<exact column-0 names>], grade: "assumed", source: {kind: "web", ref: <the finding URL or "research <date>">, at}}`. Never prices. Reload `get_lead`: its `record.version` is `V` for steps 3 and 4.
    **Package** (OOTB / Enterprise Core) is Neil's decision, not the AI's, and is never asked mid-run. Do not write it. Add the question "Which package: OOTB or Enterprise Core?" to the open questions; the quote stays "not computable: package" until a person records it on the portal (sign-in) or a meeting note states it (then `ingest_notes` writes it as a confirmed fact citing that note).
 3. **Journey.** The `sales-journey` `kit.md` recipe with `profile` + `KIT/data/playbook.json` → `{kit, vars}`; check with `node KIT/lib/journey/journey.mjs`. First run: `save_output {slug, kind: "journey", body: {command_id, body: {kit, vars}, inputs: {lead: V, playbook}}}`. When a journey already exists: `get_page {slug}`, then `patch_journey {slug, command_id, changes: [{path, from, to}]}` with paths under `kit.*` / `vars.*` only, `from` = the current value.
-4. **KYC (the proposal page).** Build it with the `technext-sales-proposal` writing/assembly/validation phases from the record and save it to a local file. **Never paste the page into a tool call** (it is hundreds of KB; the call gets cut off and the page arrives broken or not at all). Upload it in two steps:
+4. **KYC (the proposal page).**
+   **Worker mode** (a tool named `save_kyc_brief` is available): the KYC is the brief only; the portal renders the 42-section page from it. Do NOT build the HTML page and do NOT call `upload_kyc`. Instead:
+   1. Build `kyc.brief.v1` from the audited findings and the record. Copy the shape of the portal's example `kyc.brief.v1.valid.json` named in the prompt (the schema next to it is what the portal checks): findings ids f1…, every `cites` a findings id, markdown bodies, only the listed section ids, charts only in their slots, no sources-citation, no prices, no contacts, no raw HTML, titles at most 120 characters, each section body at most 20 KB, the whole brief at most 1 MB. Write it to `kyc.brief.draft.json`.
+      Diagram shapes by type: `org` (section staff-org) has `nodes` + `edges` (one parent per node, no cycle); `steps` (department-workflows) and `sequence` (bpmn-blueprint-uml) have `steps`; `swimlane` (bpmn-blueprint-uml) has `lanes`; each also has `id`, `section`, `type`, `title`.
+   2. Call `save_kyc_brief {path: "kyc.brief.draft.json", command_id: P + kyc, lead_version: V}`. It checks the brief, then saves it on the portal.
+   3. Read the reply:
+      - `already saved` (also on a resumed run, replayed or `409 command_reused`): the step is done, go on.
+      - Errors (its own check or the portal's 400 `errors[].field`): fix exactly those fields and call it again with the next id (`P` + `kyc-2`, then `P` + `kyc-3`). Only these count: at most 3.
+      - `lead changed` (409 `ahead_of_record` / `conflict`): `get_lead`, use the new `record.version` as `lead_version`, call again with the same `command_id`.
+      - `temporary portal error`: stop the run here. Do NOT call `fail_job` or `complete_job`; the worker keeps the job claimed and resumes it.
+   4. Still rejected after 3 counted calls: add the error fields (without values) to the open questions, save that note, then `fail_job {id, error: "kyc brief rejected: <first field>"}` instead of `complete_job`.
+   **Otherwise** (the portal button path, unchanged):
+   Build it with the `technext-sales-proposal` writing/assembly/validation phases from the record and save it to a local file. **Never paste the page into a tool call** (it is hundreds of KB; the call gets cut off and the page arrives broken or not at all). Upload it in two steps:
    1. `upload_kyc {slug, command_id, lead_version: V, producer}` **without `html`** → `{upload_url, expires_at, how}` (the link works for 15 minutes).
    2. Run the `how` command with your file, e.g. `curl -sS -X PUT -H 'Content-Type: text/html; charset=utf-8' --data-binary @kyc.html '<upload_url>'`. The answer is the same JSON as a direct upload (`{ok, version, ...}`, or 400 `contact_not_allowed` + `where`, 413 `too_large`). Fix and re-run with the same link; if it expired (401 `upload_link_expired`), call step 1 again with the same `command_id`. Report the stored `version`.
    The HTML must be ONE self-contained file (≤ 4 MB): inline CSS and JS only (no CDN, no external script or stylesheet), images and fonts only as `data:` URIs, no fetch/XHR/form posts, every link `target="_blank" rel="noopener"`, no service worker or web manifest, and **no customer phone number or email**. Its **Quotation section names the modules only — never a price, total, rate or currency**; the portal prices the quote.
 5. **Quote draft (optional).** `save_output {slug, kind: "quote", body: {command_id, body: {modules: [{module, reason}], missing?: [keys], label}, inputs: {lead: V, matrix}}}`: no price fields of any kind. Fix any `warnings[]` (unknown module names) and save again with a new `command_id`.
-6. `complete_job {id}`.
+6. `complete_job {id}` (worker mode: only after `save_kyc_brief` saved the brief).
 
 ### ingest_notes (notes added on a card)
 The job points at a portal note (`get_note {slug, id}` returns its text; contacts were already stripped by the portal, but treat it as if they were not). **Raw notes are never sent anywhere else or stored outside that note**: not in a fact, an output, a job, a prompt to another tool, or a kept file.
