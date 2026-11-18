@@ -1,0 +1,6 @@
+jinja2
+markupsafe
+segno
+# only for shots.py / PDF checks (not needed by the portal worker):
+pymupdf
+websocket-client

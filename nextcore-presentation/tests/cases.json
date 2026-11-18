@@ -1,0 +1,163 @@
+{
+  "_note": "Edge-case profiles for test_suite.py. All companies are fictional. Each case lists what the built deck must and must not contain.",
+  "cases": {
+    "northgate": {
+      "profile": {
+        "client": "Northgate Trading Corp.",
+        "short_name": "Northgate",
+        "industry": "Wholesale distribution",
+        "city": "Pasig City, PH",
+        "contact": "Finance Manager",
+        "pain_points": [
+          "Excel books",
+          "stock counts"
+        ],
+        "odoo_apps": [
+          "Accounting",
+          "Inventory",
+          "Sales"
+        ],
+        "users": 12,
+        "brand": {
+          "logo": "logo.svg",
+          "colour": "#0F6B5C"
+        }
+      },
+      "logo_from": "samples/northgate/logo.svg",
+      "must": [
+        "about 10 weeks",
+        "12 users"
+      ],
+      "must_not": [
+        "BIR",
+        "GST"
+      ]
+    },
+    "solo": {
+      "profile": {
+        "client": "Solo Bakeshop",
+        "industry": "Bakery",
+        "city": "Cebu City, PH",
+        "pain_points": [
+          "cashier counts"
+        ],
+        "odoo_apps": [
+          "Point of Sale"
+        ],
+        "users": 1,
+        "brand": {
+          "colour": "#F2C200"
+        }
+      },
+      "must": [
+        "1 user",
+        "One thing",
+        "Each sale at the counter"
+      ],
+      "must_not": [
+        "1 users",
+        "S1",
+        "Stock counted"
+      ]
+    },
+    "pacific": {
+      "profile": {
+        "client": "Pacific Precision Manufacturing Inc.",
+        "short_name": "Pacific Precision",
+        "industry": "Precision metal manufacturing",
+        "city": "Laguna, PH",
+        "contact": "Chief Finance Officer",
+        "pain_points": [
+          "BIR CAS reports done by hand",
+          "production planning on paper",
+          "late supplier deliveries",
+          "no real-time reports"
+        ],
+        "odoo_apps": [
+          "CRM",
+          "Sales",
+          "Purchase",
+          "Inventory",
+          "Manufacturing",
+          "Quality",
+          "Accounting",
+          "Payroll"
+        ],
+        "users": 85,
+        "brand": {
+          "colour": "#2F6BD0"
+        }
+      },
+      "must": [
+        "not affiliated",
+        "more on the same database",
+        "Tax books and returns",
+        "Pacific Precision Manufacturing Inc."
+      ],
+      "must_not": [
+        "BIR-ready",
+        "compliant"
+      ]
+    },
+    "stalucia": {
+      "profile": {
+        "client": "Sta. Lucia Integrated Health & Wellness Services Cooperative",
+        "short_name": "Sta. Lucia",
+        "industry": "Healthcare and wellness services",
+        "city": "Las Piñas City, PH",
+        "contact": "Operations Head",
+        "pain_points": [
+          "Patient appointments are tracked in a shared notebook at the front desk",
+          "invoices typed in Word"
+        ],
+        "odoo_apps": [
+          "accounts",
+          "Appointments",
+          "hr"
+        ],
+        "users": 9,
+        "brand": {
+          "colour": "#B0326E"
+        }
+      },
+      "must": [
+        "Las Piñas",
+        "Clients book online",
+        "Booking 42"
+      ],
+      "must_not": [
+        "creates Sample",
+        "Books kept in spreadsheets"
+      ]
+    },
+    "lionsg": {
+      "profile": {
+        "client": "Lion Gate Supplies Pte. Ltd.",
+        "short_name": "Lion Gate",
+        "industry": "Industrial supplies",
+        "city": "Singapore, SG",
+        "contact": "Director",
+        "pain_points": [
+          "GST returns prepared by hand",
+          "stock counts"
+        ],
+        "odoo_apps": [
+          "Accounting",
+          "Inventory"
+        ],
+        "users": 6,
+        "brand": {
+          "colour": "#C8102E"
+        }
+      },
+      "must": [
+        "GST",
+        "Taxes are set up for GST"
+      ],
+      "must_not": [
+        "BIR",
+        "Philippines"
+      ]
+    }
+  }
+}

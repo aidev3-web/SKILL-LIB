@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 120" width="560" height="120">
+  <g fill="#0F6B5C">
+    <path d="M8 112V52a52 52 0 0 1 104 0v60H88V54a28 28 0 0 0-56 0v58z"/>
+    <rect x="48" y="62" width="24" height="50" rx="3"/>
+  </g>
+  <text x="134" y="76" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="58" letter-spacing="2" fill="#0F6B5C">NORTHGATE</text>
+  <text x="137" y="108" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="22" letter-spacing="9" fill="#3B4A47">TRADING CORP.</text>
+</svg>
