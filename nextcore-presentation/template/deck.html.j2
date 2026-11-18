@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0F2350">
+<title>{{ C.name }} · TechNext</title>
+<meta name="description" content="{{ D.meta_desc }}">
+<link rel="icon" href="{{ A.favicon }}">
+<style>
+{{ A.fonts_css }}
+:root{
+  --blue:#3167CA;--blue-700:#1E4691;--blue-300:#6FA0F5;--blue-200:#A9C4F5;--blue-100:#DDE7F8;--blue-050:#EAF0FB;
+  --ink:#1F1F3D;--body:#4C4C63;--sub:#5E5E75;--line:#E7E4E9;--alt:#FAF9FB;--ok:#137A4A;
+  --navy-0:#0F2350;--navy-1:#1E4691;--navy-2:#2D5DB8;--sky-ink:#A9C8FF;--on-dark:rgba(255,255,255,.84);--on-dark-mute:rgba(255,255,255,.72);--on-dark-rule:rgba(255,255,255,.26);
+  --client:{{ C.colour_ui }};
+  --f-display:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-body:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-hand:Caveat,"Segoe Print",cursive;
+  --sh-1:0 1px 2px rgba(31,31,61,.05),0 10px 28px -14px rgba(31,31,61,.22);
+  --sh-2:0 2px 6px rgba(31,31,61,.06),0 30px 60px -28px rgba(31,31,61,.36);
+  /* motionmaxxing's measured eases (cubic fallbacks; linear() where supported) */
+  --soft-land:cubic-bezier(.16,.86,.3,1);--snap-settle:cubic-bezier(.05,.92,.2,1);--glide:cubic-bezier(.3,.62,.5,1);
+  --gentle-in:cubic-bezier(.45,0,.8,.5);--soft-in-out:cubic-bezier(.45,0,.55,1);--pop-over:cubic-bezier(.3,.1,.4,1.22)}
+@supports (transition-timing-function:linear(0,1)){:root{
+  --soft-land:linear(0,.0845 2.5%,.1621 5%,.2334 7.5%,.2988 10%,.3589 12.5%,.4483 16.67%,.5259 20.83%,.5933 25%,.6517 29.17%,.7023 33.33%,.7463 37.5%,.7844 41.67%,.8175 45.83%,.8462 50%,.8927 58.33%,.9277 66.67%,.954 75%,.9738 83.33%,.9888 91.67%,1);
+  --snap-settle:linear(0,.1813 2.5%,.3283 5%,.4475 7.5%,.5443 10%,.6228 12.5%,.7224 16.67%,.7931 20.83%,.8434 25%,.8796 29.17%,.9056 33.33%,.9388 41.67%,.9576 50%,.9693 58.33%,.9775 66.67%,.9841 75%,.9897 83.33%,.995 91.67%,1);
+  --pop-over:linear(0,.028 5%,.1015 10%,.2447 16.67%,.4552 25%,.6601 33.33%,.8318 41.67%,.9574 50%,1.0355 58.33%,1.0717 66.67%,1.0759 75%,1.059 83.33%,1.0311 91.67%,1)}}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;background:#0C1530;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{font-family:var(--f-body);color:var(--body);font-size:22px;line-height:1.5}
+img,svg{display:block;max-width:none}
+button{font:inherit;color:inherit}
+h1,h2,h3,p,ol,ul{margin:0}
+ol,ul{padding:0;list-style:none}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.ic{width:1em;height:1em;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px;border-radius:6px}
+.dark :focus-visible{outline-color:#fff}
+
+/* ------------------------------------------------------------------ stage: a 1600 x 900 frame scaled whole to the screen */
+.deck{position:fixed;top:0;right:0;bottom:0;left:0;overflow:hidden}
+.deck.is-rotated{right:auto;bottom:auto;transform-origin:0 0;transform:rotate(90deg)}
+.stage{position:absolute;left:50%;top:50%;width:1600px;height:900px;margin:-450px 0 0 -800px;transform:scale(var(--s,1));transform-origin:50% 50%;
+  overflow:hidden;background:var(--alt);contain:layout paint}
+
+/* ------------------------------------------------------------------ slides: a push, not a cross-fade (old one accelerates out, new one lands soft) */
+.slide{position:absolute;top:0;right:0;bottom:0;left:0;padding:118px 120px 96px;opacity:0;visibility:hidden;transform:translateX(96px);overflow:hidden;
+  transition:opacity .12s linear .06s,transform .2s var(--gentle-in),visibility 0s linear .2s}
+.slide.is-before{transform:translateX(-96px)}
+.slide.is-active{opacity:1;visibility:visible;transform:none;transition:opacity .12s linear,transform .6s var(--soft-land),visibility 0s}
+.slide:not(.is-active) *{animation-play-state:paused!important}
+/* dark slides: the brand navy only, no glows, no dot grid, no masks */
+.slide.dark{color:var(--on-dark);background:linear-gradient(140deg,var(--navy-0) 0%,var(--navy-1) 55%,var(--navy-2) 100%)}
+
+/* chrome: logos, label, page number (the only counter) */
+.s-chrome{position:absolute;left:0;right:0;top:0;height:92px;padding:0 120px;display:flex;align-items:center;justify-content:space-between;pointer-events:none;z-index:5}
+.s-brand{display:flex;align-items:center;gap:18px}
+.s-logo{height:30px;width:auto}
+.s-x{width:1px;height:28px;background:var(--line)}
+.s-co{height:30px;width:auto;max-width:190px;object-fit:contain}
+.s-co-t{font:800 20px/1 var(--f-display);color:var(--client);letter-spacing:-.01em;white-space:nowrap}
+.s-label{font:600 15px/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--sub)}
+.dark .s-label{color:var(--on-dark-mute)}
+.s-foot{position:absolute;left:120px;right:120px;bottom:34px;display:flex;justify-content:space-between;align-items:center;font:500 15px/1 var(--f-body);color:var(--sub);pointer-events:none;z-index:5}
+.s-foot b{font:700 15px/1 var(--f-display);color:var(--ink);letter-spacing:.04em}
+.dark .s-foot{color:var(--on-dark-mute)}
+.dark .s-foot b{color:#fff}
+
+/* ------------------------------------------------------------------ entrances and builds (motion kit) */
+[data-in],[data-step]{transition:opacity .2s linear,transform .52s var(--soft-land);transition-delay:calc(var(--d,0ms) * .85)}
+[data-in]{opacity:0;transform:translateY(36px)}
+.slide.is-in [data-in]{opacity:1;transform:none}
+[data-step]{opacity:0;transform:translateY(22px)}
+[data-step].is-shown{opacity:1;transform:none}
+[data-fx=left]{transform:translateX(-56px)}
+[data-fx=fade]{transform:none}
+[data-fx=land]{transform:scale(1.32);transition:opacity .16s linear,transform .7s var(--snap-settle);transition-delay:calc(var(--d,0ms) * .85)}
+.slide.is-in [data-in][data-fx]{transform:none}
+/* headlines build word by word; the marker draws after the last word */
+.mx-words[data-in]{opacity:1;transform:none}
+.mx-w{display:inline-block;clip-path:inset(-.4em -.3em -.14em -.3em)}
+.mx-wi{display:inline-block;transform:translateY(118%);opacity:0;transition:transform .56s var(--soft-land),opacity .14s linear;transition-delay:calc(var(--d,0ms) * .85 + var(--wi,0) * var(--wg,80ms))}
+.slide.is-in .mx-wi{transform:none;opacity:1}
+.slide:not(.is-in) .mx-wi{transition-duration:0s;transition-delay:0s}
+
+/* ------------------------------------------------------------------ type */
+.kicker{font:600 38px/1 var(--f-hand);color:var(--blue);display:inline-block;margin:0 0 14px;transform:rotate(-1.5deg);transform-origin:0 50%}
+.slide.is-in .kicker[data-in]{transform:rotate(-1.5deg)}
+.dark .kicker{color:var(--sky-ink)}
+.h-l,.h-m,.h-s{font-family:var(--f-display);color:var(--ink);letter-spacing:-.025em;text-wrap:balance}
+.h-l{font-size:64px;line-height:1.06;font-weight:800}
+.h-m{font-size:44px;line-height:1.12;font-weight:800}
+.h-s{font-size:28px;line-height:1.2;font-weight:700;letter-spacing:-.015em}
+.dark .h-l,.dark .h-m,.dark .h-s{color:#fff}
+.hl{color:var(--blue);background-image:linear-gradient(transparent 74%,rgba(49,103,202,.18) 74%,rgba(49,103,202,.18) 93%,transparent 93%);background-repeat:no-repeat;background-size:0 100%;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone;transition:background-size .6s var(--glide) var(--hd,.6s)}
+.dark .hl{color:#fff;background-image:linear-gradient(transparent 72%,rgba(111,160,245,.6) 72%,rgba(111,160,245,.6) 91%,transparent 91%)}
+.slide.is-in .hl{background-size:100% 100%}
+.lead{font-size:26px;line-height:1.5;color:var(--body);margin-top:20px;max-width:860px;text-wrap:pretty}
+.dark .lead{color:var(--on-dark)}
+.sec-head{max-width:1100px}
+.sec-row{display:flex;justify-content:space-between;align-items:flex-end;gap:48px}
+.tag{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:999px;background:var(--blue-050);color:var(--blue-700);font:600 16px/1 var(--f-display);white-space:nowrap}
+.illus{position:absolute;right:120px;bottom:68px;font:500 16px/1 var(--f-body);color:var(--sub);display:flex;gap:8px;align-items:center}
+.illus .ic{font-size:17px;color:var(--ok)}
+
+/* ================================================================== 01 who */
+#who .who-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:64px;align-items:start;margin-top:6px}
+#who .h-xl{font-family:var(--f-display);font-size:92px;line-height:1.02;font-weight:800;letter-spacing:-.025em;color:#fff;text-wrap:balance}
+#who .lead{max-width:760px}
+#who .who-partner{display:flex;align-items:center;gap:12px;margin-top:30px;font:600 18px/1.3 var(--f-display);color:#fff}
+#who .who-partner .ic{font-size:22px;color:var(--sky-ink)}
+#who .who-partner span{color:var(--on-dark-mute);font-weight:500}
+#who .plate{background:#fff;border-radius:20px;padding:34px 36px 30px;color:var(--body);margin-top:12px}
+#who .plate-k{font:600 16px/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--sub)}
+#who .plate-logo{height:96px;display:flex;align-items:center;margin:22px 0 24px}
+#who .plate-logo img{max-height:96px;max-width:100%;width:auto;height:auto}
+#who .plate-name{font:800 32px/1.12 var(--f-display);color:var(--client);letter-spacing:-.02em;margin:18px 0 22px;text-wrap:balance}
+#who .plate dl{margin:0;border-top:1px solid var(--line)}
+#who .plate dl div{display:flex;justify-content:space-between;gap:18px;padding:13px 0;border-bottom:1px solid var(--line);font-size:18px;line-height:1.35}
+#who .plate dl div:last-child{border-bottom:0;padding-bottom:0}
+#who .plate dt{color:var(--sub)}
+#who .plate dd{margin:0;color:var(--ink);font-weight:600;text-align:right}
+#who .figs{position:absolute;left:120px;right:120px;bottom:104px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+#who .fig{padding:2px 0 0 28px;border-left:1px solid var(--on-dark-rule)}
+#who .fig:first-child{padding-left:0;border-left:0}
+#who .fig-n{font:800 60px/1 var(--f-display);color:#fff;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+#who .fig-l{font:500 18px/1.3 var(--f-body);color:var(--on-dark);margin-top:10px}
+
+/* ================================================================== 02 heard */
+#heard{display:flex;flex-direction:column}
+#heard .ledger{margin:40px 0 auto;display:grid;grid-template-columns:minmax(0,1fr) 112px minmax(0,1fr)}
+#heard .lg-h{font:700 16px/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase;padding-bottom:16px;border-bottom:2px solid var(--ink);display:flex;align-items:center;gap:10px}
+#heard .lg-h.c{color:var(--client)}
+#heard .lg-h.o{color:var(--blue-700)}
+#heard .lg-h i{width:10px;height:10px;border-radius:50%;background:currentColor;display:block}
+#heard .lg-gap{border-bottom:2px solid var(--ink)}
+#heard .lg-row{display:contents}
+#heard .lg-t,#heard .lg-o{padding:26px 0 24px;border-bottom:1px solid var(--line);min-height:{{ S.heard.row_h }}px}
+#heard .lg-t{display:grid;grid-template-columns:52px minmax(0,1fr);column-gap:8px;align-content:start}
+#heard .lg-n{font:800 22px/1.3 var(--f-display);color:var(--client);font-variant-numeric:tabular-nums}
+#heard .lg-q{font:800 32px/1.15 var(--f-display);color:var(--ink);letter-spacing:-.02em}
+#heard .lg-p{grid-column:2;margin-top:10px;font-size:20px;line-height:1.45;color:var(--body);max-width:520px}
+#heard .lg-a{display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);color:var(--blue)}
+#heard .lg-a svg{width:72px;height:24px;overflow:visible}
+#heard .lg-a path{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .5s var(--soft-land) .1s}
+#heard .lg-a.is-on path{stroke-dashoffset:0}
+#heard .lg-o{position:relative}
+#heard .lg-slot{position:absolute;top:22px;right:0;bottom:22px;left:0;border:2px dashed var(--blue-200);border-radius:14px;display:flex;align-items:center;justify-content:center;gap:10px;font:600 17px/1 var(--f-display);color:var(--blue-700)}
+#heard .lg-slot kbd{display:inline-grid;place-items:center;padding:5px 8px;border-radius:7px;border:1px solid var(--blue-200);background:#fff;color:var(--ink);box-shadow:0 2px 0 var(--blue-100)}
+#heard .lg-slot kbd .ic{font-size:16px}
+#heard .lg-ans{display:grid;grid-template-columns:64px minmax(0,1fr);column-gap:20px;align-items:start}
+#heard .lg-ans img{width:56px;height:56px;margin-top:2px}
+#heard .lg-app{font:800 28px/1.15 var(--f-display);color:var(--ink);letter-spacing:-.015em}
+#heard .lg-ans p{margin-top:8px;font-size:20px;line-height:1.45;max-width:520px}
+#heard .ledger.single{margin:auto 0}
+#heard .ledger.single .lg-t,#heard .ledger.single .lg-o{padding:64px 0 60px}
+#heard .ledger.single .lg-q{font-size:56px;line-height:1.08}
+#heard .ledger.single .lg-p,#heard .ledger.single .lg-ans p{font-size:23px}
+#heard .ledger.single .lg-app{font-size:34px}
+#heard .ledger.single .lg-ans img{width:72px;height:72px}
+#heard .ledger.single .lg-ans{grid-template-columns:84px minmax(0,1fr)}
+#heard .ledger.compact .lg-t,#heard .ledger.compact .lg-o{padding:16px 0 14px}
+#heard .ledger.compact .lg-q{font-size:27px}
+#heard .ledger.compact .lg-p,#heard .ledger.compact .lg-ans p{font-size:18px;margin-top:4px}
+#heard .ledger.compact .lg-app{font-size:24px}
+#heard .ledger.compact .lg-ans img{width:46px;height:46px}
+#heard .ledger.compact .lg-slot{top:12px;bottom:12px}
+
+/* ================================================================== 03 apps */
+#apps .flow{position:absolute;left:120px;right:120px;top:{{ S.apps.top }}px;height:{{ 790 - S.apps.top }}px}
+#apps .rec{position:absolute;left:0;top:0;width:{{ S.apps.card_w }}px;background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--sh-2);padding:18px 22px 20px;
+  transform:translateX(var(--rx,0px));transition:transform .7s var(--soft-land)}
+#apps .rec-k{font:600 15px/1 var(--f-display);letter-spacing:.12em;text-transform:uppercase;color:var(--sub)}
+#apps .rec-id{font:800 26px/1.1 var(--f-display);color:var(--ink);margin-top:10px;letter-spacing:-.01em;font-variant-numeric:tabular-nums;white-space:nowrap}
+#apps .rec-s{display:inline-flex;align-items:center;gap:7px;margin-top:12px;padding:6px 12px;border-radius:999px;background:#E3F4EA;color:#14703F;font:700 15px/1 var(--f-display)}
+#apps .rec-s .ic{font-size:15px}
+#apps .rec-tail{position:absolute;left:50%;bottom:-9px;width:16px;height:16px;margin-left:-8px;background:#fff;border-right:1px solid var(--line);border-bottom:1px solid var(--line);transform:rotate(45deg)}
+#apps .rec.is-swap .rec-id,#apps .rec.is-swap .rec-k,#apps .rec.is-swap .rec-s{animation:recIn .42s var(--soft-land)}
+@keyframes recIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#apps .rail{position:absolute;left:0;right:0;top:{{ S.apps.rail_y }}px;display:grid;grid-template-columns:repeat({{ S.apps.n }},minmax(0,1fr))}
+#apps .wire{position:absolute;left:0;right:0;top:{{ S.apps.rail_y + 44 }}px;height:4px;pointer-events:none}
+#apps .wire svg{width:100%;height:4px;overflow:visible}
+#apps .wire line{stroke:var(--blue-200);stroke-width:2.5;stroke-dasharray:6 8}
+#apps .wire-on{position:absolute;top:0;height:3px;border-radius:2px;background:var(--blue);transform-origin:0 50%;transform:scaleX(var(--wp,0));transition:transform .7s var(--soft-land)}
+#apps .st{all:unset;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;padding:0 14px;position:relative}
+#apps .st-ic{width:88px;height:88px;transform:scale(.84);transition:transform .5s var(--soft-land)}
+#apps .st.is-on .st-ic{transform:none}
+#apps .st:active .st-ic{transform:scale(.8);transition-duration:.16s}
+#apps .st-ic img{width:88px;height:88px}
+#apps .st-n{font:800 28px/1.15 var(--f-display);color:var(--sub);margin-top:18px;letter-spacing:-.015em;transition:color .3s}
+#apps .st.is-on .st-n{color:var(--ink)}
+#apps .st.is-cur .st-n{color:var(--blue)}
+#apps .st-d{font-size:18px;line-height:1.42;color:var(--body);margin-top:8px;max-width:300px;text-wrap:balance}
+#apps .st-r{font:600 16px/1 var(--f-display);color:var(--sub);margin-top:12px;letter-spacing:.02em}
+#apps .st-r b{color:var(--ink);font-weight:700}
+#apps .one .st-ic,#apps .one .st-ic img{width:128px;height:128px}
+#apps .one .st-n{font-size:40px;margin-top:22px}
+#apps .one .st-d{font-size:22px;max-width:520px}
+#apps .one .st-r{font-size:18px;margin-top:16px}
+#apps .one .rec{transform:translateX(var(--rx,0px)) translateY(-28px)}
+#apps .also{font-weight:600;color:var(--ink);padding-left:22px;border-left:1px solid var(--line)}
+#apps .many .st{padding:0 6px}
+#apps .many .st-d{font-size:17px}
+#apps .many .st-r{white-space:nowrap;font-size:15px}
+#apps .st:focus-visible{outline:3px solid var(--blue);outline-offset:8px;border-radius:12px}
+#apps .meta{position:absolute;left:120px;bottom:68px;display:flex;align-items:center;gap:22px;font-size:17px;color:var(--sub)}
+#apps .meta .users{display:inline-flex;align-items:center;gap:8px;font:700 17px/1 var(--f-display);color:var(--blue-700)}
+#apps .meta .users .ic{font-size:20px}
+
+/* ================================================================== 04 method */
+#method .ns{position:absolute;left:120px;right:120px;top:{{ S.method.top }}px}
+#method .disc{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));column-gap:0}
+#method .dg{padding:0 14px 0 0}
+#method .dg-b{height:12px;border:2px solid var(--blue);border-bottom:0;border-radius:8px 8px 0 0;margin-right:8px}
+#method .dg-n{font:800 24px/1.1 var(--f-display);color:var(--ink);margin-top:12px;letter-spacing:-.015em}
+#method .dg-n i{font-style:normal;color:var(--blue)}
+#method .dg-p{font-size:18px;line-height:1.42;color:var(--body);margin-top:6px;max-width:360px}
+#method .steps{position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));margin-top:48px}
+#method .sp{display:flex;flex-direction:column}
+#method .sp > div{flex:1 1 auto;display:flex;flex-direction:column}
+#method .sp em{margin-top:auto!important;padding-top:10px}
+#method .steps::before{content:"";position:absolute;left:20px;right:calc(100% / 7 - 20px);top:19px;height:2px;background:var(--blue-200)}
+#method .sp{position:relative;padding-right:12px}
+#method .dot{position:relative;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font:800 17px/1 var(--f-display);background:var(--blue);color:#fff;box-shadow:0 0 0 6px var(--alt)}
+#method .sp.cl .dot{background:#fff;color:var(--client);border:2.5px solid var(--client)}
+#method .who{display:block;margin-top:18px;font:700 15px/1 var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--blue-700)}
+#method .sp.cl .who{color:var(--client)}
+#method .sp h3{font:800 23px/1.18 var(--f-display);color:var(--ink);margin-top:10px;letter-spacing:-.015em}
+#method .sp p{font-size:18px;line-height:1.42;margin-top:6px;color:var(--body)}
+#method .sp em{display:block;font:600 16px/1.2 var(--f-display);font-style:normal;color:var(--blue-700);margin-top:10px}
+#method .loop{position:absolute;top:-35px;left:calc(100% / 7 * 3 + 30px);width:174px;height:24px;color:var(--client)}
+#method .loop svg{width:100%;height:24px;overflow:visible}
+#method .loop-p{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .6s var(--soft-land) 1.15s}
+#method .loop-h{opacity:0;transition:opacity .2s linear 1.6s}
+#method.is-in .loop-p{stroke-dashoffset:0}
+#method.is-in .loop-h{opacity:1}
+#method .legend{position:absolute;left:120px;right:120px;bottom:68px;display:flex;gap:34px;align-items:center;font-size:17px;color:var(--body)}
+#method .legend span{display:inline-flex;align-items:center;gap:10px}
+#method .legend i{width:14px;height:14px;border-radius:50%;background:var(--blue);display:block}
+#method .legend i.c{background:#fff;border:2.5px solid var(--client)}
+#method .legend .ic{font-size:20px;color:var(--client)}
+
+/* ================================================================== 05 plan */
+#plan .gantt{position:absolute;left:120px;right:120px;top:{{ S.plan.top }}px}
+#plan .g-head,#plan .g-row{display:grid;grid-template-columns:300px minmax(0,1fr)}
+#plan .g-cols{display:grid;grid-template-columns:repeat({{ S.plan.weeks }},minmax(0,1fr)) {{ S.plan.after_w }}px}
+#plan .g-head .g-cols div{font:600 16px/1 var(--f-display);color:var(--sub);padding:0 0 12px 8px;border-left:1px solid var(--line);letter-spacing:.02em}
+#plan .g-head .g-cols div.af{color:var(--blue-700)}
+#plan .g-head > div:first-child{font:700 16px/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--sub);padding-bottom:12px}
+#plan .g-row{border-top:1px solid var(--line)}
+#plan .g-row:last-child{border-bottom:1px solid var(--line)}
+#plan .g-l{padding:13px 20px 13px 0}
+#plan .g-l b{display:block;font:800 22px/1.2 var(--f-display);color:var(--ink);letter-spacing:-.01em}
+#plan .g-l small{display:block;font-size:16px;color:var(--sub);margin-top:4px}
+#plan .g-t{position:relative;height:{{ S.plan.row_h }}px}
+#plan .g-t::before{content:"";position:absolute;top:0;bottom:0;left:0;right:{{ S.plan.after_w }}px;background-image:linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:calc(100% / {{ S.plan.weeks }}) 100%;border-right:1px solid var(--line)}
+#plan .bar{all:unset;box-sizing:border-box;position:absolute;top:50%;height:56px;margin-top:-28px;border-radius:10px;background:var(--blue);color:#fff;font:700 16px/1 var(--f-display);
+  display:flex;align-items:center;padding:0 14px;white-space:nowrap;overflow:hidden;cursor:pointer;clip-path:inset(0 100% 0 0 round 10px);transition:clip-path .7s var(--soft-land),box-shadow .2s}
+#plan .bar.cl{background:var(--client)}
+#plan .bar.hc{background:#fff;color:var(--blue-700);box-shadow:inset 0 0 0 2px var(--blue)}
+#plan .bar.sp{background:transparent;padding:0;gap:4px;cursor:pointer}
+#plan .bar.sp span{flex:1 1 0;height:56px;border-radius:10px;background:var(--blue);display:flex;align-items:center;justify-content:center;font:700 16px/1 var(--f-display);color:#fff;min-width:0;overflow:hidden;text-overflow:ellipsis;padding:0 8px}
+#plan.is-in .bar.is-on{clip-path:inset(-8px -8px -8px -8px round 10px)}
+#plan .bar:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+#plan .bar:active{transform:scale(.98);transition:clip-path .7s var(--soft-land),box-shadow .2s,transform .16s ease-out}
+#plan .bar[aria-pressed=true]{box-shadow:0 0 0 3px #fff,0 0 0 6px var(--ink)}
+#plan .ms{position:absolute;top:50%;width:18px;height:18px;margin:-9px 0 0 4px;background:var(--ink);transform:rotate(45deg);border-radius:3px;opacity:0;transition:opacity .3s linear}
+#plan .ms-l{position:absolute;top:50%;margin:-8px 0 0 30px;font:700 16px/1 var(--f-display);color:var(--ink);white-space:nowrap;opacity:0;transition:opacity .3s linear}
+#plan.is-in .ms.is-on,#plan.is-in .ms-l.is-on{opacity:1}
+#plan .g-info{position:absolute;left:120px;right:120px;bottom:68px;display:flex;align-items:baseline;gap:14px;font-size:19px;line-height:1.4;color:var(--body)}
+#plan .g-info b{font:800 19px/1.4 var(--f-display);color:var(--ink)}
+#plan .g-info p.is-swap{animation:infoIn .24s var(--soft-land)}
+@keyframes infoIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+#plan .g-info .ic{font-size:20px;color:var(--blue);align-self:center}
+#plan .g-key{display:flex;gap:22px;margin-left:auto;font-size:16px;color:var(--sub);white-space:nowrap}
+#plan .g-key span{display:inline-flex;align-items:center;gap:8px}
+#plan .g-key i{width:14px;height:14px;border-radius:4px;background:var(--blue);display:block}
+#plan .g-key i.c{background:var(--client)}
+#plan .g-key i.h{background:#fff;box-shadow:inset 0 0 0 2px var(--blue)}
+#plan .g-key i.m{width:12px;height:12px;border-radius:2px;background:var(--ink);transform:rotate(45deg)}
+
+/* ================================================================== 06 next */
+#next .nx-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:96px;align-items:start}
+#next .h-l{max-width:840px}
+#next .nx-steps{margin-top:40px;display:grid;gap:22px;max-width:800px}
+#next .nx-steps li{display:grid;grid-template-columns:56px minmax(0,1fr);align-items:baseline}
+#next .nx-steps b{font:800 34px/1 var(--f-display);color:var(--sky-ink);font-variant-numeric:tabular-nums}
+#next .nx-steps h3{font:800 25px/1.25 var(--f-display);color:#fff;letter-spacing:-.01em}
+#next .nx-steps p{font-size:19px;line-height:1.45;color:var(--on-dark);margin-top:4px}
+#next .qr{background:#fff;border-radius:28px;padding:30px 30px 26px;text-align:center;margin-top:8px}
+#next .qr svg{width:300px;height:300px;margin:0 auto}
+#next .qr p{font:700 19px/1.3 var(--f-display);color:var(--ink);margin-top:18px}
+#next .qr small{display:block;font:500 15px/1.4 var(--f-body);color:var(--sub);margin-top:6px;word-break:break-all}
+#next .nx-contact{margin-top:26px;text-align:center;font:600 18px/1.6 var(--f-display);color:#fff}
+#next .nx-disc{position:absolute;left:120px;right:120px;bottom:68px;font:500 16px/1.45 var(--f-body);color:var(--on-dark);max-width:1100px}
+#next .nx-contact span{display:block;font:500 17px/1.5 var(--f-body);color:var(--on-dark)}
+
+/* ------------------------------------------------------------------ reduced motion: fade only, everything lands finished */
+@media (prefers-reduced-motion:reduce){
+  .slide,.slide.is-active,.slide.is-before{transform:none!important;transition:opacity .3s linear,visibility 0s linear .3s}
+  .slide.is-active{transition:opacity .3s linear,visibility 0s}
+  [data-in],[data-step],.mx-wi,[data-fx]{transform:none!important;transition:opacity .3s linear!important;transition-delay:0s!important}
+  #apps .rec,#apps .st-ic,#apps .wire-on{transition:none}
+  #plan .g-info p.is-swap{animation:infoFade .24s linear}
+  @keyframes infoFade{from{opacity:0}to{opacity:1}}
+  #plan .bar{transition:none}
+  #method .loop-p,#method .loop-h,#heard .lg-a path{transition:none}
+  .hl{transition:background-size .01s linear 0s!important}
+}
+/* ------------------------------------------------------------------ print: every slide finished, one per page (PDF only on request) */
+@page{size:1600px 900px;margin:0}
+@media print{
+  html,body{height:auto;overflow:visible;background:#fff}
+  .deck{position:static;transform:none!important;width:auto!important;height:auto!important}
+  .stage{position:static;margin:0;transform:none!important;width:1600px;height:auto;overflow:visible;contain:none}
+  .slide{position:relative;width:1600px;height:900px;opacity:1!important;visibility:visible!important;transform:none!important;transition:none!important;break-after:page;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  [data-in],[data-step]:not([data-until]),.mx-wi{opacity:1!important;transform:none!important;transition:none!important}
+  .mx-w{clip-path:none!important}
+  *,*::before,*::after{transition:none!important;animation:none!important}
+  .slide:last-of-type{break-after:auto}
+  .hl{background-size:100% 100%!important}
+}
+</style>
+</head>
+<body>
+<main class="deck" aria-label="{{ C.name }}: presentation by TechNext"><div class="stage">
+{##- ---------------------------------------------------------- chrome macro -##}
+{% macro chrome(n, dark=False) -%}
+<header class="s-chrome" aria-hidden="true"><div class="s-brand"><img class="s-logo" src="{{ A.logo_white if dark else A.logo }}" alt="">{% if not dark %}<span class="s-x"></span>{% if C.logo_uri %}<img class="s-co" src="{{ C.logo_uri }}" alt="">{% else %}<span class="s-co-t">{{ C.short }}</span>{% endif %}{% endif %}</div><span class="s-label">{{ C.name }}</span></header>
+<footer class="s-foot" aria-hidden="true"><span>technext.asia</span><span><b>{{ '%02d' % n }}</b> / {{ '%02d' % total }}</span></footer>
+{%- endmacro %}
+
+<!-- 01 · who TechNext is -->
+<section class="slide dark" id="who" data-title="Who TechNext is" aria-roledescription="slide" aria-label="1 of {{ total }}: Who TechNext is">
+  {{ chrome(1, True) }}
+  <div class="who-grid">
+    <div>
+      <span class="kicker" data-in>{{ S.who.kicker }}</span>
+      <h1 class="h-xl" data-in style="--d:80ms">{{ S.who.title|hl }}</h1>
+      <p class="lead" data-in style="--d:180ms">{{ S.who.lead }}</p>
+      <p class="who-partner" data-in style="--d:260ms"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="m8.8 12.2 2.2 2.2 4.4-4.6"/></svg>{{ S.who.partner }} <span>· {{ S.who.teams }}</span></p>
+    </div>
+    <div class="plate" data-in data-fx="left" style="--d:220ms">
+      <p class="plate-k">Prepared for</p>
+      {% if C.logo_uri %}<div class="plate-logo"><img src="{{ C.logo_uri }}" alt="{{ C.name }}"></div>{% else %}<p class="plate-name">{{ C.name }}</p>{% endif %}
+      <dl>
+        {% for k, v in S.who.plate %}<div><dt>{{ k }}</dt><dd>{{ v }}</dd></div>{% endfor %}
+      </dl>
+    </div>
+  </div>
+  <div class="figs">
+    {% for f in S.who.figures %}<div class="fig" data-in style="--d:{{ 360 + loop.index0 * 70 }}ms"><div class="fig-n" data-count="{{ f.n }}" data-suf="{{ f.suf }}">{{ f.n }}{{ f.suf }}</div><div class="fig-l">{{ f.l }}</div></div>{% endfor %}
+  </div>
+</section>
+
+<!-- 02 · what we heard -->
+<section class="slide" id="heard" data-title="What we heard" data-steps="{{ S.heard.rows|length }}" aria-roledescription="slide" aria-label="2 of {{ total }}: What we heard">
+  {{ chrome(2) }}
+  <div class="sec-head">
+    <span class="kicker" data-in>{{ S.heard.kicker }}</span>
+    <h2 class="h-m" data-in style="--d:80ms">{{ S.heard.title|hl }}</h2>
+    <p class="lead" data-in style="--d:160ms">{{ S.heard.lead }}</p>
+  </div>
+  <div class="ledger{% if S.heard.rows|length > 2 %} compact{% elif S.heard.rows|length == 1 %} single{% endif %}" data-in style="--d:240ms">
+    <div class="lg-h c"><i></i>{{ S.heard.col_today }}</div><div class="lg-gap"></div><div class="lg-h o"><i></i>{{ S.heard.col_odoo }}</div>
+    {% for r in S.heard.rows %}
+    <div class="lg-row">
+      <div class="lg-t"><span class="lg-n">{{ '%02d' % loop.index }}</span><p class="lg-q">{{ r.today }}</p><p class="lg-p">{{ r.today_line }}</p></div>
+      <div class="lg-a" data-arrow="{{ loop.index }}"><svg viewBox="0 0 72 24" aria-hidden="true"><path pathLength="1" d="M2 12h64m-9-8 9 8-9 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="lg-o">
+        <div class="lg-slot" data-step="0" data-until="{{ loop.index0 }}" data-fx="fade" aria-hidden="true">Press <kbd><svg class="ic" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></kbd> to see how Odoo answers it</div>
+        <div class="lg-ans" data-step="{{ loop.index }}"><img src="{{ r.icon }}" alt=""><div><p class="lg-app">{{ r.app }}</p><p>{{ r.odoo_line }}</p></div></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- 03 · the Odoo apps -->
+<section class="slide" id="apps" data-title="The Odoo apps for {{ C.short }}" data-steps="{{ S.apps.n - 1 }}" aria-roledescription="slide" aria-label="3 of {{ total }}: The Odoo apps">
+  {{ chrome(3) }}
+  <div class="sec-head">
+    <span class="kicker" data-in>{{ S.apps.kicker }}</span>
+    <h2 class="h-m" data-in style="--d:80ms">{{ S.apps.title|hl }}</h2>
+    <p class="lead" data-in style="--d:160ms">{{ S.apps.lead }}</p>
+  </div>
+  <div class="flow{% if S.apps.n >= 5 %} many{% elif S.apps.n == 1 %} one{% endif %}" data-in style="--d:240ms">
+    <div class="rec" aria-hidden="true"><p class="rec-k" data-r="doc">{{ S.apps.flow[0].doc }}</p><p class="rec-id" data-r="id">{{ S.apps.flow[0].record }}</p><span class="rec-s"><svg class="ic" viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"/></svg><span data-r="status">{{ S.apps.flow[0].status }}</span></span><i class="rec-tail"></i></div>
+    <div class="wire" aria-hidden="true"><svg preserveAspectRatio="none"><line x1="{{ S.apps.half }}" y1="2" x2="{{ S.apps.wire_end }}" y2="2"/></svg><i class="wire-on" style="left:{{ S.apps.half }}px;width:{{ S.apps.wire_end - S.apps.half }}px"></i></div>
+    <div class="rail" role="group" aria-label="The record moves through the apps">
+      {% for a in S.apps.flow %}<button class="st" type="button" data-k="{{ loop.index0 }}" aria-label="{{ a.app }}: {{ a.desc }} Creates {{ a.doc|lower }} {{ a.record }}."><span class="st-ic"><img src="{{ a.icon }}" alt=""></span><span class="st-n">{{ a.app }}</span><span class="st-d">{{ a.desc }}</span><span class="st-r">creates <b>{{ a.record }}</b></span></button>{% endfor %}
+    </div>
+  </div>
+  <p class="sr-only" aria-live="polite" data-live></p>
+  <div class="meta"><span class="users"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.4"/><path d="M15.6 14.2c2.4.1 4.2 1.7 4.7 4.8"/></svg>{{ S.apps.users_tag }}</span>{% if S.apps.also %}<span class="also">{{ S.apps.also }}</span>{% endif %}<span>{{ S.apps.licence }}</span></div>
+  <p class="illus"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>Illustrative · sample records</p>
+</section>
+
+<!-- 04 · NextSprint -->
+<section class="slide" id="method" data-title="NextSprint: how we work" aria-roledescription="slide" aria-label="4 of {{ total }}: NextSprint">
+  {{ chrome(4) }}
+  <div class="sec-head">
+    <span class="kicker" data-in>{{ S.method.kicker }}</span>
+    <h2 class="h-m" data-in style="--d:80ms">{{ S.method.title|hl }}</h2>
+    <p class="lead" data-in style="--d:160ms">{{ S.method.lead }}</p>
+  </div>
+  {##- the method cascades in its own order: each discipline, then its steps (no presses needed) -##}
+  <div class="ns">
+    <div class="disc">
+      {% for g in S.method.groups %}<div class="dg" style="grid-column:span {{ g.span }};--d:{{ 300 + loop.index0 * 300 }}ms" data-in><div class="dg-b"></div><p class="dg-n">{{ g.name }}<i>.</i></p><p class="dg-p">{{ g.line }}</p></div>{% endfor %}
+    </div>
+    <ol class="steps" aria-label="The seven NextSprint steps">
+      <li class="loop" aria-hidden="true"><svg viewBox="0 0 174 24"><path class="loop-p" pathLength="1" d="M164 22C148 1 26 1 10 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path class="loop-h" d="M2 13.5 10 21l7.5-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
+      {% for st in S.method.steps %}<li class="sp{% if st.by != 'tn' %} cl{% endif %}" data-in data-fx="left" style="--d:{{ 340 + (st.g - 1) * 300 + st.k * 60 }}ms"><span class="dot" aria-hidden="true">{{ loop.index }}</span><div><span class="who">{{ st.who }}</span><h3>{{ st.b }}</h3><p>{{ st.p }}</p><em>{{ st.em }}</em></div></li>{% endfor %}
+    </ol>
+  </div>
+  <div class="legend" data-in style="--d:300ms"><span><i></i>TechNext delivers</span><span><i class="c"></i>{{ C.short }} decides and tests</span><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-4"/></svg>{{ S.method.loop_line }}</span></div>
+</section>
+
+<!-- 05 · phases and timeline -->
+<section class="slide" id="plan" data-title="Phases and timeline" aria-roledescription="slide" aria-label="5 of {{ total }}: Phases and timeline">
+  {{ chrome(5) }}
+  <div class="sec-row">
+    <div class="sec-head">
+      <span class="kicker" data-in>{{ S.plan.kicker }}</span>
+      <h2 class="h-m" data-in style="--d:80ms">{{ S.plan.title|hl }}</h2>
+      <p class="lead" data-in style="--d:160ms">{{ S.plan.lead }}</p>
+    </div>
+    <span class="tag" data-in style="--d:220ms">{{ S.plan.tag }}</span>
+  </div>
+  <div class="gantt" data-in style="--d:240ms">
+    <div class="g-head"><div>Phase</div><div class="g-cols">{% for w in range(1, S.plan.weeks + 1) %}<div>W{{ w }}</div>{% endfor %}<div class="af">After go-live</div></div></div>
+    {% for r in S.plan.rows %}
+    <div class="g-row"><div class="g-l"><b>{{ r.label }}</b><small>{{ r.sub }}</small></div>
+      <div class="g-t">
+        {% if r.sprints %}<button class="bar sp" type="button" style="left:{{ r.l }}%;width:{{ r.w }}%" data-g="{{ loop.index0 }}" aria-pressed="false" aria-label="{{ r.label }}, {{ r.when }}">{% for s in r.sprints %}<span>{{ s }}</span>{% endfor %}</button>
+        {% else %}<button class="bar{% if r.kind %} {{ r.kind }}{% endif %}" type="button" style="left:{{ r.l }}%;width:{{ r.w }}%" data-g="{{ loop.index0 }}" aria-pressed="false" aria-label="{{ r.label }}, {{ r.when }}">{{ r.text }}</button>{% endif %}
+        {% if r.ms %}<i class="ms" style="left:{{ r.ms.l }}%" aria-hidden="true"></i><span class="ms-l" style="left:{{ r.ms.l }}%" aria-hidden="true">{{ r.ms.label }}</span>{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="g-info" aria-live="polite"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><p><b data-gi="t">{{ S.plan.rule_t }}</b> <span data-gi="d">{{ S.plan.rule_d }}</span></p>
+    <span class="g-key" aria-hidden="true"><span><i></i>TechNext</span><span><i class="c"></i>{{ C.short }}</span><span><i class="h"></i>Hypercare</span><span><i class="m"></i>Milestone</span></span></div>
+</section>
+
+<!-- 06 · next step -->
+<section class="slide dark" id="next" data-title="Next step" aria-roledescription="slide" aria-label="6 of {{ total }}: Next step">
+  {{ chrome(6, True) }}
+  <div class="nx-grid">
+    <div>
+      <span class="kicker" data-in>{{ S.next.kicker }}</span>
+      <h2 class="h-l" data-in style="--d:80ms">{{ S.next.title|hl }}</h2>
+      <p class="lead" data-in style="--d:180ms">{{ S.next.lead }}</p>
+      <ol class="nx-steps">
+        {% for s in S.next.steps %}<li data-in style="--d:{{ 280 + loop.index0 * 80 }}ms"><b>{{ loop.index }}</b><div><h3>{{ s.h }}</h3><p>{{ s.p }}</p></div></li>{% endfor %}
+      </ol>
+    </div>
+    <div>
+      <div class="qr" data-in data-fx="land" style="--d:300ms">{{ A.qr_svg }}<p>{{ S.next.qr_line }}</p><small>{{ S.next.qr_url_text }}</small></div>
+      <p class="nx-contact" data-in style="--d:420ms">{{ S.next.email }}<span>{{ S.next.site }}</span></p>
+    </div>
+  </div>
+  {% if S.next.get('disclaimer') %}<p class="nx-disc" data-in style="--d:520ms">{{ S.next.disclaimer }}</p>{% endif %}
+</section>
+
+</div></main>
+<p class="sr-only" aria-live="polite" id="deck-live"></p>
+<script type="application/json" id="deck-data">{{ J|tojson }}</script>
+{% raw %}
+<script>
+/* NextCore presentation engine: a 1600 x 900 stage scaled to the screen; arrows, click/tap and swipe; a phone held
+   upright turns the deck 90 degrees. Nothing else: no extra views, menus or toolbars. */
+(function () {
+  'use strict';
+  var W = 1600, H = 900;
+  var root = document.querySelector('.deck'), stage = root.querySelector('.stage');
+  var slides = [].slice.call(stage.querySelectorAll('.slide')), total = slides.length;
+  var reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var cur = -1, step = 0, ctx = null, hooks = {}, rotated = false, rotW = 0, scale = 1;
+  var live = document.getElementById('deck-live');
+  function $$(s, r) { return [].slice.call((r || document).querySelectorAll(s)); }
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  function isPhone() { return !!(window.matchMedia && matchMedia('(pointer: coarse)').matches) && Math.min(screen.width, screen.height) <= 600; }
+  var E = {
+    out: function (t) { return 1 - Math.pow(1 - t, 3); },
+    softLand: function (t) { return t <= 0 ? 0 : t >= 1 ? 1 : (1 - Math.exp(-3.41 * t)) / (1 - Math.exp(-3.41)); },
+    lin: function (t) { return t; }
+  };
+
+  /* one visit to a slide: every timer, listener and frame made through it stops when the slide closes */
+  function Ctx() { this.alive = true; this._t = []; this._l = []; this._r = []; }
+  Ctx.prototype.after = function (ms, fn) { var me = this, id = setTimeout(function () { if (me.alive) fn(); }, reduce ? Math.min(ms, 60) : ms); this._t.push(id); return id; };
+  Ctx.prototype.on = function (el, ev, fn) { el.addEventListener(ev, fn); this._l.push([el, ev, fn]); };
+  Ctx.prototype.frame = function (fn) {
+    var me = this, t0 = performance.now(), rec = { id: 0 };
+    function f(now) { if (!me.alive) return; if (fn(now - t0) !== false) rec.id = requestAnimationFrame(f); }
+    rec.id = requestAnimationFrame(f); this._r.push(rec);
+  };
+  Ctx.prototype.tween = function (dur, fn, ease) {
+    var me = this, ez = E[ease || 'softLand'] || E.out; dur = reduce ? Math.min(dur, 120) : dur;
+    return new Promise(function (res) { me.frame(function (t) { var p = clamp(t / dur, 0, 1); fn(ez(p), p); if (p >= 1) { res(); return false; } }); });
+  };
+  Ctx.prototype.kill = function () {
+    this.alive = false;
+    this._t.forEach(clearTimeout);
+    this._l.forEach(function (x) { x[0].removeEventListener(x[1], x[2]); });
+    this._r.forEach(function (r) { cancelAnimationFrame(r.id); });
+  };
+
+  /* fit: scale the stage whole; a phone held upright turns the deck sideways */
+  function fit() {
+    var vw = innerWidth, vh = innerHeight;
+    rotated = vh > vw && isPhone();
+    root.classList.toggle('is-rotated', rotated);
+    if (rotated) { rotW = vw; root.style.left = vw + 'px'; root.style.width = vh + 'px'; root.style.height = vw + 'px'; var t = vw; vw = vh; vh = t; }
+    else { root.style.left = root.style.width = root.style.height = ''; }
+    scale = Math.min(vw / W, vh / H);
+    root.style.setProperty('--s', scale);
+  }
+  function point(t) { return rotated ? { x: t.clientY, y: rotW - t.clientX } : { x: t.clientX, y: t.clientY }; }
+
+  /* builds */
+  function stepsOf(i) {
+    var s = slides[i];
+    if (s._n == null) { var m = +s.dataset.steps || 0; $$('[data-step]', s).forEach(function (e) { m = Math.max(m, +e.dataset.step || 0); }); s._n = m; }
+    return s._n;
+  }
+  function paint(s, n) {
+    $$('[data-step]', s).forEach(function (e) {
+      var a = +e.dataset.step, u = e.dataset.until != null ? +e.dataset.until : Infinity;
+      e.classList.toggle('is-shown', n >= a && n <= u);
+    });
+  }
+  function settle(s) { var h = hooks[s.id]; if (h && h.settle) try { h.settle(s); } catch (e) { console.error(e); } }
+
+  /* navigation */
+  function go(i, s) {
+    i = clamp(i | 0, 0, total - 1);
+    var n = stepsOf(i);
+    s = s == null ? 0 : s < 0 ? n : clamp(s, 0, n);
+    if (i === cur) { setStep(s); return; }
+    if (cur >= 0) {
+      var ps = slides[cur], h0 = hooks[ps.id];
+      ps.classList.remove('is-active');
+      if (ctx) ctx.kill();
+      if (h0 && h0.leave) try { h0.leave(ps); } catch (e) { console.error(e); }
+      setTimeout(function () { if (slides[cur] !== ps) ps.classList.remove('is-in'); }, 260);
+    }
+    cur = i; step = s;
+    slides.forEach(function (sl, k) { sl.classList.toggle('is-before', k < i); sl.setAttribute('aria-hidden', k === i ? 'false' : 'true'); });
+    var sl = slides[i]; paint(sl, s); sl.classList.add('is-active');
+    var c = ctx = new Ctx();
+    requestAnimationFrame(function () { requestAnimationFrame(function () { if (c.alive) sl.classList.add('is-in'); }); });
+    var h = hooks[sl.id];
+    if (h && h.enter) try { h.enter(c, sl); } catch (e) { console.error(e); }
+    if (h && h.step) try { h.step(s, c, sl, true); } catch (e) { console.error(e); }
+    if (live) live.textContent = 'Slide ' + (i + 1) + ' of ' + total + ': ' + (sl.dataset.title || '');
+    try { history.replaceState(null, '', '#' + (i + 1)); } catch (e) {}
+  }
+  function setStep(s) {
+    var sl = slides[cur]; s = clamp(s, 0, stepsOf(cur));
+    if (s === step) return;
+    step = s; paint(sl, s);
+    var h = hooks[sl.id]; if (h && h.step) try { h.step(s, ctx, sl, false); } catch (e) { console.error(e); }
+  }
+  function next() { if (step < stepsOf(cur)) setStep(step + 1); else if (cur < total - 1) go(cur + 1, 0); }
+  function prev() { if (step > 0) setStep(step - 1); else if (cur > 0) go(cur - 1, -1); }
+
+  /* keys: arrows, Page Up/Down (clickers), Space, Home, End */
+  addEventListener('keydown', function (e) {
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
+    var onCtl = e.target.closest && e.target.closest('.slide button');
+    switch (e.key) {
+      case 'ArrowRight': case 'ArrowDown': case 'PageDown': next(); break;
+      case ' ': case 'Enter': if (onCtl) return; if (e.shiftKey) prev(); else next(); break;
+      case 'ArrowLeft': case 'ArrowUp': case 'PageUp': case 'Backspace': prev(); break;
+      case 'Home': go(0, 0); break;
+      case 'End': go(total - 1, -1); break;
+      default: return;
+    }
+    e.preventDefault();
+  });
+  /* click or tap on the slide moves on; a click on a control does its own job */
+  stage.addEventListener('click', function (e) {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.target.closest('a,button,[data-i]')) return;
+    var sel = window.getSelection && getSelection(); if (sel && String(sel).length) return;
+    next();
+  });
+  stage.addEventListener('pointerup', function (e) {
+    if (e.pointerType !== 'mouse') return;
+    var b = e.target.closest('button'); if (b) setTimeout(function () { if (document.activeElement === b) b.blur(); }, 0);
+  });
+  /* swipe sideways to change slides (works while the deck is turned for a phone) */
+  var tx = 0, ty = 0, tOk = false;
+  stage.addEventListener('touchstart', function (e) { tOk = e.touches.length === 1; if (tOk) { var p = point(e.touches[0]); tx = p.x; ty = p.y; } }, { passive: true });
+  stage.addEventListener('touchend', function (e) {
+    if (!tOk) return;
+    var p = point(e.changedTouches[0]), dx = p.x - tx, dy = p.y - ty;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.3) { if (dx < 0) next(); else prev(); }
+  }, { passive: true });
+  addEventListener('resize', fit);
+  addEventListener('orientationchange', function () { setTimeout(fit, 250); });
+  addEventListener('hashchange', function () { var n = parseInt(location.hash.slice(1), 10); if (n && n - 1 !== cur) go(n - 1, 0); });
+  /* print never plays a slide: every slide is painted finished */
+  addEventListener('beforeprint', function () { slides.forEach(function (s, i) { paint(s, stepsOf(i)); s.classList.add('is-in'); settle(s); }); });
+
+  /* headlines: split into masked words that rise at speech rhythm; the marker draws after the last word */
+  var GAP = { 'h-xl': 105, 'h-l': 85, 'h-m': 75 };
+  $$('.slide .h-xl[data-in], .slide .h-l[data-in], .slide .h-m[data-in]').forEach(function (h) {
+    var n = 0, gap = GAP[(h.className.match(/h-(xl|l|m)\b/) || ['h-m'])[0]] || 75;
+    if (!h.getAttribute('aria-label')) h.setAttribute('aria-label', h.textContent.replace(/\s+/g, ' ').trim());
+    (function walk(node) {
+      [].slice.call(node.childNodes).forEach(function (c) {
+        if (c.nodeType === 1) { walk(c); return; }
+        if (c.nodeType !== 3 || !c.nodeValue.trim()) return;
+        var frag = document.createDocumentFragment();
+        c.nodeValue.split(/(\s+)/).forEach(function (w) {
+          if (!w) return;
+          if (/^\s+$/.test(w)) { frag.appendChild(document.createTextNode(' ')); return; }
+          var o = document.createElement('span'), i = document.createElement('span');
+          o.className = 'mx-w'; o.setAttribute('aria-hidden', 'true'); i.className = 'mx-wi'; i.textContent = w; i.style.setProperty('--wi', n++);
+          o.appendChild(i); frag.appendChild(o);
+        });
+        node.replaceChild(frag, c);
+      });
+    })(h);
+    var d = parseFloat(h.style.getPropertyValue('--d')) || 0;
+    h.style.setProperty('--wg', gap + 'ms'); h.classList.add('mx-words');
+    $$('.hl', h).forEach(function (hl) { hl.style.setProperty('--hd', Math.round(d * .85 + n * gap + 260) + 'ms'); });
+  });
+
+  window.Deck = { on: function (id, h) { hooks[id] = h; }, go: go, next: next, prev: prev, E: E,
+    get index() { return cur; }, get step() { return step; }, slides: slides, reduce: reduce };
+
+  /* ================================================================ slide scripts */
+  var DATA = JSON.parse(document.getElementById('deck-data').textContent);
+
+  /* 01: the approved figures count up */
+  function figsFinal(s) { $$('[data-count]', s).forEach(function (el) { el.textContent = el.dataset.count + el.dataset.suf; }); }
+  Deck.on('who', {
+    enter: function (c, s) {
+      $$('[data-count]', s).forEach(function (el, k) {
+        var to = +el.dataset.count, suf = el.dataset.suf; el.textContent = '0' + suf;
+        c.after(420 + k * 70, function () { c.tween(1300, function (p) { el.textContent = Math.round(to * p) + suf; }, 'softLand'); });
+      });
+    },
+    leave: figsFinal, settle: figsFinal
+  });
+
+  /* 02: each press shows how Odoo answers one pain point */
+  function heardPaint(s, n) { $$('[data-arrow]', s).forEach(function (a) { a.classList.toggle('is-on', +a.dataset.arrow <= n); }); }
+  Deck.on('heard', {
+    step: function (n, c, s) { heardPaint(s, n); },
+    settle: function (s) { heardPaint(s, 99); }
+  });
+
+  /* 03: one sample record rides from app to app; → or a click moves it */
+  var appsCtx = null;
+  function appsPaint(s, n, animate) {
+    var flow = DATA.apps, st = $$('.st', s), rec = s.querySelector('.rec'), rail = s.querySelector('.rail'), on = s.querySelector('.wire-on');
+    n = clamp(n, 0, st.length - 1);
+    var b = st[n], cx = b.offsetLeft + b.offsetWidth / 2, rw = rec.offsetWidth, fw = rail.offsetWidth;
+    var x = clamp(cx - rw / 2, 0, fw - rw);
+    rec.style.setProperty('--rx', x + 'px');
+    rec.querySelector('.rec-tail').style.left = (cx - x) + 'px';
+    var c0 = st[0].offsetLeft + st[0].offsetWidth / 2, c1 = st[st.length - 1].offsetLeft + st[st.length - 1].offsetWidth / 2;
+    on.style.setProperty('--wp', c1 > c0 ? (cx - c0) / (c1 - c0) : 0);
+    st.forEach(function (e, k) { e.classList.toggle('is-on', k <= n); e.classList.toggle('is-cur', k === n); if (k === n) e.setAttribute('aria-current', 'step'); else e.removeAttribute('aria-current'); });
+    var f = flow[n], set = function () {
+      rec.querySelector('[data-r=doc]').textContent = f.doc; rec.querySelector('[data-r=id]').textContent = f.record; rec.querySelector('[data-r=status]').textContent = f.status;
+    };
+    if (animate && !reduce) { rec.classList.remove('is-swap'); void rec.offsetWidth; set(); rec.classList.add('is-swap'); } else set();
+    var lv = s.querySelector('[data-live]'); if (lv && animate) lv.textContent = f.app + ': ' + f.doc + ' ' + f.record + ', ' + f.status + '.';
+  }
+  Deck.on('apps', {
+    enter: function (c, s) { appsCtx = c; c.on(s.querySelector('.rail'), 'click', function (e) { var b = e.target.closest('.st'); if (b) Deck.go(Deck.index, +b.dataset.k); }); },
+    step: function (n, c, s, first) { appsPaint(s, n, !first); },
+    settle: function (s) { appsPaint(s, s.querySelectorAll('.st').length - 1, false); }
+  });
+
+  /* 05: the phase bars wipe in, in order; a click on a bar tells what happens in it */
+  function planInfo(s, k) {
+    var r = k == null ? null : DATA.plan[k];
+    s.querySelector('[data-gi=t]').textContent = r ? r.label + ' · ' + r.when : DATA.plan_rule.t;
+    s.querySelector('[data-gi=d]').textContent = r ? r.detail : DATA.plan_rule.d;
+    var gp = s.querySelector('.g-info p'); gp.classList.remove('is-swap'); void gp.offsetWidth; gp.classList.add('is-swap');
+    $$('.bar', s).forEach(function (b) { b.setAttribute('aria-pressed', r && +b.dataset.g === k ? 'true' : 'false'); });
+  }
+  function planAll(s) { $$('.bar,.ms,.ms-l', s).forEach(function (b) { b.classList.add('is-on'); }); }
+  Deck.on('plan', {
+    enter: function (c, s) {
+      planInfo(s, null);
+      $$('.bar,.ms,.ms-l', s).forEach(function (b) { b.classList.remove('is-on'); });
+      $$('.g-row', s).forEach(function (row, k) { c.after(520 + k * 160, function () { $$('.bar,.ms,.ms-l', row).forEach(function (b) { b.classList.add('is-on'); }); }); });
+      c.on(s, 'click', function (e) { var b = e.target.closest('.bar'); if (!b) return; var k = +b.dataset.g; planInfo(s, b.getAttribute('aria-pressed') === 'true' ? null : k); });
+    },
+    leave: planAll,
+    settle: function (s) { planAll(s); planInfo(s, null); }
+  });
+
+  /* start */
+  fit();
+  var n0 = parseInt(location.hash.slice(1), 10);
+  go(n0 > 0 ? n0 - 1 : 0, 0);
+})();
+</script>
+{% endraw %}
+</body>
+</html>

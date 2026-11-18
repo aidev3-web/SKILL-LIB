@@ -1,0 +1,12 @@
+{
+  "_sample": "Fictional sample client for testing NextCore. Not a real company; every figure is sample data.",
+  "client": "Northgate Trading Corp.",
+  "short_name": "Northgate",
+  "industry": "Wholesale distribution",
+  "city": "Pasig City, PH",
+  "contact": "Finance Manager",
+  "pain_points": ["Excel books", "stock counts"],
+  "odoo_apps": ["Accounting", "Inventory", "Sales"],
+  "users": 12,
+  "brand": {"logo": "logo.svg", "colour": "#0F6B5C"}
+}
